@@ -596,7 +596,7 @@ async function boot() {
   if (!tag && !id) {
     document.getElementById('cowBody').innerHTML =
       `<div class="notfound"><h2>Таг заагаагүй байна</h2>
-       <p>NFC таг уншуулах эсвэл хаяганд ?tag=YT-008000 нэмнэ үү.</p></div>`;
+       <p>GeoNFC таг уншуулах эсвэл хаяганд ?tag=YT-008000 нэмнэ үү.</p></div>`;
     return;
   }
   const gpsReady = requestGps();
