@@ -1,0 +1,18 @@
+{
+  "id": "/app/?app=horse",
+  "name": "YAK-TAG Адуу",
+  "short_name": "Адуу",
+  "description": "Адуу: бүртгэл, сүрэг, хулгайгаас хамгаалалт, BLE таг — сүлжээгүй үед ч ажиллана.",
+  "lang": "mn",
+  "start_url": "/app/?app=horse#horse",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFDF8",
+  "theme_color": "#4A2C16",
+  "icons": [
+    { "src": "/assets/horse-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/horse-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/horse-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

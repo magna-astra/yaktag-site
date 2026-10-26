@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<!-- Never shown inside another site's frame (click-jacking guard;
+     GitHub Pages cannot send an X-Frame-Options header). -->
+<style id="yt-noframe">html{display:none}</style>
+<script>if (window.self === window.top) document.getElementById('yt-noframe').remove(); else window.top.location = window.self.location.href;</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>YAK-TAG</title>
+<link rel="icon" href="assets/favicon.ico">
+<link rel="apple-touch-icon" href="assets/logo-180.png">
+<meta name="theme-color" content="#0B1729">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fonts load without holding up the page: with bars but no data a
+     blocking stylesheet kept the scripts (and the scan) waiting. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<style>
+:root{
+  --ink:#0E1929; --ink-soft:#5A6880; --line:#E3E7ED; --bg:#F5F6F9; --card:#fff;
+  --khukh:#1B4FA8; --steppe:#2C7A45;
+  --alert:#B3341F; --gold:#B8892C;
+  --body:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;
+  line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh;
+  display:flex;flex-direction:column}
+.top{background:var(--ink);color:#fff;padding:15px 0}
+.top .in{max-width:460px;margin:0 auto;padding:0 18px;display:flex;align-items:center;gap:9px}
+.top img{width:24px;height:24px;filter:invert(1)}
+.top b{font-size:.85rem;letter-spacing:.06em;font-weight:800}
+
+main{flex:1;max-width:460px;width:100%;margin:0 auto;padding:22px 18px 34px}
+
+.photo{width:100%;aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:#E4E8ED;
+  display:grid;place-items:center;margin-bottom:20px}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo .none{display:flex;flex-direction:column;align-items:center;gap:10px;color:#9AA6B8}
+.photo .none img{width:58px;height:58px;object-fit:contain;opacity:.4}
+.photo .none span{font-size:.84rem}
+
+.idblock{text-align:center;margin-bottom:22px}
+.idlabel{font-size:.72rem;font-weight:700;letter-spacing:.13em;color:var(--ink-soft);
+  text-transform:uppercase}
+.idcode{font-family:var(--mono);font-size:2.4rem;font-weight:700;letter-spacing:-.02em;
+  margin-top:5px;line-height:1.1}
+
+.lost{background:var(--alert);color:#fff;padding:14px 16px;border-radius:14px;
+  margin-bottom:18px;display:flex;gap:11px;align-items:center;font-weight:600;font-size:.92rem}
+.lost span{font-size:1.2rem;line-height:1}
+
+.call{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  padding:19px;background:var(--steppe);color:#fff;border:0;border-radius:15px;
+  font-weight:700;font-size:1.08rem;text-decoration:none;font-family:inherit;cursor:pointer}
+.call.isLost{background:var(--alert)}
+.call:disabled{background:#DCE1E8;color:#8C99AB;cursor:default}
+
+.locrow{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:16px;
+  padding:13px;background:var(--card);border:1px solid var(--line);border-radius:13px;
+  font-size:.88rem}
+.tick{width:19px;height:19px;border-radius:50%;background:var(--steppe);color:#fff;
+  display:grid;place-items:center;font-size:.66rem;font-weight:700;flex:0 0 auto;
+  animation:pop .3s cubic-bezier(.2,1.3,.4,1)}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.spin{width:15px;height:15px;border:2px solid #D9DEE6;border-top-color:var(--khukh);
+  border-radius:50%;animation:sp .7s linear infinite;flex:0 0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.verified{color:var(--steppe);font-weight:700}
+.pending{color:var(--ink-soft)}
+.failed{color:var(--gold);font-weight:600}
+.queued{color:var(--khukh);font-weight:600;text-align:center}
+.offbar{background:#F0F2F5;color:var(--ink-soft);padding:9px 12px;border-radius:10px;
+  font-size:.82rem;font-weight:600;text-align:center;margin-bottom:12px}
+
+.login{display:block;text-align:center;margin-top:22px;padding:15px;
+  background:var(--card);border:1px solid var(--line);border-radius:13px;
+  color:var(--khukh);font-weight:700;text-decoration:none;font-size:.95rem}
+
+.notfound{text-align:center;padding:56px 18px;color:var(--ink-soft)}
+.notfound h2{color:var(--ink);font-size:1.15rem;margin-bottom:8px}
+.notfound p{font-size:.9rem;line-height:1.6}
+.skel{text-align:center;padding:56px;color:var(--ink-soft);font-size:.9rem}
+.foot{text-align:center;font-size:.75rem;color:var(--ink-soft);padding:0 18px 26px}
+
+/* ================= Website style A ("Тал нутаг") ================= */
+:root{--bg:#F6F1E6;--ink:#14243B;--ink-soft:#5B6779;--line:#E9E2D3;--khukh:#2E7D46}
+.top{background:linear-gradient(135deg,#23633A 0%,#2E7D46 60%,#3E9A58 100%)}
+.photo{border-radius:22px;box-shadow:0 14px 34px rgba(20,36,59,.12)}
+.locrow,.login{border-radius:16px}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="in">
+  <img src="assets/logo-64.png" alt=""><b>YAK-TAG</b>
+</div></div>
+
+<main id="main"><div class="skel">Ачаалж байна…</div></main>
+<div class="foot" id="foot">YAK-TAG · Мал бүрт цахим үнэмлэх</div>
+
+<script src="config.js?v=2026102601"></script>
+<script src="offline.js?v=20261026"></script>
+<script>
+let scanId = null;
+
+function getTag(){
+  const p = new URLSearchParams(location.search);
+  return p.get('tag') || p.get('slug') || p.get('uid');
+}
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function boot(){
+  const tag = getTag();
+  if(!tag){
+    document.getElementById('main').innerHTML =
+      '<div class="notfound"><h2>Таг заагаагүй</h2><p>NFC таг руу утсаа ойртуулна уу.</p></div>';
+    return;
+  }
+
+  let data = null, error = null;
+  try { ({ data, error } = await sb.rpc('public_tag_lookup', { p_tag_code: tag })); }
+  catch (e) { error = e; }
+
+  // No signal: show the last copy this phone saw of this tag (photo
+  // may not load, but the call button works on voice without data),
+  // and still save the scan to the offline queue.
+  if (error && isOffline(error)) {
+    const cached = readCache(tag);
+    if (cached) { render(cached, true); }
+    else {
+      document.getElementById('main').innerHTML =
+        `<div class="notfound"><h2>Сүлжээ байхгүй</h2>
+         <p>Таг <b>${esc(tag)}</b> уншигдлаа. Байршил утсанд хадгалагдаж,
+         сүлжээ орохоор автоматаар илгээгдэнэ.</p>
+         <div class="locrow" id="locRow"><span class="spin"></span>
+         <span class="pending">Байршил тогтоож байна…</span></div></div>`;
+    }
+    logScan(tag);
+    return;
+  }
+
+  // !tag_code: older versions of public_tag_lookup returned an all-null
+  // row for unknown tags (fixed in schema_v22) — treat it as not found.
+  if(error || !data || !data.length || !data[0].tag_code){
+    // A produced tag with no animal yet: offer registration. The herder
+    // must sign in on the next page; the farm comes from the tag.
+    let state = null;
+    if(!error){
+      try { ({ data: state } = await sb.rpc('public_tag_state', { p_tag_code: tag })); }
+      catch (e) {}                       // before schema_v25: just "not found"
+    }
+    // Paused by the admin (schema v49): say so, and whom to call. Nothing
+    // is saved for a paused tag, so no scan is logged either.
+    if(state === 'paused'){
+      try { localStorage.removeItem('yt-tag:' + tag); } catch (e) {}
+      let phone = '';
+      try {
+        const { data: s } = await sb.from('site_settings').select('phone').eq('id', 1).maybeSingle();
+        phone = (s && s.phone) || '';
+      } catch (e) {}
+      document.getElementById('main').innerHTML =
+        `<div class="notfound"><h2>⏸ Түр зогсоогдсон</h2>
+         <p>Энэ таг түр зогсоогдсон. Админд хандана уу.</p>
+         <p>Таг <b>${esc(tag)}</b></p></div>`
+        + (phone ? `<a class="call" href="tel:${esc(phone.replace(/[^0-9+]/g, ''))}">📞 Админ: ${esc(phone)}</a>` : '');
+      return;
+    }
+    if(state === 'new'){
+      document.getElementById('main').innerHTML =
+        `<div class="notfound"><h2>Шинэ таг</h2>
+         <p>Таг <b>${esc(tag)}</b> дээр мал бүртгэгдээгүй байна.<br>
+         Малчин нэвтэрч бүртгэнэ.</p></div>
+         <a class="call" href="cow.html?tag=${encodeURIComponent(tag)}">Мал бүртгэх</a>`;
+      return;
+    }
+    document.getElementById('main').innerHTML =
+      `<div class="notfound"><h2>Бүртгэл олдсонгүй</h2>
+       <p>Таг <b>${esc(tag)}</b> системд бүртгэлгүй байна.</p></div>`;
+    return;
+  }
+
+  writeCache(tag, data[0]);
+  render(data[0]);
+  logScan(tag);
+}
+
+function isOffline(error){
+  if (!navigator.onLine) return true;
+  return /fetch|network|load failed|timeout|abort/i.test(String(error && (error.message || error)));
+}
+// Last lookup per tag, so a tap with no signal still shows something.
+// Holds only what this page already displayed.
+function readCache(tag){
+  try { return JSON.parse(localStorage.getItem('yt-tag:' + tag)); } catch (e) { return null; }
+}
+function writeCache(tag, row){
+  try { localStorage.setItem('yt-tag:' + tag, JSON.stringify(row)); } catch (e) {}
+}
+
+function render(c, offline){
+  // The public photo sits in a separate PUBLIC bucket. The private
+  // cattle-photos bucket holds muzzle prints and evidence and is
+  // never reachable from this page.
+  let photoUrl = null;
+  if(c.photo_path){
+    const { data } = sb.storage.from('cattle-public').getPublicUrl(c.photo_path);
+    photoUrl = data && data.publicUrl;
+  }
+
+  // If the pointer exists but the file fails to load, fall back visibly
+  // rather than showing a broken image icon.
+  const photo = photoUrl
+    ? `<div class="photo"><img src="${photoUrl}" alt="${esc(c.tag_code)}"
+         onerror="this.parentNode.innerHTML='<div class=&quot;none&quot;><img src=&quot;assets/logo-256.png&quot; alt=&quot;&quot;><span>Зураг ачаалагдсангүй</span></div>'"></div>`
+    : `<div class="photo"><div class="none">
+         <img src="assets/logo-256.png" alt=""><span>Зураг бүртгэгдээгүй</span></div></div>`;
+
+  const lostBar = c.is_lost
+    ? `<div class="lost"><span>⚠</span>Энэ мал алга болсон гэж мэдэгдсэн</div>` : '';
+
+  // The number is never printed on the page — the button dials it.
+  const call = c.has_phone
+    ? `<a class="call ${c.is_lost ? 'isLost' : ''}" href="tel:${esc(c.phone).replace(/\s/g,'')}">
+         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.1" stroke-linecap="round">
+           <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>
+         </svg>Эзэмшигч рүү залгах
+       </a>`
+    : `<button class="call" disabled>Утасны дугаар бүртгэгдээгүй</button>`;
+
+  document.getElementById('main').innerHTML = `
+    ${offline ? '<div class="offbar">Сүлжээгүй — энэ утсанд сүүлд хадгалсан мэдээлэл</div>' : ''}
+    ${lostBar}
+    ${photo}
+    <div class="idblock">
+      <div class="idlabel">Малын дугаар</div>
+      <div class="idcode">${esc(c.tag_code)}</div>
+    </div>
+    ${call}
+    <div class="locrow" id="locRow">
+      <span class="spin"></span><span class="pending">Байршил тогтоож байна…</span>
+    </div>
+    <a class="login" href="cow.html?tag=${encodeURIComponent(c.tag_code)}">Эзэмшигч бол нэвтрэх</a>
+  `;
+  // Only now is it true; a new or unknown tag keeps the neutral footer.
+  const foot = document.getElementById('foot');
+  if (foot) foot.textContent = 'Энэ мал YAK-TAG системд бүртгэлтэй.';
+}
+
+// The tick appears only once the server has accepted the scan.
+// Showing it on the browser's GPS alone would claim a record that
+// may not actually exist.
+function setLoc(state){
+  const el = document.getElementById('locRow');
+  if(!el) return;
+  if(state === 'ok'){
+    el.innerHTML = `<span class="tick">✓</span><span class="verified">Байршил бүртгэгдлээ</span>`;
+  }else if(state === 'denied'){
+    el.innerHTML = `<span class="failed">Байршил тогтоогдсонгүй</span>`;
+  }else if(state === 'received'){
+    el.innerHTML = `<span class="pending">Уншуулалт хүлээн авлаа</span>`;
+  }else if(state === 'queued'){
+    // Saved on the phone, not yet on the server — say exactly that.
+    el.innerHTML = `<span class="queued">Сүлжээгүй — утсанд хадгалагдлаа, сүлжээ орохоор илгээгдэнэ</span>`;
+  }else{
+    el.innerHTML = `<span class="pending">Байршил бүртгэх боломжгүй</span>`;
+  }
+}
+
+// The scan goes through the offline queue (offline.js): stored on the
+// phone first, sent now if there is signal, otherwise later. The time
+// is taken at the tap, not when GPS or the network answers.
+function logScan(tag){
+  const scannedAt = new Date().toISOString();
+  const send = async (lat,lng,acc) => {
+    const r = await ytQueue.add('public_scan', {
+      tag_code: tag, lat, lng, accuracy: acc,
+      user_agent: navigator.userAgent.slice(0,200),
+      client_uuid: ytUuid(), scanned_at: scannedAt
+    });
+    scanId = r.result;
+    if(r.queued){ setLoc('queued'); return; }
+    if(!r.sent){ setLoc('unavailable'); return; }
+    // No id back = the server's rate limit set it aside. Don't show a
+    // tick for a position that was not stored.
+    if(!r.result){ setLoc('received'); return; }
+    setLoc(lat != null ? 'ok' : 'denied');
+  };
+  // Exactly one scan per tap. The GPS timeout below does not count time
+  // spent on the permission prompt, so if the finder never answers it
+  // (or the browser shows a quiet prompt) neither callback runs — the
+  // fallback timer then saves the scan without a position, so a lost
+  // animal's owner still gets the alert.
+  let done = false;
+  const once = (lat,lng,acc) => { if(done) return; done = true; send(lat,lng,acc); };
+  if(!navigator.geolocation){ setLoc('unavailable'); once(null,null,null); return; }
+  setTimeout(() => once(null,null,null), navigator.onLine ? 25000 : 40000);
+  navigator.geolocation.getCurrentPosition(
+    pos => once(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+    ()  => once(null,null,null),
+    // GPS works without mobile data, but a cold fix takes longer offline.
+    { enableHighAccuracy:true, timeout: navigator.onLine ? 12000 : 25000, maximumAge:30000 }
+  );
+}
+
+boot();
+</script>
+</body>
+</html>

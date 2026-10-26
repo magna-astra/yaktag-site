@@ -1,0 +1,2533 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<!-- Never shown inside another site's frame (click-jacking guard;
+     GitHub Pages cannot send an X-Frame-Options header). -->
+<style id="yt-noframe">html{display:none}</style>
+<script>if (window.self === window.top) document.getElementById('yt-noframe').remove(); else window.top.location = window.self.location.href;</script>
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>YAK-TAG — Малын бүртгэл</title>
+<link rel="icon" href="assets/favicon.ico">
+<link rel="apple-touch-icon" href="assets/logo-180.png">
+<meta name="theme-color" content="#0E1929">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fonts load without holding up the page: with bars but no data a
+     blocking stylesheet kept the scripts (and the scan) waiting. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<style>
+:root{
+  --ink:#0E1929;
+  --ink-soft:#5A6880;
+  --line:#E3E7ED;
+  --bg:#F5F6F9;
+  --card:#FFFFFF;
+  --khukh:#1B4FA8;
+  --khukh-light:#EAF0FB;
+  --gold:#B8892C;
+  --gold-light:#FBF3E2;
+  --gold-d:#8A6519;
+  --steppe:#2C7A45;
+  --steppe-light:#E7F4EC;
+  --alert:#B3341F;
+  --alert-light:#FCEAE7;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-bottom:40px;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit;font-size:16px}
+
+/* ---------- LOGIN ---------- */
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px;
+  background:linear-gradient(170deg,#0E1929,#16283F)}
+.login-card{background:var(--card);border-radius:18px;padding:36px 30px;width:100%;max-width:400px;
+  box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.login-logo{width:68px;height:68px;display:block;margin:0 auto 18px}
+.login-card h1{font-size:1.2rem;font-weight:700;text-align:center}
+.login-card .sub{text-align:center;color:var(--ink-soft);font-size:.87rem;margin:6px 0 24px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:.82rem;font-weight:600;margin-bottom:6px;color:var(--ink-soft)}
+.field input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:11px}
+.field input:focus{outline:none;border-color:var(--khukh);box-shadow:0 0 0 3px var(--khukh-light)}
+.btn-primary{width:100%;padding:14px;background:var(--khukh);color:#fff;border:0;border-radius:11px;
+  font-weight:600;font-size:1rem}
+.btn-primary:disabled{opacity:.55}
+.btn-ghost{background:#F0F2F5;color:var(--ink);margin-top:8px}
+.tgok{background:var(--steppe-light);color:var(--steppe);padding:12px 14px;border-radius:11px;font-weight:700}
+.tglink{display:block;text-align:center;text-decoration:none;margin-top:14px}
+.tgsteps{margin:10px 0 0 20px;font-size:.88rem;line-height:1.75}
+.err{background:var(--alert-light);color:var(--alert);padding:10px 13px;border-radius:9px;
+  font-size:.85rem;margin-bottom:15px;display:none}
+
+/* ---------- APP ---------- */
+.app{display:none;max-width:560px;margin:0 auto;padding:0 16px}
+
+header.cowhead{background:var(--ink);color:#fff;margin:0 -16px 18px;padding:18px 20px 22px;
+  border-radius:0 0 20px 20px}
+.cowhead .row1{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.cowhead img{width:28px;height:28px;filter:invert(1)}
+.cowhead .brand{font-weight:700;font-size:.9rem;letter-spacing:.04em}
+.cowhead .out{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:5px 11px;border-radius:8px;font-size:.78rem}
+.tagbig{font-family:var(--mono);font-size:2rem;font-weight:700;letter-spacing:-.01em}
+.cowmeta{color:#9FB0C6;font-size:.88rem;margin-top:4px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.card h2{font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2 .dot{width:7px;height:7px;border-radius:50%;background:var(--khukh);flex:0 0 auto}
+
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F0F2F5;font-size:.9rem}
+.kv:last-child{border-bottom:0}
+.kv span:first-child{color:var(--ink-soft)}
+.kv span:last-child{font-weight:600;text-align:right}
+.kv .mono{font-family:var(--mono);font-size:.85rem}
+
+/* milk entry */
+.milk-entry{display:flex;gap:10px;align-items:stretch}
+.milk-entry input{flex:1;padding:15px;border:2px solid var(--line);border-radius:12px;
+  font-family:var(--mono);font-size:1.5rem;font-weight:700;text-align:center}
+.milk-entry input:focus{outline:none;border-color:var(--khukh)}
+.milk-entry button{padding:0 24px;background:var(--steppe);color:#fff;border:0;border-radius:12px;
+  font-weight:700;font-size:1rem;white-space:nowrap}
+.milk-entry button:disabled{opacity:.5}
+.milk-done{background:var(--steppe-light);color:var(--steppe);padding:13px;border-radius:11px;
+  font-weight:600;text-align:center;font-size:.92rem}
+.hint{font-size:.8rem;color:var(--ink-soft);margin-top:9px}
+
+/* photo */
+.photo-btn{width:100%;padding:20px;background:var(--khukh);color:#fff;border:0;border-radius:13px;
+  font-weight:700;font-size:1.05rem;display:flex;align-items:center;justify-content:center;gap:10px}
+.photo-btn:disabled{opacity:.55}
+.photo-btn.locked{background:#EEF0F4;color:var(--ink-soft)}
+.kind-pick{display:flex;gap:8px;margin-bottom:13px}
+.kind-pick button{flex:1;padding:11px 6px;border:1.5px solid var(--line);background:#fff;
+  border-radius:10px;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
+.kind-pick button.on{border-color:var(--khukh);background:var(--khukh-light);color:var(--khukh)}
+#preview{width:100%;border-radius:12px;margin-top:13px;display:none}
+.gps-note{display:flex;align-items:center;gap:8px;font-size:.83rem;color:var(--ink-soft);
+  margin-top:12px;padding:11px;background:#F7F8FA;border-radius:10px}
+.gps-note.ok{background:var(--steppe-light);color:var(--steppe)}
+.gps-note.bad{background:var(--gold-light);color:var(--gold)}
+
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.photo-grid figure{position:relative}
+.photo-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px;background:#EEF0F4}
+.photo-grid figcaption{font-size:.7rem;color:var(--ink-soft);margin-top:4px;text-align:center}
+.lockicon{position:absolute;top:5px;right:5px;background:rgba(14,25,41,.82);color:#fff;
+  font-size:.62rem;padding:2px 6px;border-radius:5px;font-weight:600}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--ink);color:#fff;
+  padding:13px 22px;border-radius:11px;font-size:.9rem;font-weight:500;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;z-index:50;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+.toast.bad{background:var(--alert)}
+
+.feed-btn{width:100%;margin-top:12px;padding:14px;background:var(--gold-light);color:var(--gold);
+  border:1.5px solid #EBD9B0;border-radius:12px;font-weight:700;font-size:.95rem}
+.feed-btn:disabled{opacity:.5}
+
+/* lost / stolen */
+.lostbar{background:var(--alert-light);color:var(--alert);border:1.5px solid var(--alert);
+  border-radius:14px;padding:15px 16px;margin-bottom:14px;font-size:.9rem}
+.lostbar b{display:block;font-size:1rem}
+.lostbar p{color:var(--ink);font-size:.82rem;margin-top:6px}
+.found-btn{width:100%;margin-top:12px;padding:13px;background:var(--steppe);color:#fff;border:0;
+  border-radius:12px;font-weight:700;font-size:.95rem}
+.lost-btn{width:100%;padding:13px;background:#fff;color:var(--alert);border:1.5px solid var(--alert);
+  border-radius:12px;font-weight:700;font-size:.95rem}
+.found-btn:disabled,.lost-btn:disabled{opacity:.5}
+
+.milk-tabs{display:flex;gap:8px;margin-bottom:14px}
+.milk-tabs button{flex:1;padding:9px 6px;border:1.5px solid var(--line);background:#fff;
+  border-radius:9px;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
+.milk-tabs button.on{border-color:var(--khukh);background:var(--khukh-light);color:var(--khukh)}
+.milk-chart{min-height:120px}
+.bars{display:flex;align-items:flex-end;gap:5px;height:120px;margin-bottom:8px}
+.bars div{flex:1;background:var(--khukh);border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.bars div.zero{background:#E8EBF0}
+.barlabels{display:flex;gap:5px;font-size:.65rem;color:var(--ink-soft);text-align:center}
+.barlabels span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.milk-total{display:flex;justify-content:space-between;padding-top:12px;margin-top:12px;
+  border-top:1px solid #F0F2F5;font-size:.9rem}
+.milk-total b{font-family:var(--mono)}
+
+.phone-entry{display:flex;gap:10px}
+.phone-entry input{flex:1;padding:14px;border:2px solid var(--line);border-radius:12px;
+  font-family:var(--mono);font-size:1.15rem;font-weight:600;text-align:center}
+.phone-entry input:focus{outline:none;border-color:var(--khukh)}
+.phone-entry button{padding:0 20px;background:var(--khukh);color:#fff;border:0;
+  border-radius:12px;font-weight:700;white-space:nowrap}
+.phone-entry button:disabled{opacity:.5}
+.phone-locked{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--steppe-light);color:var(--steppe);padding:15px;border-radius:12px;
+  font-weight:700}
+.phone-locked .num{font-family:var(--mono);font-size:1.1rem}
+.lockbtn{width:100%;margin-top:10px;padding:12px;background:#fff;color:var(--ink-soft);
+  border:1.5px solid var(--line);border-radius:11px;font-weight:600;font-size:.88rem}
+.delphoto{width:100%;margin-top:4px;padding:4px;background:#fff;color:#B3341F;
+  border:1px solid #F0D4CE;border-radius:7px;font-size:.64rem;font-weight:700;cursor:pointer}
+.delphoto:hover{background:#FCEAE7}
+.pubtag,.privtag{display:block;margin-top:5px;padding:4px;border-radius:7px;
+  font-size:.64rem;font-weight:700;text-align:center}
+.pubtag{background:var(--steppe-light);color:var(--steppe)}
+.privtag{background:#F0F2F5;color:var(--ink-soft)}
+.kbtag{font-family:var(--mono);font-size:.62rem;color:var(--ink-soft)}
+.notfound{text-align:center;padding:60px 20px;color:var(--ink-soft)}
+.pwover{position:fixed;inset:0;background:rgba(14,25,41,.55);display:none;place-items:center;
+  padding:16px;z-index:900}
+.pwover.on{display:grid}
+.pwover .card{width:100%;max-width:400px;margin:0}
+.offbar{background:#F0F2F5;color:var(--ink-soft);padding:11px 14px;border-radius:12px;
+  font-size:.84rem;font-weight:600;line-height:1.5;margin:14px 16px 0}
+.notfound h2{color:var(--ink);margin-bottom:8px}
+
+/* ================= Website style A ("Тал нутаг") =================
+   Same colours as the public website: steppe-green accents, warm sand
+   background, green header with white text (readable in sunlight). */
+:root{--bg:#F6F1E6;--ink:#14243B;--ink-soft:#5B6779;--line:#E9E2D3;
+  --khukh:#2E7D46;--khukh-light:#E7F2E6}
+.login-wrap{background:radial-gradient(600px 340px at 80% 0%,rgba(242,179,61,.2),transparent 60%),linear-gradient(#FFFDF8,var(--bg))}
+.login-card{border:1px solid var(--line);border-radius:24px;box-shadow:0 24px 60px rgba(20,36,59,.12)}
+header.cowhead{background:linear-gradient(135deg,#23633A 0%,#2E7D46 60%,#3E9A58 100%);box-shadow:0 10px 26px rgba(35,99,58,.22)}
+/* opened from the horse app (YAK-TAG Адуу): its brown, not the cattle green */
+html.horse-app{--khukh:#7A4A22;--khukh-light:#F4EADF}
+html.horse-app header.cowhead{background:linear-gradient(135deg,#3E2412 0%,#5C3A1E 60%,#7A4E2A 100%);box-shadow:0 10px 26px rgba(74,44,22,.25)}
+.cowmeta{color:rgba(255,255,255,.82)}
+.cowhead .out{border-color:rgba(255,255,255,.45)}
+.card{border-radius:18px;box-shadow:0 8px 22px rgba(20,36,59,.05)}
+.btn-primary:hover{background:#23633A}
+/* inputs in a row with a button must be allowed to shrink on phones
+   (they kept their natural width and pushed the button off the card) */
+.milk-entry input,.phone-entry input{min-width:0;width:0}
+.milk-entry button,.phone-entry button{flex:0 0 auto}
+@media(max-width:360px){.cowhead .brand{display:none}.cowhead .out{padding:5px 9px}}
+.homelink{display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none}
+.backsite{display:block;text-align:center;margin-top:16px;color:var(--ink-soft);font-size:.86rem;text-decoration:none}
+.sitefoot{display:block;text-align:center;margin:26px 0 6px;color:var(--ink-soft);font-size:.86rem;text-decoration:none}
+/* phone header on ONE line (2026-10-10): at 390 px the logo, "YAK-TAG" and
+   three buttons needed ~361 px of 350, so "Нууц үг" and the brand wrapped */
+.cowhead .row1{gap:6px}
+.cowhead .brand,.cowhead .out{white-space:nowrap}
+.cowhead .out{flex:none}
+.cowhead .row1 .out + .out{margin-left:0 !important}
+@media(max-width:430px){.cowhead .out{padding:5px 9px}.cowhead .homelink{gap:8px}}
+@media(max-width:370px){.cowhead .brand{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div class="login-wrap" id="loginView">
+  <div class="login-card">
+    <img src="assets/logo-256.png" alt="YAK-TAG" class="login-logo">
+    <h1>YAK-TAG</h1>
+    <p class="sub">Малын бүртгэл рүү нэвтрэх</p>
+    <div class="err" id="loginErr"></div>
+    <div class="field">
+      <label for="email">Утасны дугаар</label>
+      <input type="tel" id="email" autocomplete="username" inputmode="tel" placeholder="9911 2233">
+    </div>
+    <div class="field">
+      <label for="password">Нууц үг</label>
+      <input type="password" id="password" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="loginBtn">Нэвтрэх</button>
+    <a class="backsite forgot" href="app/?reset=1">Нууц үгээ мартсан уу? (Telegram-аар код)</a>
+    <a class="backsite" href="app/">📲 Малчны апп суулгах</a>
+    <a class="backsite" href="index.html">← Вэб сайт руу буцах</a>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app" id="appView">
+  <header class="cowhead">
+    <div class="row1">
+      <a href="index.html" class="homelink" title="Вэб сайт руу"><img src="assets/logo-64.png" alt=""><span class="brand">YAK-TAG</span></a>
+      <button class="out" id="myPwBtn" style="margin-left:auto">Нууц үг</button>
+      <button class="out" id="tgBtn" style="margin-left:8px;display:none">Telegram</button>
+      <button class="out" id="signoutBtn" style="margin-left:8px">Гарах</button>
+    </div>
+    <div class="tagbig" id="tagBig">—</div>
+    <div class="cowmeta" id="cowMeta">Ачаалж байна…</div>
+    <div class="cowmeta" id="queueNote" style="display:none;margin-top:6px"></div>
+  </header>
+
+  <div id="cowBody"></div>
+  <a class="sitefoot" href="index.html">← YAK-TAG вэб сайт руу буцах</a>
+</div>
+
+<!-- Change own password. Forgot it? The admin sets a new one. -->
+<div class="pwover" id="tgModal">
+  <div class="card">
+    <h2><span class="dot"></span>Telegram мэдэгдэл</h2>
+    <div id="tgBody"></div>
+    <button class="btn-primary btn-ghost" id="tgClose">Хаах</button>
+  </div>
+</div>
+
+<div class="pwover" id="myPwModal">
+  <div class="card">
+    <h2><span class="dot"></span>Нууц үг солих</h2>
+    <p class="hint" style="margin:0 0 14px">Одоогийн нууц үгээ мартсан бол админд хандана уу.</p>
+    <div class="field"><label for="mpOld">Одоогийн нууц үг</label>
+      <input type="password" id="mpOld" autocomplete="current-password"></div>
+    <div class="field"><label for="mpNew">Шинэ нууц үг (8+ тэмдэгт)</label>
+      <input type="password" id="mpNew" autocomplete="new-password"></div>
+    <div class="field"><label for="mpNew2">Дахин оруулах</label>
+      <input type="password" id="mpNew2" autocomplete="new-password"></div>
+    <div class="err" id="mpErr"></div>
+    <button class="btn-primary" id="mpSave">Солих</button>
+    <button class="btn-primary" id="mpCancel"
+            style="margin-top:8px;background:#F0F2F5;color:var(--ink)">Болих</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
+
+<script src="config.js?v=2026102601"></script>
+<script src="offline.js?v=20261026"></script>
+<script>
+let cow = null;
+let myProf = null;          // role / farm of the signed-in user
+let isSuper = false;
+let gps = null;
+let photoKind = 'profile';
+
+// ---------- helpers ----------
+function toast(msg, bad=false) {
+  const t = document.getElementById('toast');
+  t.textContent = mnError(msg);
+  t.className = 'toast show' + (bad ? ' bad' : '');
+  setTimeout(() => t.className = 'toast', 2600);
+}
+
+// Anything typed by a user (names, breed, phone) or returned as an
+// error goes through this before it touches innerHTML.
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+function getTagFromUrl() {
+  const p = new URLSearchParams(location.search);
+  return p.get('tag') || p.get('slug') || p.get('uid');
+}
+// ?id=… opens an animal with no tag (a horse: schema_v55); ?new=horse registers one
+function getIdFromUrl() {
+  const v = new URLSearchParams(location.search).get('id') || '';
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) ? v : null;
+}
+const cowCacheKey = c => 'yt-cow:' + (c.tag_code || 'id:' + c.id);
+const isHorse = () => !!cow && (cow.species || cowExtra.species) === 'horse';
+// after a save: open the same animal again, by tag or by id
+function reloadCow() { return loadCow(cow.tag_code || { id: cow.id }); }
+
+// ---------- inside the herder app (app/) ----------
+// Opened from the installed app (no browser bar — an iPhone has no back
+// button there) or from the app's animal list: the logo and the bottom
+// link lead back to "Миний мал" instead of the website.
+const inHerderApp = (() => {
+  try {
+    return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true ||
+           ['1', 'horse'].includes(sessionStorage.getItem('yt-from-app'));
+  } catch (e) { return false; }
+})();
+// the app's two sections: back to "Миний мал" (cows) or "Миний адуу"
+// (#horse). Set now from where the app opened us, again once the animal
+// is known (renderCow).
+// opened from the horse app: back to it, in its brown
+const fromHorseApp = (() => { try { return sessionStorage.getItem('yt-horse-app') === '1'; } catch (e) { return false; } })();
+if (fromHorseApp) {
+  document.documentElement.classList.add('horse-app');
+  const tc = document.querySelector('meta[name="theme-color"]');
+  if (tc) tc.content = '#4A2C16';
+}
+function appBackLinks(horse) {
+  if (!inHerderApp) return;
+  const to = fromHorseApp ? HORSE_APP_URL : horse ? 'app/#horse' : 'app/', name = horse || fromHorseApp ? 'Миний адуу' : 'Миний мал';
+  const home = document.querySelector('a.homelink');
+  if (home) {
+    home.href = to; home.title = name; home.setAttribute('aria-label', name);
+    if (!home.dataset.arrow) {
+      home.dataset.arrow = '1';
+      home.insertAdjacentHTML('afterbegin', '<span aria-hidden="true" style="font-size:1.4rem;line-height:1;margin-right:-2px">‹</span>');
+    }
+  }
+  const foot = document.querySelector('a.sitefoot');
+  if (foot) { foot.href = to; foot.textContent = '← ' + name; }
+  document.querySelectorAll('a.backsite:not(.forgot)').forEach(a => {
+    if (/^app\//.test(a.getAttribute('href')) && !a.dataset.back) a.remove();   // already in the app
+    else { a.href = to; a.textContent = '← ' + name; a.dataset.back = '1'; }
+  });
+}
+// ?kind=horse / cattle: a new tag opened from that section of the app
+const PAGE_KIND = ['horse', 'cattle'].includes(new URLSearchParams(location.search).get('kind'))
+  ? new URLSearchParams(location.search).get('kind') : null;
+try {
+  appBackLinks(sessionStorage.getItem('yt-from-app') === 'horse' || PAGE_KIND === 'horse' ||
+               new URLSearchParams(location.search).get('new') === 'horse');
+} catch (e) { appBackLinks(false); }
+
+// ---------- login ----------
+const loginBtn = document.getElementById('loginBtn');
+async function doLogin() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const e = document.getElementById('loginErr');
+  // Logins are phone numbers only.
+  const bad = loginPhoneError(email) || (password ? null : 'Нууц үгээ оруулна уу.');
+  if (bad) {
+    e.textContent = bad;
+    e.style.display = 'block';
+    return;
+  }
+  loginBtn.disabled = true; loginBtn.textContent = 'Нэвтэрч байна…';
+  const { error } = await sb.auth.signInWithPassword({ email: loginEmail(email), password });
+  loginBtn.disabled = false; loginBtn.textContent = 'Нэвтрэх';
+  if (error) {
+    // No signal is not a wrong password.
+    e.textContent = (isOffline(error) || error.name === 'AuthRetryableFetchError')
+      ? 'Сүлжээ муу байна. Дахин оролдоно уу.'
+      : 'Утасны дугаар эсвэл нууц үг буруу байна.';
+    e.style.display = 'block';
+    return;
+  }
+  boot();
+}
+loginBtn.addEventListener('click', doLogin);
+document.getElementById('password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+// ---------- Telegram alerts (schema_v38) ----------
+// The button appears only once the bot is set up. Linking: a one-time
+// link opens Telegram, the user presses Start, the page notices.
+let tgPoll = null;
+async function tgInit() {
+  try {
+    const { data, error } = await sb.rpc('telegram_status');
+    if (!error && data && data.configured) document.getElementById('tgBtn').style.display = '';
+  } catch (e) {}
+}
+async function renderTelegram() {
+  const box = document.getElementById('tgBody');
+  clearInterval(tgPoll);
+  const { data: st, error } = await sb.rpc('telegram_status');
+  if (error) { box.innerHTML = `<div class="err" style="display:block">${esc(mnError(error.message))}</div>`; return; }
+  if (st.linked) {
+    box.innerHTML = `<div class="tgok">✓ Холбогдсон${st.tg_name ? ': ' + esc(st.tg_name) : ''}</div>
+      <p class="hint">Алга болсон гэж мэдэгдсэн мал тань уншуулагдвал хэзээ, хаана уншуулсныг энэ Telegram-д шууд мэдэгдэнэ.</p>
+      <button class="btn-primary" id="tgTest" style="margin-top:14px">Туршилт илгээх</button>
+      <button class="btn-primary btn-ghost" id="tgUnlink" style="color:var(--alert)">Салгах</button>`;
+    document.getElementById('tgTest').onclick = async () => {
+      const { error } = await sb.rpc('telegram_test');
+      toast(error ? error.message : 'Илгээлээ — Telegram-аа шалгана уу', !!error);
+    };
+    document.getElementById('tgUnlink').onclick = async () => {
+      if (!confirm('Telegram мэдэгдлийг салгах уу?')) return;
+      const { error } = await sb.rpc('telegram_unlink');
+      if (error) { toast(error.message, true); return; }
+      toast('Салгалаа'); renderTelegram();
+    };
+    return;
+  }
+  const { data: lk, error: e2 } = await sb.rpc('telegram_link_code');
+  if (e2) { box.innerHTML = `<div class="err" style="display:block">${esc(mnError(e2.message))}</div>`; return; }
+  box.innerHTML = `<p class="hint" style="margin-top:0">Алга болсон гэж мэдэгдсэн мал тань уншуулагдвал хэзээ, хаана уншуулсныг Telegram-аар шууд мэдэгдэнэ. Үнэгүй.</p>
+    <ol class="tgsteps"><li>Доорх товчийг дарна — Telegram нээгдэнэ.</li>
+      <li><b>Start</b> (Эхлэх) товчийг дарна.</li><li>"✅ Холбогдлоо" гэсэн мессеж ирнэ.</li></ol>
+    <a class="btn-primary tglink" href="${esc(lk.url)}" target="_blank" rel="noopener">Telegram холбох</a>
+    <p class="hint">Холбоос 30 минут хүчинтэй. Холбогдмогц энэ цонх өөрөө шинэчлэгдэнэ.</p>`;
+  let n = 0;
+  tgPoll = setInterval(async () => {
+    if (!document.getElementById('tgModal').classList.contains('on') || ++n > 60) { clearInterval(tgPoll); return; }
+    try { const { data } = await sb.rpc('telegram_status'); if (data && data.linked) { clearInterval(tgPoll); renderTelegram(); } } catch (e) {}
+  }, 4000);
+}
+document.getElementById('tgBtn').addEventListener('click', () => {
+  document.getElementById('tgBody').innerHTML = '<p class="hint">Ачаалж байна…</p>';
+  document.getElementById('tgModal').classList.add('on');
+  renderTelegram();
+});
+document.getElementById('tgClose').addEventListener('click', () => {
+  clearInterval(tgPoll);
+  document.getElementById('tgModal').classList.remove('on');
+});
+
+// ---------- change own password ----------
+// Proves the current password first (a fresh sign-in), then sets the
+// new one. No codes, no email: a forgotten password is reset by the admin.
+document.getElementById('myPwBtn').addEventListener('click', () => {
+  ['mpOld', 'mpNew', 'mpNew2'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('mpErr').style.display = 'none';
+  document.getElementById('myPwModal').classList.add('on');
+});
+document.getElementById('mpCancel').addEventListener('click', () =>
+  document.getElementById('myPwModal').classList.remove('on'));
+document.getElementById('mpSave').addEventListener('click', async () => {
+  const err = document.getElementById('mpErr');
+  const show = m => { err.textContent = m; err.style.display = 'block'; };
+  const oldPw = document.getElementById('mpOld').value;
+  const p1 = document.getElementById('mpNew').value, p2 = document.getElementById('mpNew2').value;
+  if (p1.length < 8) return show('Шинэ нууц үг хамгийн багадаа 8 тэмдэгт байх ёстой.');
+  if (p1 !== p2) return show('Шинэ нууц үг таарахгүй байна.');
+  if (!navigator.onLine) return show('Сүлжээ шаардлагатай.');
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return show('Дахин нэвтэрнэ үү.');
+  const { error: e1 } = await sb.auth.signInWithPassword({ email: session.user.email, password: oldPw });
+  if (e1) return show('Одоогийн нууц үг буруу байна.');
+  const { error: e2 } = await sb.auth.updateUser({ password: p1 });
+  if (e2) return show('Сольж чадсангүй: ' + e2.message);
+  document.getElementById('myPwModal').classList.remove('on');
+  toast('Нууц үг солигдлоо');
+});
+
+document.getElementById('signoutBtn').addEventListener('click', async () => {
+  // Entries waiting on this phone are sent with this login. After
+  // signing out they can no longer be sent.
+  let waiting = 0;
+  try { waiting = await ytQueue.count(); } catch (e) {}
+  if (waiting && !confirm(`${waiting} бүртгэл илгээгдээгүй байна. Сүлжээ ороход автоматаар илгээгдэнэ.\n\nОдоо гарвал эдгээр бүртгэл устна. Гарах уу?`)) return;
+  // the login and everything of this person's on the phone (config.js)
+  await ytSignOut();
+  location.reload();
+});
+
+// ---------- GPS ----------
+// Resolves once the phone has answered (fix or refusal), so the scan
+// can wait for a position instead of being logged without one.
+function requestGps() {
+  return new Promise(resolve => {
+    if (!navigator.geolocation) { updateGpsNote(); resolve(); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        gps = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        };
+        updateGpsNote();
+        resolve();
+      },
+      () => { updateGpsNote(); resolve(); },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  });
+}
+
+function updateGpsNote() {
+  const el = document.getElementById('gpsNote');
+  if (!el) return;
+  if (gps) {
+    el.className = 'gps-note ok';
+    el.textContent = `Байршил тогтоогдсон · ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)} (±${Math.round(gps.accuracy)}м)`;
+  } else {
+    el.className = 'gps-note bad';
+    el.textContent = 'Байршил тогтоогдоогүй — утасныхаа байршлын зөвшөөрлийг асаана уу.';
+  }
+}
+
+// ---------- boot ----------
+// The moment this page opened = when the tag was tapped. Used as the
+// scan time even if GPS or the network answers much later.
+const openedAt = new Date().toISOString();
+let offlineMode = false;
+
+function isOffline(error) {
+  if (!navigator.onLine) return true;
+  return /fetch|network|load failed|timeout|abort/i.test(String(error && (error.message || error)));
+}
+// Last good copy of each animal and of who is signed in, on this phone
+// only, so the page still opens (and the scan is still saved) with no
+// signal. Holds only what this page already showed its owner.
+function cacheGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+function cacheSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+async function boot() {
+  let session = null, sErr = null;
+  try { ({ data: { session }, error: sErr } = await sb.auth.getSession()); } catch (e) { sErr = e; }
+
+  // No signal and the login token needs refreshing: getSession() gives
+  // nothing. Open from the saved copy if this phone has one — the
+  // queued scan is sent with a fresh token once the network is back.
+  // "No signal" includes bars-but-no-data, where the phone says it is
+  // online but the token refresh failed on the network.
+  const noNet = !navigator.onLine || (sErr && (isOffline(sErr) || sErr.name === 'AuthRetryableFetchError'));
+  if (!session && noNet && cacheGet('yt-uid')) {
+    offlineMode = true;
+  } else if (!session) {
+    document.getElementById('loginView').style.display = 'grid';
+    document.getElementById('appView').style.display = 'none';
+    return;
+  }
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('appView').style.display = 'block';
+
+  if (session) cacheSet('yt-uid', session.user.id);
+
+  // Role decides whether destructive actions appear. The database
+  // enforces it independently — this only hides what would fail anyway.
+  let prof = null;
+  if (!offlineMode) { try { prof = await myProfile(); } catch (e) {} }
+  isSuper = !!(prof && prof.role === 'super_admin');
+  myProf = prof || (offlineMode ? cacheGet('yt-prof') : null);
+  if (prof) cacheSet('yt-prof', prof);
+  if (myProf) horsesForRole(myProf.role);      // the super admin: horses on (config.js)
+  watchQueue();
+  if (!offlineMode) tgInit();
+
+  const tag = getTagFromUrl();
+  const id = tag ? null : getIdFromUrl();
+  if (!tag && new URLSearchParams(location.search).get('new') === 'horse') {
+    if (!horsesOn) {                         // horses hidden until launch (config.js)
+      document.getElementById('cowBody').innerHTML = '<div class="notfound"><h2>Тун удахгүй</h2></div>';
+      return;
+    }
+    requestGps();
+    renderRegistration(null, null);          // a horse with no YAK-TAG tag
+    return;
+  }
+  if (!tag && !id) {
+    document.getElementById('cowBody').innerHTML =
+      `<div class="notfound"><h2>Таг заагаагүй байна</h2>
+       <p>NFC таг уншуулах эсвэл хаяганд ?tag=YT-008000 нэмнэ үү.</p></div>`;
+    return;
+  }
+  const gpsReady = requestGps();
+  await loadCow(tag || { id });
+  if (!cow) return;
+  if (!tag) return;          // opened from a list by id: no tag was read, so no scan is logged
+
+  // One scan per page open, logged after GPS answers. The timeout
+  // covers a permission prompt the herder never taps — without it
+  // the scan would never be recorded at all.
+  // Offline, a cold GPS fix takes longer (no network assistance).
+  const wait = navigator.onLine ? 20000 : 35000;
+  await Promise.race([gpsReady, new Promise(r => setTimeout(r, wait))]);
+  logScan();
+}
+
+// key: the tag code, or { id } for an animal with no tag
+async function loadCow(key) {
+  const byId = key && typeof key === 'object' ? key.id : null;
+  const tag = byId ? null : key;
+  const ck = byId ? 'yt-cow:id:' + byId : 'yt-cow:' + tag;
+  let data = null, error = null;
+  const pausedP = (offlineMode || byId) ? Promise.resolve(false) : pausedCheck(tag);
+  if (!offlineMode) {
+    try {
+      ({ data, error } = await sb
+        .from('cattle_dashboard')
+        .select('*')
+        .eq(byId ? 'id' : 'tag_code', byId || tag)
+        .maybeSingle());
+    } catch (e) { error = e; }
+  }
+
+  if (offlineMode || (error && isOffline(error))) {
+    const saved = cacheGet(ck);
+    if (saved) {
+      cow = saved;
+      renderCow();
+      document.getElementById('cowBody').insertAdjacentHTML('afterbegin',
+        `<div class="offbar">Сүлжээ байхгүй — энэ утсанд сүүлд хадгалсан мэдээлэл.
+         Уншуулалт утсанд хадгалагдаж, сүлжээ орохоор илгээгдэнэ.
+         Сүү, хээл, төлийн бүртгэлийг оруулж болно — сүлжээ орохоор илгээгдэнэ.
+         Зураг, тэжээл сүлжээтэй үед л.</div>`);
+      return;
+    }
+    document.getElementById('tagBig').textContent = tag || '—';
+    document.getElementById('cowMeta').textContent = 'Сүлжээ байхгүй';
+    document.getElementById('cowBody').innerHTML =
+      `<div class="notfound"><h2>Сүлжээ байхгүй</h2>
+       <p>Энэ мал энэ утсанд хадгалагдаагүй байна. Сүлжээтэй газар нэг удаа
+       нээвэл дараа нь сүлжээгүй үед ч нээгдэнэ.</p></div>`;
+    return;
+  }
+
+  // No animal on this tag (or none this user may see). If it is a new
+  // tag of the user's farm, offer registration instead of "not found".
+  if (!error && !data && tag) {
+    let info = null;
+    try {
+      const r = await sb.rpc('tag_registration_info', { p_tag_code: tag });
+      if (!r.error && r.data && r.data.length) info = r.data[0];
+    } catch (e) {}                             // before schema_v25: old message
+    if (info) { renderRegistration(tag, info); return; }
+  }
+
+  if (error || !data) {
+    document.getElementById('tagBig').textContent = tag || '—';
+    document.getElementById('cowMeta').textContent = 'Олдсонгүй';
+    document.getElementById('cowBody').innerHTML =
+      `<div class="notfound"><h2>Мал олдсонгүй</h2>
+       <p>${tag ? 'Энэ таг таны фермд бүртгэлгүй байна.' : 'Энэ мал олдсонгүй эсвэл танд харагдахгүй байна.'}</p></div>`;
+    return;
+  }
+  // Paused by the admin (schema v49): the herder sees why and whom to
+  // call; nothing can be added. The super admin still sees the animal.
+  const paused = await pausedP;
+  if (paused && !isSuper) {
+    try { localStorage.removeItem(ck); } catch (e) {}
+    renderPaused(tag);
+    return;                                  // cow stays null: no scan is logged
+  }
+  cow = data;
+  cacheSet(ck, data);
+  renderCow();
+  loadPhotos();
+  if (paused) document.getElementById('cowBody').insertAdjacentHTML('afterbegin',
+    `<div class="offbar">⏸ Энэ таг түр зогсоогдсон — малчин шинэ мэдээлэл нэмэх боломжгүй.
+     Админы самбар → Тагууд → "▶ Идэвхжүүлэх".</div>`);
+  // The scan itself is logged once, from boot(). loadCow() is also
+  // used to refresh after every save and must not add fake encounters.
+}
+
+// ---------- paused tag (schema v49) ----------
+async function pausedCheck(tag) {
+  try {
+    const { data } = await sb.rpc('public_tag_state', { p_tag_code: tag });
+    return data === 'paused';
+  } catch (e) { return false; }
+}
+async function renderPaused(tag) {
+  let phone = '';
+  try {
+    const { data } = await sb.from('site_settings').select('phone').eq('id', 1).maybeSingle();
+    phone = (data && data.phone) || '';
+  } catch (e) {}
+  document.getElementById('tagBig').textContent = tag;
+  document.getElementById('cowMeta').textContent = 'Түр зогсоогдсон';
+  document.getElementById('cowBody').innerHTML =
+    `<div class="notfound"><h2>⏸ Түр зогсоогдсон</h2>
+     <p>Энэ таг түр зогсоогдсон. Админд хандана уу.</p>
+     <p class="hint">Малын түүх хадгалагдаж байгаа. Админ идэвхжүүлсний дараа дахин бүртгэл хийнэ.</p>
+     ${phone ? `<a class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:14px"
+        href="tel:${esc(phone.replace(/[^0-9+]/g, ''))}">📞 Админ: ${esc(phone)}</a>` : ''}</div>`;
+}
+
+// ---------- registration of a new tag ----------
+// Any new (unused) tag: the animal joins the signed-in herder's farm
+// and the tag moves with it (schema v49). The database (register_cattle)
+// enforces every rule; this form only collects the herder's answers.
+const REG_REASONS = {
+  assigned:    'Энэ таг дээр мал аль хэдийн бүртгэгдсэн байна.',
+  unavailable: 'Энэ таг ашиглах боломжгүй байна (алдагдсан эсвэл хасагдсан). Админд хандана уу.',
+  other_farm:  'Энэ таг өөр фермийнх тул та бүртгэх боломжгүй. Админд хандана уу.',
+  paused:      'Энэ таг түр зогсоогдсон. Админд хандана уу.',
+  no_farm:     'Мал бүртгэхэд ферм хэрэгтэй. Малчин эсвэл ферм админ бүртгэнэ.',
+  no_profile:  'Таны эрх идэвхгүй байна. Админд хандана уу.',
+  not_found:   'Ийм таг системд алга.'
+};
+
+// tag = null: a horse with no YAK-TAG tag (schema_v55) — chip, national
+// number, brand and colour identify it; only horse breeds are offered.
+function renderRegistration(tag, info) {
+  document.getElementById('tagBig').textContent = tag || 'Шинэ адуу';
+  const farm = info && info.farm_name ? `${info.farm_code || ''} · ${info.farm_name}` : '—';
+
+  if (tag && info.reason === 'paused') { renderPaused(tag); return; }
+  // a horse with no tag: a herder / farm admin on his farm; the super admin
+  // on a farm he picks (schema_v60 — testing before launch)
+  const superAdmin = !tag && !!myProf && myProf.role === 'super_admin';
+  const cannot = tag ? (!info.can_register && (REG_REASONS[info.reason] || 'Бүртгэх боломжгүй.'))
+    : !(superAdmin || (myProf && ['herder', 'farm_admin'].includes(myProf.role) && myProf.farm_id))
+      && 'Адууг малчин эсвэл ферм админ бүртгэнэ.';
+  if (cannot) {
+    document.getElementById('cowMeta').textContent = 'Бүртгэх боломжгүй';
+    document.getElementById('cowBody').innerHTML =
+      `<div class="notfound"><h2>Бүртгэх боломжгүй</h2>
+       <p>${esc(cannot)}</p>
+       ${info && info.farm_name ? `<p class="hint">Тагийн ферм: ${esc(farm)}</p>` : ''}</div>`;
+    return;
+  }
+
+  document.getElementById('cowMeta').textContent = tag ? 'Шинэ таг · мал бүртгэх' : 'Таггүй адуу бүртгэх';
+  const thisYear = new Date().getFullYear();
+  document.getElementById('cowBody').innerHTML = `
+    <div class="card">
+      <h2><span class="dot"></span>${tag ? 'Мал бүртгэх' : 'Адуу бүртгэх'}</h2>
+      ${tag ? `<div class="kv"><span>Таг</span><span class="mono">${esc(tag)}</span></div>
+      <div class="kv"><span>Ферм</span><span>${esc(farm)}</span></div>`
+        : `<p class="hint" style="margin-top:0">YAK-TAG таггүй адуу: чипийн дугаар, улсын бүртгэлийн дугаар,
+           тамга, зүсээр нь танина.</p>`}
+      ${superAdmin ? `<div class="field"><label for="regFarm">Ферм *</label>
+        <select id="regFarm" style="width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:#fff">
+          <option value="">Ачаалж байна…</option></select></div>
+      <p class="hint" style="margin-bottom:16px">Ерөнхий админ: адуу сонгосон ферм рүү, таны нэр дээр бүртгэгдэнэ (туршилт).</p>`
+      : `<p class="hint" style="margin-bottom:16px">Мал таны ферм рүү бүртгэгдэнэ. Буруу бол админд хандана уу.</p>`}
+
+      <div class="field"><label>Хүйс *</label>
+        <div class="kind-pick" id="regSex">
+          <button type="button" data-sex="female">Эм</button>
+          <button type="button" data-sex="male">Эр</button>
+        </div></div>
+      <div class="field"><label for="regYear">Төрсөн он *</label>
+        <input type="number" id="regYear" inputmode="numeric" min="1990" max="${thisYear}"
+               placeholder="${thisYear - 3}"></div>
+      <div class="field"><label for="regBreed">Төрөл / үүлдэр *</label>
+        <select id="regBreed" style="width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:#fff">
+          <option value="">Ачаалж байна…</option></select>
+        <input type="text" id="regBreedOther" maxlength="60" placeholder="Үүлдрийн нэр"
+               style="display:none;margin-top:8px"></div>
+      <div class="field"><label for="regMother">Эхийн тагийн дугаар (төл бол)</label>
+        <input type="text" id="regMother" maxlength="20" placeholder="YT-008000"
+               style="text-transform:uppercase"></div>
+      <div class="field" id="regColourF"><label for="regColour">Зүс</label>
+        <input type="text" id="regColour" maxlength="60" placeholder="Хар, алаг…"></div>
+      <div id="horseFields" style="display:none">${horseFieldsHtml('reg', {})}</div>
+
+      <div class="gps-note" id="gpsNote">Байршил тогтоож байна…</div>
+      <div class="err" id="regErr"></div>
+      <button class="btn-primary" id="regSave" style="margin-top:14px">Бүртгэх</button>
+      <p class="hint" id="regAfter">Бүртгэсний дараа зураг, утасны дугаар нэмнэ.</p>
+    </div>`;
+
+  let sex = null;
+  const showHorse = () => {
+    const horse = breedByCode[document.getElementById('regBreed').value]?.species === 'horse';
+    document.getElementById('horseFields').style.display = horse ? 'block' : 'none';
+    document.getElementById('regColourF').style.display = horse ? 'none' : 'block';
+    document.getElementById('regCastratedF').style.display = horse && sex === 'male' ? 'block' : 'none';
+    document.getElementById('regAfter').textContent = horse
+      ? 'Бүртгэсний дараа бүтэн биеийн болон тамгын зургийг авна.'
+      : 'Бүртгэсний дараа зураг, утасны дугаар нэмнэ.';
+  };
+  document.querySelectorAll('#regSex button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#regSex button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); sex = b.dataset.sex; showHorse();
+  }));
+  updateGpsNote();
+  if (superAdmin) {
+    sb.from('farms').select('id, code, name').order('code').then(({ data }) => {
+      const sel = document.getElementById('regFarm');
+      if (sel) sel.innerHTML = '<option value="">— фермээ сонгоно уу —</option>' + (data || []).map(f =>
+        `<option value="${esc(f.id)}">${esc(f.code ? f.code + ' · ' : '')}${esc(f.name)}</option>`).join('');
+    }, () => {});
+  }
+  // no tag: horses only; a tag opened from the app's horse / cow section: that kind only
+  fillBreedSelect('regBreed', 'regBreedOther', null, tag ? PAGE_KIND : 'horse', showHorse);
+  document.getElementById('regSave').addEventListener('click', () => saveRegistration(tag, () => sex));
+}
+
+// The horse identity fields (registration and editing): зүс, markings,
+// агт, chip number, national number. p = 'reg' / 'he' (id prefix).
+function horseFieldsHtml(p, h) {
+  const coats = HORSE_COATS.includes(h.colour || '') || !h.colour ? HORSE_COATS : [h.colour, ...HORSE_COATS];
+  return `
+    <div class="field"><label for="${p}Coat">Зүс</label>
+      <select id="${p}Coat" style="width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:#fff">
+        <option value="">— сонгох —</option>
+        ${coats.map(c => `<option ${c === h.colour ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
+    <div class="field"><label>Тэмдэг</label>
+      <div id="${p}Marks" style="display:flex;gap:16px;flex-wrap:wrap">
+        ${HORSE_MARKS.map(m => `<label style="display:flex;gap:6px;align-items:center;font-weight:500">
+          <input type="checkbox" value="${esc(m)}" ${(h.markings || []).includes(m) ? 'checked' : ''}> ${esc(m)}</label>`).join('')}
+      </div></div>
+    <div class="field" id="${p}CastratedF"><label style="display:flex;gap:8px;align-items:center">
+      <input type="checkbox" id="${p}Castrated" ${h.castrated ? 'checked' : ''}> Агт (засуулсан эр адуу)</label></div>
+    <div class="field"><label for="${p}Chip">Чипийн дугаар (15 оронтой)</label>
+      <input type="text" id="${p}Chip" inputmode="numeric" maxlength="19" placeholder="956000012345678"
+             value="${esc(h.chip_no || '')}" class="mono"></div>
+    <div class="field"><label for="${p}Nid">Улсын бүртгэлийн дугаар</label>
+      <input type="text" id="${p}Nid" maxlength="16" placeholder="MGL0123456789"
+             value="${esc(h.national_id || '')}" style="text-transform:uppercase" class="mono"></div>`;
+}
+// read them back, checked as the database checks them
+function readHorseFields(p, sex) {
+  const chip = document.getElementById(p + 'Chip').value.replace(/\s/g, '');
+  const nid = document.getElementById(p + 'Nid').value.toUpperCase().replace(/[\s-]/g, '');
+  if (chip && !/^\d{15}$/.test(chip)) return { err: 'Чипийн дугаар 15 оронтой тоо байна.' };
+  if (nid && !/^MGL\d{10}$/.test(nid)) return { err: 'Улсын бүртгэлийн дугаар MGL + 10 оронтой тоо байна (жишээ: MGL0123456789).' };
+  return {
+    p_colour: document.getElementById(p + 'Coat').value || null,
+    p_markings: [...document.querySelectorAll(`#${p}Marks input:checked`)].map(i => i.value),
+    p_castrated: sex === 'male' && document.getElementById(p + 'Castrated').checked,
+    p_chip_no: chip || null, p_national_id: nid || null
+  };
+}
+
+async function saveRegistration(tag, getSex) {
+  const err = document.getElementById('regErr');
+  const btn = document.getElementById('regSave');
+  const showErr = m => { err.textContent = m; err.style.display = 'block'; };
+  err.style.display = 'none';
+
+  const sex = getSex();
+  const year = parseInt(document.getElementById('regYear').value, 10);
+  if (!sex) return showErr('Хүйсээ сонгоно уу.');
+  if (!year || year < 1990 || year > new Date().getFullYear()) return showErr('Төрсөн оноо зөв оруулна уу.');
+  if (!navigator.onLine) return showErr('Бүртгэхэд сүлжээ шаардлагатай.');
+
+  const breedCode = document.getElementById('regBreed').value;
+  const breedOther = document.getElementById('regBreedOther').value.trim();
+  if (breeds.length && !breedCode) return showErr('Төрөл / үүлдрээ сонгоно уу.');
+  if (breedByCode[breedCode]?.is_other && !breedOther) return showErr('Үүлдрийн нэрийг бичнэ үү.');
+
+  // a horse (schema_v55): with this tag, or with no tag at all
+  if (breedByCode[breedCode]?.species === 'horse') {
+    const h = readHorseFields('reg', sex);
+    if (h.err) return showErr(h.err);
+    const farmSel = document.getElementById('regFarm');      // the super admin (schema_v60)
+    if (farmSel && !farmSel.value) return showErr('Фермээ сонгоно уу.');
+    btn.disabled = true; btn.textContent = 'Бүртгэж байна…';
+    const { data: newId, error } = await sb.rpc('register_horse', {
+      p_sex: sex, p_birth_year: year, p_breed_code: breedCode, p_breed: breedOther || null, ...h,
+      p_lat: gps ? gps.lat : null, p_lng: gps ? gps.lng : null,
+      p_mother_tag: document.getElementById('regMother').value.trim() || null,
+      p_tag_code: tag || null, ...(farmSel ? { p_farm: farmSel.value } : {}) });
+    btn.disabled = false; btn.textContent = 'Бүртгэх';
+    if (error) return showErr(mnError(error.message));
+    toast('Адуу бүртгэгдлээ — одоо бүтэн биеийн болон тамгын зургийг аваарай');
+    if (tag) { await loadCow(tag); if (cow) logScan(); return; }
+    history.replaceState(null, '', cowUrl({ id: newId }));    // a reload opens this horse
+    await loadCow({ id: newId });
+    return;
+  }
+  if (!tag) return showErr('Адууны үүлдрээ сонгоно уу.');
+
+  btn.disabled = true; btn.textContent = 'Бүртгэж байна…';
+  const base = {
+    p_tag_code: tag, p_sex: sex, p_birth_year: year,
+    p_breed: breedOther || null,
+    p_colour: document.getElementById('regColour').value.trim() || null,
+    p_lat: gps ? gps.lat : null, p_lng: gps ? gps.lng : null
+  };
+  let { error } = await sb.rpc('register_cattle', { ...base,
+    p_breed_code: breedCode || null,
+    p_mother_tag: document.getElementById('regMother').value.trim() || null });
+  // Database not yet on schema_v28: register without breed/mother.
+  if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message))) {
+    ({ error } = await sb.rpc('register_cattle', base));
+  }
+  btn.disabled = false; btn.textContent = 'Бүртгэх';
+  if (error) return showErr(mnError(error.message));
+
+  toast('Мал бүртгэгдлээ — одоо бүтэн биеийн зураг аваарай');
+  await loadCow(tag);
+  if (cow) logScan();            // registering is also an encounter
+}
+
+// ---------- breeds + pregnancy / calving (schema_v28) ----------
+// Species and breed decide the expected birth date: a yak carries
+// ~258 days, a Mongolian cow ~283, a horse ~340 (see db/schema_v28).
+// Events follow ICAR ADE names: insemination, pregnancy check,
+// calving (parturition), abortion. Everything here is optional:
+// before v28 is run, the card just says it is not available yet.
+let breeds = [], breedByCode = {}, cowExtra = {};
+
+async function loadBreeds() {
+  if (breeds.length) return;
+  try {
+    const { data, error } = await sb.from('breeds').select('*').eq('active', true)
+      .order('species').order('sort_order');
+    if (!error && data) { breeds = data; breedByCode = Object.fromEntries(data.map(b => [b.code, b])); }
+  } catch (e) {}
+}
+
+// only: 'horse' / 'cattle' to offer one kind; onPick: called on every change
+async function fillBreedSelect(selId, otherId, selected, only, onPick) {
+  await loadBreeds();
+  const sel = document.getElementById(selId), other = document.getElementById(otherId);
+  if (!sel) return;
+  if (!breeds.length) {                     // before schema_v28: free text as before
+    sel.style.display = 'none';
+    other.style.display = 'block';
+    other.placeholder = 'Үүлдэр (Монгол, Хайнаг…)';
+    return;
+  }
+  // horses hidden until launch (config.js) — except on a horse already saved
+  const hideHorse = !horsesOn && only !== 'horse' && breedByCode[selected]?.species !== 'horse';
+  const grp = (sp, label) => ((only && only !== sp) || (sp === 'horse' && hideHorse)) ? ''
+    : `<optgroup label="${label}">` + breeds.filter(b => b.species === sp)
+    .map(b => `<option value="${esc(b.code)}" ${b.code === selected ? 'selected' : ''}>${esc(b.name_mn)}</option>`)
+    .join('') + '</optgroup>';
+  sel.innerHTML = '<option value="">— сонгох —</option>' + grp('cattle', 'Үхэр') + grp('horse', 'Адуу');
+  const toggle = () => { other.style.display = breedByCode[sel.value]?.is_other ? 'block' : 'none'; if (onPick) onPick(); };
+  sel.onchange = toggle; toggle();
+}
+
+function canEditCow() {
+  if (!cow || !myProf) return false;
+  if (myProf.role === 'super_admin') return true;
+  if (myProf.role === 'farm_admin' && myProf.farm_id === cow.farm_id) return true;
+  return cow.owner_id === myProf.id;
+}
+
+async function loadCowExtras() {
+  if (!cow) return;
+  await loadBreeds();
+  cowExtra = cacheGet('yt-extra:' + cow.id) || {};
+  if (!offlineMode && navigator.onLine) {
+    try {
+      // newest columns first; an older database (before v57 / v56) answers with fewer
+      let data = null, error = null;
+      for (const cols of ['species, breed_code, ble_name, ble_battery, ble_heard_at, herd_id',
+                          'species, breed_code, ble_name, ble_battery, ble_heard_at', 'species, breed_code, ble_name',
+                          'species, breed_code']) {
+        ({ data, error } = await sb.from('cattle').select(cols).eq('id', cow.id).maybeSingle());
+        if (!error || error.code !== '42703') break;
+      }
+      if (!error) { cowExtra = data || {}; cacheSet('yt-extra:' + cow.id, cowExtra); }
+    } catch (e) {}
+  }
+  if (isHorse() && !document.getElementById('heSave')) renderHorse(false);   // now with the BLE tag
+  renderBreedEdit();
+  if (cow.sex === 'female') loadRepro();
+  if (isHorse() && cow.sex === 'female') loadMareMilk();
+  loadFeedings();
+  loadOwnership();
+}
+
+// Who owned this animal before (schema_v39). Nothing shown when there
+// is no transfer, offline, or before v39 is run.
+const OWN_REASON = { sale: 'худалдсан', gift: 'бэлэглэсэн', inheritance: 'өв залгамжлал',
+                     correction: 'бүртгэлийн засвар', other: 'бусад' };
+async function loadOwnership() {
+  const box = document.getElementById('ownHist');
+  if (!box || !cow || offlineMode || !navigator.onLine) return;
+  try {
+    const { data, error } = await sb.rpc('cattle_ownership_history', { p_cattle_id: cow.id });
+    if (error || !data || !data.length) return;
+    box.innerHTML = `<p class="hint" style="margin:14px 0 2px">Эзэмшлийн түүх</p>` + data.map(h =>
+      `<div class="kv" style="font-size:.84rem;gap:10px"><span class="mono">${fmtDate(h.transferred_at)}</span>
+        <span style="text-align:right">${esc(h.from_name || '—')} → <b>${esc(h.to_name || '—')}</b>
+        · ${esc(OWN_REASON[h.reason] || h.reason || '')}${h.note ? ` · ${esc(h.note)}` : ''}</span></div>`).join('');
+  } catch (e) {}
+}
+
+function renderBreedEdit() {
+  const box = document.getElementById('breedEdit');
+  if (!box || !breeds.length || !canEditCow()) return;
+  box.innerHTML = cowExtra.breed_code
+    ? `<button class="lockbtn" id="breedEditBtn" style="margin-top:8px">Үүлдэр засах</button>`
+    : `<p class="hint" style="color:var(--gold)">Төрөл / үүлдэр сонговол төллөх огноо автоматаар гарна.</p>
+       <button class="lockbtn" id="breedEditBtn" style="margin-top:6px">Үүлдэр сонгох</button>`;
+  document.getElementById('breedEditBtn').addEventListener('click', () => {
+    box.innerHTML = `
+      <select id="beSel" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin-top:8px;background:#fff"></select>
+      <input type="text" id="beOther" placeholder="Үүлдрийн нэр" style="display:none;width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin-top:8px">
+      <button class="btn-primary" id="beSave" style="margin-top:8px">Хадгалах</button>`;
+    fillBreedSelect('beSel', 'beOther', cowExtra.breed_code);
+    document.getElementById('beSave').addEventListener('click', async () => {
+      const code = document.getElementById('beSel').value;
+      if (!code) { toast('Үүлдрээ сонгоно уу.', true); return; }
+      const { error } = await sb.rpc('set_cattle_breed', { p_cattle_id: cow.id, p_breed_code: code,
+        p_breed_text: document.getElementById('beOther').value.trim() || null });
+      if (error) { toast(error.message, true); return; }
+      toast('Хадгалагдлаа');
+      await reloadCow();
+    });
+  });
+}
+
+// --- labels (Mongolian) for the ICAR ADE codes ---
+const R_KIND = { insemination: 'Хээлтүүлэг', pregnancy_check: 'Хээл шалгалт', calving: 'Төллөлт', abortion: 'Хээл хаялт' };
+const R_METHOD = { natural: 'Байгалийн', run_with_bull: 'Сүрэгт хамт (бух / азарга)', ai: 'Зохиомол хээлтүүлэг', embryo: 'Үр хөврөл шилжүүлэн суулгах' };
+const R_RESULT = { pregnant: 'Хээлтэй', empty: 'Сувай (хээлгүй)', unknown: 'Тодорхойгүй' };
+const R_CHECK = { palpation: 'Гараар (шулуун гэдсээр)', echography: 'Хэт авиа', blood: 'Цусны шинжилгээ',
+                  milk: 'Сүүний шинжилгээ', visual: 'Нүдээр', other: 'Бусад' };
+const R_EASE = { 1: 'Хөнгөн, тусламжгүй', 2: 'Бага зэрэг тусалсан', 3: 'Хүндрэлтэй, их тусламж',
+                 4: 'Малын эмчийн тусламж', 5: 'Кесар хагалгаа / мэс засал' };
+const R_BIRTH = { alive: 'Амьд', stillborn: 'Үхсэн төрсөн', died_later: 'Төрөөд үхсэн' };
+const youngWord = () => cowExtra.species === 'horse' ? 'унага' : 'тугал';
+const opts = (m, sel) => Object.entries(m).map(([k, v]) => `<option value="${k}" ${String(k) === String(sel) ? 'selected' : ''}>${v}</option>`).join('');
+const inp = 'width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-top:4px';
+
+let reproOffline = false;
+let reproLast = null;                    // the current state (a mare's covering stallion for her foal)
+async function loadRepro() {
+  reproOffline = false;
+  const stateEl = document.getElementById('reproState');
+  if (!stateEl) return;
+  let events = null, status = null;
+  try {
+    const r1 = await sb.from('repro_events').select('*, repro_calves(*)')
+      .eq('cattle_id', cow.id).order('event_date', { ascending: false }).order('created_at', { ascending: false });
+    if (r1.error) throw r1.error;
+    events = r1.data || [];
+    const r2 = await sb.from('repro_status').select('*').eq('cattle_id', cow.id).maybeSingle();
+    status = r2.data;
+    cacheSet('yt-repro:' + cow.id, { events, status });
+  } catch (e) {
+    const saved = cacheGet('yt-repro:' + cow.id);
+    if (saved) {
+      ({ events, status } = saved);
+      reproOffline = true;
+    } else if (navigator.onLine && !offlineMode) {
+      stateEl.textContent = 'Энэ хэсэг удахгүй нээгдэнэ.';
+      document.getElementById('reproBtns').style.display = 'none';
+      return;
+    } else {
+      events = []; status = null; reproOffline = true;
+    }
+  }
+
+  // current state
+  let html;
+  const mare = cowExtra.species === 'horse';
+  reproLast = status;
+  if (!status || !status.state) {
+    html = 'Бүртгэл алга.';
+  } else if (status.state === 'open') {
+    // a mare with this year's foal is "унагатай", else "сувай"
+    const foaled = status.last_calving_date && daysUntil(status.last_calving_date) > -365;
+    html = mare && foaled ? `<b>Унагатай</b> · төллөсөн ${fmtDate(status.last_calving_date)}`
+      : `<b>Сувай</b>${status.last_calving_date ? ` · сүүлд төллөсөн ${fmtDate(status.last_calving_date)}` : ''}`;
+  } else if (mare && status.window_start) {
+    // a mare foals in a WINDOW: day 320–370 after the covering (schema_v62)
+    const ds = daysUntil(status.window_start), de = daysUntil(status.window_end);
+    const sire = (events.find(e => e.kind === 'insemination') || {}).sire_name;
+    html = `<b style="color:var(--steppe)">${status.state === 'pregnant' ? 'Хээлтэй' : 'Хээлтүүлсэн (баталгаажаагүй)'}</b>` +
+      (!status.calvings ? ' · байдас (анх удаа)' : '') +
+      `<br>Төллөх хугацаа: <b>${fmtDate(status.window_start)} – ${windowEnd(status.window_start, status.window_end)}</b>` +
+      (status.expected_date ? ` (ихэвчлэн ${fmtDate(status.expected_date).slice(5)} орчим)` : '') + '<br>' +
+      (ds > 0 ? `${ds} хоногийн дараа эхэлнэ`
+        : de >= 0 ? '<b style="color:var(--steppe)">Төллөх хугацаандаа байна</b>'
+        : `<span style="color:var(--alert)">${-de} хоног хэтэрсэн — унага гарсан бол "＋ Унага бүртгэх"</span>`) +
+      (sire ? `<br>Азарга: ${esc(sire)}` : '');
+  } else {
+    const d = status.expected_date ? daysUntil(status.expected_date) : null;
+    const lbl = status.state === 'pregnant' ? 'Хээлтэй' : 'Хээлтүүлсэн (баталгаажаагүй)';
+    html = `<b style="color:var(--steppe)">${lbl}</b>` + (status.expected_date
+      ? ` · төллөх ~ <b>${fmtDate(status.expected_date)}</b>${status.spread ? ` (±${status.spread} хоног)` : ''} ` +
+        (d >= 0 ? `· ${d} хоног үлдсэн` : `<span style="color:var(--alert)">· ${-d} хоног хэтэрсэн</span>`) +
+        (status.basis ? `<br><span style="font-size:.76rem">Тооцоо: ${esc(status.basis)}</span>` : '')
+      : ` · <span style="color:var(--gold)">хээлтүүлсэн огноо эсвэл хээлийн насыг оруулбал төллөх огноо гарна</span>`);
+  }
+  if (status && status.calvings) html += `<br>Нийт төллөсөн: ${status.calvings} удаа`;
+  if (reproOffline) html += `<br><span style="color:var(--gold)">Сүлжээгүй — утсанд хадгалсан мэдээлэл. Шинэ бүртгэл сүлжээ орохоор илгээгдэнэ.</span>`;
+  stateEl.innerHTML = html;
+
+  const canEdit = canEditCow();
+  document.getElementById('reproBtns').style.display = canEdit ? 'grid' : 'none';
+  // a mare: the stallion by name, and the foal registered with the foaling
+  const foalBtn = document.querySelector('#reproBtns [data-rk="calving"]');
+  if (mare && foalBtn) foalBtn.textContent = '＋ Унага бүртгэх';
+  document.querySelectorAll('#reproBtns button').forEach(b => b.onclick = () =>
+    mare && b.dataset.rk === 'insemination' ? openCoveringForm()
+      : mare && b.dataset.rk === 'calving' ? openFoalForm()
+      : openReproForm(b.dataset.rk));
+
+  // history
+  const me = myProf && myProf.id;
+  const admin = myProf && (myProf.role === 'super_admin' || (myProf.role === 'farm_admin' && myProf.farm_id === cow.farm_id));
+  document.getElementById('reproList').innerHTML = events.length ? events.map(e => {
+    let d = '';
+    if (e.kind === 'insemination') d = [R_METHOD[e.method], e.sire_tag && `эцэг ${esc(e.sire_tag)}`, e.sire_name && esc(e.sire_name)].filter(Boolean).join(' · ');
+    if (e.kind === 'pregnancy_check') d = [R_RESULT[e.result], R_CHECK[e.check_method], e.foetal_age_days != null && `${e.foetal_age_days} хоногтой`].filter(Boolean).join(' · ');
+    if (e.kind === 'calving') d = [e.calving_ease && R_EASE[e.calving_ease],
+      ...(e.repro_calves || []).map(x => `${x.sex === 'female' ? 'Эм' : 'Эр'} ${youngWord()} (${R_BIRTH[x.birth_status]}${x.birth_weight_kg ? `, ${x.birth_weight_kg} кг` : ''})${x.calf_cattle_id ? (mare ? ' ✓ бүртгэгдсэн' : ' ✓таг') : ''}`)]
+      .filter(Boolean).join(' · ');
+    if (e.expected_date && e.expected_is_manual) d += ` · төллөх огноо (гараар): ${fmtDate(e.expected_date)}`;
+    if (e.note) d += ` · ${esc(e.note)}`;
+    const canDel = admin || (e.recorded_by === me && Date.now() - new Date(e.created_at) < 7 * 86400000);
+    return `<div class="kv" style="align-items:flex-start;gap:10px">
+      <span style="min-width:92px">${fmtDate(e.event_date)}</span>
+      <span style="text-align:left;flex:1;font-weight:500"><b>${R_KIND[e.kind]}</b><br><span class="hint" style="margin:0">${d}</span></span>
+      ${canDel ? `<span style="display:flex;gap:6px">
+        <button class="delphoto" style="width:auto;padding:4px 8px;color:var(--khukh);border-color:var(--line)" data-edit="${esc(e.id)}" title="Засах">✎</button>
+        <button class="delphoto" style="width:auto;padding:4px 8px" data-del="${esc(e.id)}" title="Устгах">✕</button></span>` : ''}
+    </div>`;
+  }).join('') : '';
+  document.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => {
+    const ev = events.find(x => x.id === b.dataset.edit);
+    if (ev) (mare && ev.kind === 'insemination') ? openCoveringForm(ev) : openReproForm(ev.kind, ev);
+  }));
+  document.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm('Энэ бүртгэлийг устгах уу?')) return;
+    const { error } = await sb.rpc('delete_repro_event', { p_event_id: b.dataset.del });
+    if (error) { toast(error.message, true); return; }
+    toast('Бүртгэл устгагдлаа'); loadRepro();
+  }));
+}
+
+// ev = an existing entry to edit (prefilled); without it, a new entry.
+let reproEditing = null;
+// One id per opened form: pressing Хадгалах again after an error resends
+// the same entry, and the server returns the copy it already has instead
+// of saving it twice.
+let reproUuid = null;
+function openReproForm(kind, ev) {
+  const f = document.getElementById('reproForm');
+  const today = mnDate();
+  reproEditing = ev || null;
+  reproUuid = ytUuid();
+  let body = `<label class="hint" style="display:block;margin-top:12px">Огноо</label>
+    <input type="date" id="rfDate" value="${today}" max="${today}" style="${inp}">`;
+  if ((kind === 'insemination' || kind === 'pregnancy_check') && !cowExtra.breed_code) body += `
+    <div class="gps-note" style="margin-top:12px;background:var(--khukh-light);color:var(--khukh)">Үүлдэр сонгоогүй — фермийн мэдээллээр таамаглана. Үүлдэр сонговол илүү нарийвчлалтай.
+      <button type="button" class="lockbtn" id="rfPickBreed" style="margin-top:8px">Үүлдэр сонгох</button></div>`;
+  if (kind === 'insemination') body += `
+    <label class="hint" style="display:block;margin-top:10px">Арга</label>
+    <select id="rfMethod" style="${inp}">${opts(R_METHOD, 'natural')}</select>
+    <label class="hint" style="display:block;margin-top:10px">${cowExtra.species === 'horse' ? 'Азарга' : 'Бух'} — тагийн дугаар (заавал биш)</label>
+    <input type="text" id="rfSireTag" style="${inp};text-transform:uppercase" placeholder="YT-007999">
+    <label class="hint" style="display:block;margin-top:10px">эсвэл нэр / үрийн код</label>
+    <input type="text" id="rfSireName" style="${inp}">`;
+  if (kind === 'pregnancy_check') body += `
+    <label class="hint" style="display:block;margin-top:10px">Үр дүн</label>
+    <select id="rfResult" style="${inp}">${opts(R_RESULT, 'pregnant')}</select>
+    <label class="hint" style="display:block;margin-top:10px">Арга</label>
+    <select id="rfCheck" style="${inp}">${opts(R_CHECK, 'palpation')}</select>
+    <label class="hint" style="display:block;margin-top:10px">Хээлийн нас, хоног (мэдвэл — огноог нарийвчилна)</label>
+    <input type="number" id="rfAge" min="0" max="450" inputmode="numeric" style="${inp}">`;
+  if (kind === 'insemination' || kind === 'pregnancy_check') body += `
+    <label class="hint" style="display:block;margin-top:10px">Төллөх огноо — хоосон орхивол автоматаар таамаглана (малын эмч хэлсэн бол оруулна)</label>
+    <input type="date" id="rfExpected" style="${inp}">`;
+  if (kind === 'calving') body += `
+    <label class="hint" style="display:block;margin-top:10px">Төллөлтийн хүндрэл</label>
+    <select id="rfEase" style="${inp}"><option value="">—</option>${opts(R_EASE, '')}</select>
+    <div id="rfCalves"></div>
+    <button type="button" class="lockbtn" id="rfAddCalf" style="margin-top:8px">+ Ихэр (дахин ${youngWord()})</button>`;
+  body += `<label class="hint" style="display:block;margin-top:10px">Тэмдэглэл</label>
+    <input type="text" id="rfNote" maxlength="200" style="${inp}">
+    <div class="err" id="rfErr" style="margin-top:10px"></div>
+    <button class="btn-primary" id="rfSave" style="margin-top:12px">Хадгалах</button>
+    <button class="btn-primary" id="rfCancel" style="margin-top:8px;background:#F0F2F5;color:var(--ink)">Болих</button>`;
+  f.innerHTML = `<div style="border-top:1px solid #F0F2F5;margin-top:12px;padding-top:4px">
+    <b style="display:block;margin-top:10px">${R_KIND[kind]}${ev ? ' — засах' : ''}</b>${body}</div>`;
+
+  if (kind === 'calving') {
+    const addCalf = () => {
+      const box = document.getElementById('rfCalves');
+      if (box.children.length >= 4) return;
+      const i = box.children.length;
+      box.insertAdjacentHTML('beforeend', `<div class="rfCalf" style="margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px">
+        <b style="font-size:.85rem">${i + 1}-р ${youngWord()}</b>
+        <div class="kind-pick" style="margin:8px 0 6px"><button type="button" data-cs="female">Эм</button><button type="button" data-cs="male">Эр</button></div>
+        <select class="cStatus" style="${inp}">${opts(R_BIRTH, 'alive')}</select>
+        <input type="number" class="cWeight" step="0.1" min="1" max="149" inputmode="decimal" placeholder="Жин, кг (заавал биш)" style="${inp}">
+      </div>`);
+      const row = box.lastElementChild;
+      row.querySelectorAll('[data-cs]').forEach(b => b.addEventListener('click', () => {
+        row.querySelectorAll('[data-cs]').forEach(x => x.classList.remove('on'));
+        b.classList.add('on'); row.dataset.sex = b.dataset.cs;
+      }));
+    };
+    const calves = ev ? (ev.repro_calves || []) : [];
+    if (!calves.length) addCalf();
+    calves.forEach(c => {
+      addCalf();
+      const row = document.getElementById('rfCalves').lastElementChild;
+      row.dataset.id = c.id;
+      row.querySelector(`[data-cs=${c.sex}]`).click();
+      row.querySelector('.cStatus').value = c.birth_status;
+      row.querySelector('.cWeight').value = c.birth_weight_kg ?? '';
+      if (c.calf_cattle_id) row.insertAdjacentHTML('beforeend', '<p class="hint" style="margin:6px 0 0">✓ Тагтай — хасах боломжгүй</p>');
+    });
+    document.getElementById('rfAddCalf').addEventListener('click', addCalf);
+  }
+
+  if (ev) {
+    const setv = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+    setv('rfDate', ev.event_date); setv('rfNote', ev.note);
+    setv('rfMethod', ev.method); setv('rfSireTag', ev.sire_tag); setv('rfSireName', ev.sire_name);
+    setv('rfResult', ev.result); setv('rfCheck', ev.check_method); setv('rfAge', ev.foetal_age_days);
+    setv('rfEase', ev.calving_ease);
+    if (ev.expected_is_manual) setv('rfExpected', ev.expected_date);
+  }
+
+  document.getElementById('rfCancel').addEventListener('click', () => { f.innerHTML = ''; reproEditing = null; });
+  const pick = document.getElementById('rfPickBreed');
+  if (pick) pick.addEventListener('click', () => {
+    const b = document.getElementById('breedEditBtn');
+    if (b) { b.click(); document.getElementById('breedEdit').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  });
+  document.getElementById('rfSave').addEventListener('click', () => saveReproEvent(kind));
+  f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function saveReproEvent(kind) {
+  const err = document.getElementById('rfErr');
+  const show = m => { err.textContent = m; err.style.display = 'block'; };
+  const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const args = { p_client_uuid: reproUuid || ytUuid(), p_cattle_id: cow.id, p_kind: kind, p_date: val('rfDate'), p_note: val('rfNote') || null,
+                 p_expected_date: val('rfExpected') || null };
+  if (!args.p_date) return show('Огноо оруулна уу.');
+  if (args.p_expected_date && args.p_expected_date <= args.p_date) return show('Төллөх огноо үйл явдлын огнооноос хойш байх ёстой.');
+  if (kind === 'insemination') {
+    args.p_method = val('rfMethod');
+    args.p_sire_tag = val('rfSireTag').toUpperCase() || null;
+    args.p_sire_name = val('rfSireName') || null;
+  }
+  if (kind === 'pregnancy_check') {
+    args.p_result = val('rfResult');
+    args.p_check_method = val('rfCheck');
+    args.p_foetal_age = val('rfAge') ? parseInt(val('rfAge'), 10) : null;
+  }
+  if (kind === 'calving') {
+    args.p_calving_ease = val('rfEase') ? parseInt(val('rfEase'), 10) : null;
+    const calves = [...document.querySelectorAll('.rfCalf')].map(r => ({
+      sex: r.dataset.sex, birth_status: r.querySelector('.cStatus').value,
+      birth_weight_kg: r.querySelector('.cWeight').value || null }));
+    if (calves.some(c => !c.sex)) return show(`${youngWord()} бүрийн хүйсийг сонгоно уу.`);
+    args.p_calves = calves;
+  }
+  const btn = document.getElementById('rfSave');
+  if (reproEditing) {                       // editing: online, straight to the server
+    if (!navigator.onLine) return show('Засахад сүлжээ шаардлагатай.');
+    if (kind === 'calving') args.p_calves = [...document.querySelectorAll('.rfCalf')].map((r, i) => ({ ...args.p_calves[i], id: r.dataset.id || null }));
+    btn.disabled = true;
+    const { error } = await sb.rpc('update_repro_event', {
+      p_event_id: reproEditing.id, p_date: args.p_date, p_method: args.p_method ?? null,
+      p_sire_tag: args.p_sire_tag ?? null, p_sire_name: args.p_sire_name ?? null,
+      p_result: args.p_result ?? null, p_check_method: args.p_check_method ?? null,
+      p_foetal_age: args.p_foetal_age ?? null, p_calving_ease: args.p_calving_ease ?? null,
+      p_expected_date: args.p_expected_date, p_note: args.p_note, p_calves: args.p_calves ?? null });
+    btn.disabled = false;
+    if (error) return show(mnError(error.message));
+    reproEditing = null;
+    document.getElementById('reproForm').innerHTML = '';
+    toast('Засагдлаа');
+    loadRepro();
+    return;
+  }
+  btn.disabled = true;
+  // Through the offline queue: sent now if there is signal, otherwise
+  // kept on the phone and sent later (client_uuid stops doubles).
+  const r = await ytQueue.add('repro', args);
+  btn.disabled = false;
+  if (!r.sent && !r.queued) return show(r.error ? mnError(r.error) : 'Хадгалж чадсангүй. Дахин оролдоно уу.');
+  document.getElementById('reproForm').innerHTML = '';
+  if (r.queued) {
+    toast('Сүлжээгүй — утсанд хадгалагдлаа, сүлжээ орохоор илгээгдэнэ');
+    return;
+  }
+  toast(kind === 'calving' ? `Төллөлт бүртгэгдлээ. ${cowExtra.species === 'horse' ? 'Унаганд' : 'Тугалд'} таг зүүгээд бүртгэхдээ эхийн тагийн дугаарыг оруулаарай.` : 'Хадгалагдлаа');
+  loadRepro();
+}
+
+// ---------- a mare: covering and foal (schema_v62) ----------
+// The stallion is picked by name (most have no tag) — her herd's stallion
+// first. "＋ Унага бүртгэх" records the foaling AND the foal as a new horse
+// (mother: this mare, father: the stallion), so it needs a signal.
+async function stallionChoices() {
+  let list = [], herdSire = null;
+  try {
+    const [st, hd] = await Promise.all([
+      sb.rpc('farm_stallions', { p_farm: cow.farm_id }),
+      cowExtra.herd_id ? sb.from('herds').select('stallion_id').eq('id', cowExtra.herd_id).maybeSingle()
+                       : Promise.resolve({ data: null })]);
+    list = (st && st.data) || [];
+    herdSire = hd && hd.data ? hd.data.stallion_id : null;
+  } catch (e) {}
+  // the herd's stallion at the top of the list
+  list.sort((a, b) => (b.id === herdSire) - (a.id === herdSire));
+  return { list, herdSire };
+}
+const stallionLabel = s => [animalCode(s), s.colour, s.birth_year && s.birth_year + ' он'].filter(Boolean).join(' · ');
+const stallionOptions = (list, sel) => list.map(s =>
+  `<option value="${esc(s.id)}"${s.id === sel ? ' selected' : ''}>${esc(stallionLabel(s))}</option>`).join('')
+  + `<option value=""${sel && list.some(s => s.id === sel) ? '' : ' selected'}>Мэдэхгүй / өөр азарга</option>`;
+const formEnd = `<div class="err" id="rfErr" style="margin-top:10px"></div>
+    <button class="btn-primary" id="rfSave" style="margin-top:12px">Хадгалах</button>
+    <button class="btn-primary" id="rfCancel" style="margin-top:8px;background:#F0F2F5;color:var(--ink)">Болих</button>`;
+
+async function openCoveringForm(ev) {
+  const f = document.getElementById('reproForm');
+  const today = mnDate();
+  reproEditing = ev || null;
+  reproUuid = ytUuid();
+  f.innerHTML = '<p class="hint">Ачаалж байна…</p>';
+  const { list, herdSire } = navigator.onLine && !offlineMode ? await stallionChoices() : { list: [], herdSire: null };
+  const sel = ev ? ev.sire_id : herdSire;
+  f.innerHTML = `<div style="border-top:1px solid #F0F2F5;margin-top:12px;padding-top:4px">
+    <b style="display:block;margin-top:10px">Хээлтүүлэг${ev ? ' — засах' : ''}</b>
+    <label class="hint" style="display:block;margin-top:12px">Огноо</label>
+    <input type="date" id="rfDate" value="${esc(ev ? ev.event_date : today)}" max="${today}" style="${inp}">
+    <label class="hint" style="display:block;margin-top:10px">Азарга${herdSire ? ' — сүргийн азарга эхэнд' : ''}</label>
+    <select id="rfSire" style="${inp}">${stallionOptions(list, sel)}</select>
+    <input type="text" id="rfSireName" maxlength="80" placeholder="Азаргын нэр, эзэн (заавал биш)" style="${inp}">
+    <label class="hint" style="display:block;margin-top:10px">Арга</label>
+    <select id="rfMethod" style="${inp}">${opts(R_METHOD, ev ? ev.method : 'run_with_bull')}</select>
+    <label class="hint" style="display:block;margin-top:10px">Тэмдэглэл</label>
+    <input type="text" id="rfNote" maxlength="200" style="${inp}" value="${esc(ev && ev.note || '')}">
+    ${formEnd}</div>`;
+  const sireSel = document.getElementById('rfSire'), nameIn = document.getElementById('rfSireName');
+  const toggle = () => { nameIn.style.display = sireSel.value ? 'none' : 'block'; };
+  sireSel.addEventListener('change', toggle);
+  toggle();
+  if (ev && !ev.sire_id && ev.sire_name) nameIn.value = ev.sire_name;
+  document.getElementById('rfCancel').addEventListener('click', () => { f.innerHTML = ''; reproEditing = null; });
+  document.getElementById('rfSave').addEventListener('click', saveCovering);
+  f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function saveCovering() {
+  const err = document.getElementById('rfErr'), btn = document.getElementById('rfSave');
+  const show = m => { err.textContent = m; err.style.display = 'block'; };
+  const val = id => document.getElementById(id).value.trim();
+  const date = val('rfDate'), sire = val('rfSire') || null, method = val('rfMethod'), note = val('rfNote') || null;
+  const sireName = sire ? null : (val('rfSireName') || null);
+  if (!date) return show('Огноо оруулна уу.');
+  btn.disabled = true;
+  if (reproEditing) {                       // editing: online, straight to the server
+    if (!navigator.onLine) { btn.disabled = false; return show('Засахад сүлжээ шаардлагатай.'); }
+    let { error } = await sb.rpc('update_repro_event', {
+      p_event_id: reproEditing.id, p_date: date, p_method: method, p_sire_tag: null, p_sire_name: sireName,
+      p_result: null, p_check_method: null, p_foetal_age: null, p_calving_ease: null,
+      p_expected_date: null, p_note: note, p_calves: null });
+    if (!error) ({ error } = await sb.rpc('set_covering_sire', { p_event: reproEditing.id, p_sire: sire }));
+    btn.disabled = false;
+    if (error) return show(mnError(error.message));
+    reproEditing = null;
+    document.getElementById('reproForm').innerHTML = '';
+    toast('Засагдлаа');
+    loadRepro();
+    return;
+  }
+  const r = await ytQueue.add('covering', {
+    p_mare: cow.id, p_date: date, p_method: method, p_sire: sire, p_sire_name: sireName,
+    p_expected_date: null, p_note: note, p_client_uuid: reproUuid || ytUuid() });
+  btn.disabled = false;
+  if (!r.sent && !r.queued) return show(r.error ? mnError(r.error) : 'Хадгалж чадсангүй. Дахин оролдоно уу.');
+  document.getElementById('reproForm').innerHTML = '';
+  toast(r.queued ? 'Сүлжээгүй — утсанд хадгалагдлаа, сүлжээ орохоор илгээгдэнэ' : 'Хээлтүүлэг хадгалагдлаа');
+  if (!r.queued) loadRepro();
+}
+
+async function openFoalForm() {
+  const f = document.getElementById('reproForm');
+  const today = mnDate();
+  reproEditing = null;
+  reproUuid = ytUuid();
+  if (!navigator.onLine || offlineMode) {
+    f.innerHTML = '<p class="hint" style="color:var(--gold)">Унага бүртгэхэд сүлжээ шаардлагатай (шинэ адуу үүснэ).</p>';
+    return;
+  }
+  f.innerHTML = '<p class="hint">Ачаалж байна…</p>';
+  const { list, herdSire } = await stallionChoices();
+  // the stallion of her covering, else her herd's
+  const sel = (reproLast && reproLast.sire_id) || herdSire;
+  f.innerHTML = `<div style="border-top:1px solid #F0F2F5;margin-top:12px;padding-top:4px">
+    <b style="display:block;margin-top:10px">Унага бүртгэх</b>
+    <p class="hint" style="margin:4px 0 0">Төллөлт болон унага (таггүй адуу) хамт бүртгэгдэнэ: эх нь энэ гүү, эцэг нь азарга.</p>
+    <label class="hint" style="display:block;margin-top:12px">Төрсөн огноо</label>
+    <input type="date" id="rfDate" value="${today}" max="${today}" style="${inp}">
+    <label class="hint" style="display:block;margin-top:10px">Хүйс</label>
+    <div class="kind-pick" id="foSex" style="margin-top:4px"><button type="button" data-sex="female">Эм унага</button><button type="button" data-sex="male">Эр унага</button></div>
+    <select id="foAlive" style="${inp};margin-top:8px"><option value="1">Амьд</option><option value="0">Үхсэн төрсөн</option></select>
+    <label class="hint" style="display:block;margin-top:10px">Эцэг (азарга)</label>
+    <select id="foSire" style="${inp}">${stallionOptions(list, sel)}</select>
+    <div id="foLive">
+      <label class="hint" style="display:block;margin-top:10px">Зүс</label>
+      <select id="foColour" style="${inp}"><option value="">— сонгох —</option>${HORSE_COATS.map(c => `<option>${esc(c)}</option>`).join('')}</select>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px">${HORSE_MARKS.map(m =>
+        `<label style="display:flex;gap:6px;align-items:center;font-size:.9rem"><input type="checkbox" value="${esc(m)}" class="foMark"> ${esc(m)}</label>`).join('')}</div>
+      <label class="hint" style="display:block;margin-top:10px">Чипийн дугаар (15 оронтой, заавал биш)</label>
+      <input type="text" id="foChip" inputmode="numeric" maxlength="15" style="${inp}">
+    </div>
+    <label class="hint" style="display:block;margin-top:10px">Тэмдэглэл</label>
+    <input type="text" id="rfNote" maxlength="200" style="${inp}">
+    ${formEnd}</div>`;
+  let sex = null;
+  document.querySelectorAll('#foSex button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#foSex button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); sex = b.dataset.sex;
+  }));
+  const alive = document.getElementById('foAlive');
+  alive.addEventListener('change', () => { document.getElementById('foLive').style.display = alive.value === '1' ? 'block' : 'none'; });
+  document.getElementById('rfCancel').addEventListener('click', () => { f.innerHTML = ''; });
+  document.getElementById('rfSave').addEventListener('click', () => saveFoal(sex));
+  f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function saveFoal(sex) {
+  const err = document.getElementById('rfErr'), btn = document.getElementById('rfSave');
+  const show = m => { err.textContent = m; err.style.display = 'block'; };
+  const val = id => document.getElementById(id).value.trim();
+  const date = val('rfDate'), alive = val('foAlive') === '1', chip = val('foChip').replace(/\s/g, '');
+  if (!date) return show('Огноо оруулна уу.');
+  if (!sex) return show('Унагын хүйсийг сонгоно уу.');
+  if (alive && chip && !/^\d{15}$/.test(chip)) return show('Чипийн дугаар 15 оронтой тоо байна.');
+  if (!navigator.onLine) return show('Унага бүртгэхэд сүлжээ шаардлагатай.');
+  btn.disabled = true;
+  const { data: foalId, error } = await sb.rpc('register_foal', {
+    p_mare: cow.id, p_date: date, p_sex: sex, p_alive: alive, p_sire: val('foSire') || null,
+    p_colour: alive ? (val('foColour') || null) : null,
+    p_markings: alive ? [...document.querySelectorAll('.foMark:checked')].map(i => i.value) : [],
+    p_chip_no: alive ? (chip || null) : null, p_note: val('rfNote') || null, p_client_uuid: reproUuid });
+  btn.disabled = false;
+  if (error) return show(mnError(error.message));
+  document.getElementById('reproForm').innerHTML = '';
+  if (!foalId) { toast('Төллөлт бүртгэгдлээ'); loadRepro(); return; }
+  toast('Унага бүртгэгдлээ — одоо зургийг нь аваарай');
+  setTimeout(() => { location.href = cowUrl({ id: foalId }); }, 900);
+}
+
+// ---------- a horse's family (schema_v62) ----------
+async function loadFamily() {
+  const z = document.getElementById('heFamily');
+  if (!z || offlineMode || !navigator.onLine) return;
+  let fam = null;
+  try {
+    const { data, error } = await sb.rpc('horse_family', { p_cattle: cow.id });
+    if (!error) fam = data;
+  } catch (e) {}
+  if (!fam || !document.body.contains(z)) return;
+  const link = h => `<a href="${esc(cowUrl(h))}" style="color:var(--khukh);font-weight:600">${esc(
+    [animalCode(h), horseLabel(h), h.colour].filter(Boolean).join(' · '))}</a>`;
+  const row = (k, v) => `<div class="kv" style="align-items:flex-start;gap:10px"><span>${k}</span><span style="text-align:right">${v}</span></div>`;
+  z.innerHTML = (fam.mother ? row('Эх', link(fam.mother)) : '') + (fam.sire ? row('Эцэг', link(fam.sire)) : '')
+    + ((fam.foals || []).length ? row(`${cow.sex === 'female' ? 'Унага' : 'Үр төл'} (${fam.foals.length})`, fam.foals.map(link).join('<br>')) : '');
+}
+
+// ---------- this mare's milk (schema_v62) ----------
+// Milk is mostly counted per milking group (зэл) in the app; the best
+// mares can be counted alone here. Through the offline queue.
+async function loadMareMilk() {
+  const z = document.getElementById('mareMilkZone');
+  if (!z) return;
+  let rows = [];
+  if (!offlineMode && navigator.onLine) {
+    try {
+      const { data, error } = await sb.from('mare_milk').select('milk_date, liters')
+        .eq('cattle_id', cow.id).order('milk_date', { ascending: false }).limit(7);
+      if (error) { z.closest('.card').style.display = 'none'; return; }      // database not yet on v62
+      rows = data || [];
+    } catch (e) {}
+  }
+  const can = canEditCow(), today = mnDate(), t = rows.find(r => r.milk_date === today);
+  const total = rows.reduce((s, r) => s + Number(r.liters), 0);
+  z.innerHTML = (rows.length
+      ? rows.map(r => `<div class="kv"><span>${fmtDate(r.milk_date)}</span><span class="mono">${Number(r.liters).toFixed(1)} л</span></div>`).join('')
+        + `<p class="hint">Сүүлийн ${rows.length} өдөр: ${total.toFixed(1)} л.</p>`
+      : `<p class="hint" style="margin-top:0">Гүүний сүүг ихэвчлэн зэлээр нь апп-аас бүртгэнэ. Шилдэг гүүний сүүг энд тусад нь бүртгэж болно.</p>`)
+    + (can ? `<div class="milk-entry" style="margin-top:10px">
+        <input type="number" id="mmInput" inputmode="decimal" step="0.1" min="0" max="30" placeholder="Өнөөдөр, л" value="${t ? Number(t.liters).toFixed(1) : ''}">
+        <button id="mmBtn">${t ? 'Засах' : 'Хадгалах'}</button></div>` : '');
+  if (can) document.getElementById('mmBtn').addEventListener('click', saveMareMilk);
+}
+async function saveMareMilk() {
+  const v = parseFloat(document.getElementById('mmInput').value);
+  if (!(v >= 0 && v <= 30)) return toast('0–30 литр оруулна уу.', true);
+  const btn = document.getElementById('mmBtn');
+  btn.disabled = true;
+  const r = await ytQueue.add('mare_milk', { p_herd: null, p_cattle: cow.id, p_date: mnDate(), p_liters: v,
+                                             p_mares: null, p_client_uuid: ytUuid() });
+  btn.disabled = false;
+  if (!r.sent && !r.queued) return toast(mnError(r.error || 'Хадгалж чадсангүй.'), true);
+  toast(r.queued ? 'Утсанд хадгалагдлаа — сүлжээ ороход илгээгдэнэ' : 'Хадгалагдлаа');
+  if (r.sent) loadMareMilk();
+}
+
+function renderCow() {
+  const age = cow.birth_year ? (new Date().getFullYear() - cow.birth_year) : null;
+  const horse = isHorse();
+  appBackLinks(horse);
+  // a horse: "шүдлэн гүү", "их насны азарга" … (config.js)
+  const sex = horse ? horseLabel(cow).replace(/^./, s => s.toUpperCase()) : cow.sex === 'female' ? 'Эм' : 'Эр';
+
+  document.getElementById('tagBig').textContent = animalCode(cow);
+  document.getElementById('cowMeta').textContent = horse
+    ? `${sex}${cow.breed ? ' · ' + cow.breed : ''}${cow.colour ? ' · ' + cow.colour : ''} · ${cow.owner_name}`
+    : `${sex}${age ? ' · ' + age + ' нас' : ''}${cow.breed ? ' · ' + cow.breed : ''} · ${cow.owner_name}`;
+
+  document.getElementById('cowBody').innerHTML = `
+    <div id="lostTop"></div>
+
+    ${horse ? `
+    <!-- HORSE IDENTITY (schema_v55) -->
+    <div class="card">
+      <h2><span class="dot"></span>Адууны таних тэмдэг</h2>
+      <div id="horseZone"></div>
+    </div>` : ''}
+
+    ${horse && cow.sex === 'female' ? `
+    <!-- MARE'S MILK, this mare alone (schema_v62; the groups' milk is in the app) -->
+    <div class="card">
+      <h2><span class="dot"></span>Гүүний сүү (айраг)</h2>
+      <div id="mareMilkZone"><p class="hint" style="margin-top:0">Ачаалж байна…</p></div>
+    </div>` : ''}
+
+    <!-- MILK (cows; a mare's milk: above and per group in the app) -->
+    ${horse ? '' : `<div class="card">
+      <h2><span class="dot"></span>Өнөөдрийн сүү</h2>
+      <div id="milkZone"></div>
+      <div class="kv" style="margin-top:14px;border-top:1px solid #F0F2F5;padding-top:12px">
+        <span>Энэ сарын нийт</span>
+        <span class="mono">${cow.milk_this_month != null ? Number(cow.milk_this_month).toFixed(1) : '0.0'} л</span>
+      </div>
+    </div>`}
+
+    <!-- FEEDING -->
+    <div class="card">
+      <h2><span class="dot"></span>Тэжээл</h2>
+      <div class="kv"><span>Сүүлд тэжээсэн</span><span id="lastFedVal">${fmtDate(cow.last_fed_at)}</span></div>
+      <button class="feed-btn" id="feedBtn">Тэжээсэн гэж тэмдэглэх</button>
+      <div id="feedList" style="margin-top:10px"></div>
+    </div>
+
+    <!-- MILK HISTORY -->
+    ${horse ? '' : `<div class="card">
+      <h2><span class="dot"></span>Сүүний түүх</h2>
+      <div class="milk-tabs" id="milkTabs">
+        <button data-range="week" class="on">7 хоног</button>
+        <button data-range="month">Сар</button>
+        <button data-range="year">Жил</button>
+      </div>
+      <div id="milkChart" class="milk-chart"><p class="hint">Ачаалж байна…</p></div>
+    </div>`}
+
+    <!-- CONTACT PHONE -->
+    <div class="card">
+      <h2><span class="dot"></span>Холбоо барих утас</h2>
+      <p class="hint" style="margin-top:0;margin-bottom:12px">Таг уншуулсан хүн энэ дугаар руу залгана. Дугаар нь хуудсан дээр харагдахгүй — зөвхөн товч гарна.</p>
+      <div id="phoneZone"></div>
+    </div>
+
+    <!-- PHOTO -->
+    <div class="card">
+      <h2><span class="dot"></span>Зураг авах</h2>
+      <div class="kind-pick" id="kindPick">
+        <button data-kind="profile" class="on">Бүтэн бие</button>
+        ${horse ? '<button data-kind="brand">Тамга</button>' : '<button data-kind="muzzle">Хамар</button>'}
+        <button data-kind="marking">Тэмдэг</button>
+      </div>
+      <button class="photo-btn" id="photoBtn">Камер нээх</button>
+      <div class="gps-note" id="gpsNote">Байршил тогтоож байна…</div>
+      <img id="preview" alt="">
+      <p class="hint">Зураг хадгалагдсаны дараа засах боломжгүй. Байршил, цаг автоматаар бүртгэгдэнэ.<br>
+        <b>Бүтэн бие</b> зураг нь таг уншуулсан хүнд харагдана. Бусад зураг зөвхөн танд харагдана.</p>
+      <p class="hint" id="pubNote" style="margin-top:12px"></p>
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+
+    ${cow.sex === 'female' ? `
+    <!-- PREGNANCY & CALVING (schema_v28, ICAR ADE events) -->
+    <div class="card" id="reproCard">
+      <h2><span class="dot"></span>Хээл, төл</h2>
+      <div id="reproState" class="hint" style="margin-top:0">Ачаалж байна…</div>
+      <div class="kind-pick" id="reproBtns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <button data-rk="insemination">+ Хээлтүүлэг</button>
+        <button data-rk="pregnancy_check">+ Хээл шалгах</button>
+        <button data-rk="calving">+ Төллөлт</button>
+        <button data-rk="abortion">+ Хээл хаялт</button>
+      </div>
+      <div id="reproForm"></div>
+      <div id="reproList" style="margin-top:12px"></div>
+    </div>` : ''}
+
+    <!-- INFO -->
+    <div class="card">
+      <h2><span class="dot"></span>Мэдээлэл</h2>
+      <div class="kv"><span>Эзэмшигч</span><span>${esc(cow.owner_name)}</span></div>
+      <div class="kv"><span>Хүйс</span><span>${sex}</span></div>
+      <div class="kv"><span>Төрсөн он</span><span class="mono">${cow.birth_year || '—'}</span></div>
+      <div class="kv"><span>Төрөл / үүлдэр</span><span id="breedVal">${esc(cow.breed || '—')}</span></div>
+      <div id="breedEdit"></div>
+      <div class="kv"><span>Жин</span><span class="mono">${cow.weight_kg ? cow.weight_kg + ' кг' : '—'}</span></div>
+      <div class="kv"><span>Сүүлд тэжээсэн</span><span>${fmtDate(cow.last_fed_at)}</span></div>
+      <div class="kv"><span>Дараагийн вакцин</span><span>${cow.next_vaccination_due ? fmtDate(cow.next_vaccination_due) : '—'}</span></div>
+      <div class="kv"><span>Сүүлд харагдсан</span><span>${fmtDateTime(cow.last_seen_at)}</span></div>
+      <div class="kv"><span>Сүүлийн байршил</span>
+        <span class="mono">${cow.last_lat
+          ? `<a href="https://www.google.com/maps?q=${cow.last_lat},${cow.last_lng}"
+               target="_blank" rel="noopener" style="color:#1B4FA8;text-decoration:none">
+               ${Number(cow.last_lat).toFixed(4)}, ${Number(cow.last_lng).toFixed(4)} ↗</a>`
+          : '—'}</span></div>
+      <div id="ownHist"></div>
+    </div>
+
+    <!-- LOST / STOLEN -->
+    <div class="card" id="lostCard" style="display:none">
+      <h2><span class="dot" style="background:var(--alert)"></span>Алга болсон уу?</h2>
+      <p class="hint" style="margin:0 0 12px">Мал алга болсон эсвэл хулгайд алдсан бол мэдэгдээрэй. ${cow.tag_code
+        ? `Хэн нэгэн тагийг уншуулахад "Алга болсон мал" гэсэн анхааруулга гарч, уншуулсан байршил танд ирнэ.`
+        : `Таны жагсаалт, админы самбарт "Алга болсон" гэж тэмдэглэгдэнэ.`}</p>
+      <button class="lost-btn" id="lostBtn">Алга болсон гэж мэдэгдэх</button>
+    </div>
+  `;
+
+  renderPhone();
+  renderLost();
+  if (horse) renderHorse();
+  else { renderMilk(); loadMilkRow(); }
+  loadCowExtras();
+  document.getElementById('feedBtn').addEventListener('click', logFeeding);
+  document.querySelectorAll('#milkTabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#milkTabs button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      loadMilkHistory(b.dataset.range);
+    });
+  });
+  if (!horse) loadMilkHistory('week');
+  document.getElementById('photoBtn').addEventListener('click', () => {
+    document.getElementById('fileInput').click();
+  });
+  document.querySelectorAll('#kindPick button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#kindPick button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      photoKind = b.dataset.kind;
+    });
+  });
+  updateGpsNote();
+}
+
+
+
+// Publish the newest profile photo automatically.
+// Runs whenever the page loads, so photos taken before this existed
+// get fixed with no action from the herder.
+async function autoPublish(photos) {
+  if (!photos || !photos.length) return;
+  if (cow.public_photo_path) return;              // already published
+  if (autoPublish.running) return;                // don't stack retries
+
+  // Checked before taking the flag — returning after it left the flag
+  // stuck on, so auto-publish never ran again until a page reload.
+  const profile = photos.find(p => p.kind === 'profile');
+  if (!profile) return;
+  autoPublish.running = true;
+
+  const note = document.getElementById('pubNote');
+  if (note) note.innerHTML = '<span style="color:var(--ink-soft)">Нийтийн зураг бэлтгэж байна…</span>';
+
+  try {
+    const { data: blob, error: dlErr } = await sb.storage
+      .from('cattle-photos').download(profile.storage_path);
+    if (dlErr) throw dlErr;
+
+    const pubPath = `farm-${cow.farm_id}/cow-${cow.id}/profile-${Date.now()}.jpg`;
+    const { error: upErr } = await sb.storage
+      .from('cattle-public')
+      .upload(pubPath, blob, { contentType: 'image/jpeg', upsert: true });
+    if (upErr) throw upErr;
+
+    const { error: ptrErr } = await sb.rpc('set_public_photo', {
+      p_cattle_id: cow.id, p_path: pubPath
+    });
+    if (ptrErr) throw ptrErr;
+
+    cow.public_photo_path = pubPath;
+    if (note) note.innerHTML =
+      '<span style="color:var(--steppe)">✓ Нийтийн зураг бэлэн — таг уншуулахад харагдана</span>';
+  } catch (e) {
+    const msg = (e && e.message) || String(e);
+    if (note) note.innerHTML =
+      `<span style="color:#B3341F">Нийтийн зураг бэлтгэж чадсангүй: ${esc(msg)}</span>`;
+    console.error('autoPublish failed:', e);
+  } finally {
+    autoPublish.running = false;
+  }
+}
+
+
+// Deleting a photo is destructive and logged. There is deliberately no
+// "replace" action: the super admin is not next to the animal, so the
+// honest workflow is delete, then the herder retakes it.
+async function deletePhoto(id, kindLabel) {
+  if (!confirm(`"${kindLabel}" зургийг бүрмөсөн устгах уу?\n\nЭнэ үйлдлийг буцаах боломжгүй. Устгасан нь бүртгэгдэнэ.`)) return;
+  const reason = prompt('Шалтгаан (бүртгэлд үлдэнэ):', 'Буруу зураг');
+  if (reason === null) return;
+
+  const { error } = await sb.rpc('delete_photo', { photo_id: id, reason: reason || '—' });
+  if (error) { toast('Устгаж чадсангүй: ' + error.message, true); return; }
+  toast('Зураг устгагдлаа');
+  await reloadCow();
+}
+
+// ---------- contact phone ----------
+// ---------- lost / stolen ----------
+// report_lost / report_found (null-safe since schema_v34): the owner, the
+// farm admin or the super admin. When lost, t.html shows a warning to
+// whoever taps the tag and the tap location reaches the dashboard.
+let lostInfo = null;
+function cowIsLost() {
+  return !!cow && (cow.status === 'lost' || cow.status === 'stolen' || !!(lostInfo && lostInfo.reported_lost_at));
+}
+async function renderLost() {
+  const top = document.getElementById('lostTop'), card = document.getElementById('lostCard');
+  if (!top || !card || !cow) return;
+  const can = canEditCow();
+  if (cowIsLost() && !lostInfo && !offlineMode && navigator.onLine) {
+    try {
+      const { data, error } = await sb.from('cattle').select(isHorse() ? 'reported_lost_at, lost_note, lost_public'
+                                                                         : 'reported_lost_at, lost_note').eq('id', cow.id).maybeSingle();
+      if (!error) lostInfo = data || {};
+    } catch (e) {}
+  }
+  if (cowIsLost()) {
+    const li = lostInfo || {};
+    // a horse (schema_v56): anyone checking its number sees the warning; the public list if chosen
+    const horseNote = isHorse()
+      ? `Чип, улсын дугаар${cow.tag_code ? ', таг' : ''}аар нь шалгасан хүн анхааруулга харж, танд Telegram-аар мэдэгдэл ирнэ.
+         ${li.lost_public === false ? 'Нийтийн жагсаалтад харагдахгүй.' : 'Нийтийн жагсаалтад харагдана: <a href="check.html" style="color:inherit">yaktag.org/check.html</a>'}`
+      : 'Тагийг уншуулсан хүн анхааруулга харж, байршил нь "Сүүлд харагдсан" болон самбарын газрын зурагт бүртгэгдэнэ.';
+    top.innerHTML = `<div class="lostbar">
+      <b>⚠ ${cow.status === 'stolen' ? 'Хулгайд алдсан' : 'Алга болсон'} гэж мэдэгдсэн</b>${li.reported_lost_at ? `Мэдэгдсэн: ${fmtDateTime(li.reported_lost_at)}` : ''}
+      ${li.lost_note ? `<br>Тэмдэглэл: ${esc(li.lost_note)}` : ''}
+      <p>${horseNote}</p>
+      ${can ? '<button class="found-btn" id="foundBtn">Олдсон — буцаж ирсэн</button>' : ''}</div>`;
+    card.style.display = 'none';
+    const fb = document.getElementById('foundBtn');
+    if (fb) fb.addEventListener('click', markFound);
+  } else {
+    top.innerHTML = '';
+    card.style.display = can ? '' : 'none';
+    const lb = document.getElementById('lostBtn');
+    if (lb && !lb.dataset.wired) { lb.dataset.wired = '1'; lb.addEventListener('click', markLost); }
+  }
+}
+function lostSaved(status, info) {
+  cow.status = status;
+  lostInfo = info;
+  cacheSet(cowCacheKey(cow), cow);
+  renderLost();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+async function markLost() {
+  if (!navigator.onLine || offlineMode) return toast('Сүлжээ шаардлагатай.', true);
+  if (isHorse()) return lostHorseForm();
+  if (!confirm(`${animalCode(cow)} малыг алга болсон гэж мэдэгдэх үү?`)) return;
+  const note = prompt('Хаана, хэзээ алга болсон бэ? (заавал биш)', '');
+  if (note === null) return;
+  const btn = document.getElementById('lostBtn');
+  btn.disabled = true;
+  const { error } = await sb.rpc('report_lost', { p_cattle_id: cow.id, p_note: note.trim() || null });
+  btn.disabled = false;
+  if (error) return toast('Мэдэгдэж чадсангүй: ' + error.message, true);
+  toast('Алга болсон гэж бүртгэгдлээ');
+  lostSaved('lost', { reported_lost_at: new Date().toISOString(), lost_note: note.trim() || null });
+}
+// A horse (schema_v56): lost or stolen, and whether it goes on the public
+// list (yaktag.org/check.html) — on unless the owner says no.
+function lostHorseForm() {
+  const card = document.getElementById('lostCard');
+  if (!card || document.getElementById('lhForm')) return;
+  card.insertAdjacentHTML('beforeend', `<div id="lhForm" style="margin-top:12px">
+    <div class="kind-pick" id="lhKind">
+      <button type="button" data-k="lost" class="on">Алга болсон</button>
+      <button type="button" data-k="stolen">Хулгайд алдсан</button></div>
+    <div class="field" style="margin-top:10px"><label for="lhNote">Хаана, хэзээ? (заавал биш)</label>
+      <input type="text" id="lhNote" maxlength="300" placeholder="Хэнтий, Галшар сум, 10/20"></div>
+    <label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:500">
+      <input type="checkbox" id="lhPublic" checked style="margin-top:4px">
+      <span>Нийтийн жагсаалтад харуулах — зураг, тамга, зүс, энэ тэмдэглэл бүх хүнд харагдана (таны нэр харагдахгүй)</span></label>
+    <button class="lost-btn" id="lhSave" style="margin-top:12px">Мэдэгдэх</button></div>`);
+  let kind = 'lost';
+  document.querySelectorAll('#lhKind button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#lhKind button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); kind = b.dataset.k;
+  }));
+  document.getElementById('lostBtn').style.display = 'none';
+  document.getElementById('lhSave').addEventListener('click', async () => {
+    const btn = document.getElementById('lhSave');
+    const note = document.getElementById('lhNote').value.trim() || null;
+    const pub = document.getElementById('lhPublic').checked;
+    btn.disabled = true;
+    const { error } = await sb.rpc('report_lost', { p_cattle_id: cow.id, p_note: note, p_stolen: kind === 'stolen', p_public: pub });
+    btn.disabled = false;
+    if (error) return toast('Мэдэгдэж чадсангүй: ' + mnError(error.message), true);
+    document.getElementById('lhForm').remove();
+    document.getElementById('lostBtn').style.display = '';
+    toast(kind === 'stolen' ? 'Хулгайд алдсан гэж бүртгэгдлээ' : 'Алга болсон гэж бүртгэгдлээ');
+    lostSaved(kind, { reported_lost_at: new Date().toISOString(), lost_note: note, lost_public: pub });
+  });
+}
+
+async function markFound() {
+  if (!navigator.onLine || offlineMode) return toast('Сүлжээ шаардлагатай.', true);
+  if (!confirm(`${animalCode(cow)} мал олдсон уу? Анхааруулга арилна.`)) return;
+  const btn = document.getElementById('foundBtn');
+  btn.disabled = true;
+  const { error } = await sb.rpc('report_found', { p_cattle_id: cow.id });
+  if (btn) btn.disabled = false;
+  if (error) return toast('Хадгалж чадсангүй: ' + error.message, true);
+  toast('Олдсон гэж тэмдэглэлээ');
+  lostSaved('active', { reported_lost_at: null, lost_note: null });
+}
+
+function renderPhone(){
+  const z = document.getElementById('phoneZone');
+  if(!z) return;
+  const locked = !!cow.contact_locked_at;
+  const num = cow.contact_phone || '';
+
+  // A locked number can still be changed by an admin (set_contact_phone
+  // allows it); herders see it read-only.
+  const adminHere = myProf && (myProf.role === 'super_admin' ||
+                    (myProf.role === 'farm_admin' && myProf.farm_id === cow.farm_id));
+  if(locked && !adminHere){
+    z.innerHTML = `
+      <div class="phone-locked">
+        <span class="num">${esc(num)}</span>
+        <span>🔒 Түгжээтэй</span>
+      </div>
+      <p class="hint">Энэ дугаарыг өөрчлөхийн тулд ферм админд хандана уу.</p>`;
+    return;
+  }
+  if(locked && adminHere){
+    z.innerHTML = `
+      <div class="phone-entry">
+        <input type="tel" id="phoneInput" inputmode="tel" value="${esc(num)}">
+        <button id="phoneSave">Хадгалах</button>
+      </div>
+      <p class="hint">🔒 Түгжээтэй — та админ тул өөрчилж болно. Түгжээ хэвээр үлдэнэ.</p>`;
+    document.getElementById('phoneSave').addEventListener('click', ()=>savePhone(true));
+    return;
+  }
+
+  z.innerHTML = `
+    <div class="phone-entry">
+      <input type="tel" id="phoneInput" inputmode="tel" placeholder="99001122" value="${esc(num)}">
+      <button id="phoneSave">Хадгалах</button>
+    </div>
+    ${num ? '<button class="lockbtn" id="phoneLock">🔒 Дугаарыг түгжих</button>' : ''}
+    <p class="hint">Түгжсэний дараа зөвхөн ферм админ өөрчилнө.</p>`;
+
+  document.getElementById('phoneSave').addEventListener('click', ()=>savePhone(false));
+  const lk = document.getElementById('phoneLock');
+  if(lk) lk.addEventListener('click', ()=>{
+    if(confirm('Дугаарыг түгжих үү?\n\nҮүний дараа та өөрөө өөрчлөх боломжгүй болно. Зөвхөн ферм админ нээнэ.'))
+      savePhone(true);
+  });
+}
+
+async function savePhone(lock){
+  const input = document.getElementById('phoneInput');
+  const phone = input.value.trim();
+  if(!phone){ toast('Дугаараа оруулна уу.', true); return; }
+  // Same rule the database enforces (schema_v21) — digits, +, space, -, ().
+  if(!/^\+?[0-9][0-9 ()-]{5,19}$/.test(phone)){
+    toast('Утасны дугаар буруу байна. Зөвхөн тоо оруулна уу.', true); return;
+  }
+
+  const { error } = await sb.rpc('set_contact_phone', {
+    p_cattle_id: cow.id, p_phone: phone, p_lock: lock
+  });
+  if(error){ toast('Хадгалж чадсангүй: ' + error.message, true); return; }
+  toast(lock ? 'Дугаар түгжигдлээ' : 'Дугаар хадгалагдлаа');
+  await reloadCow();
+}
+
+// ---------- horse identity (schema_v55) ----------
+// Chip and national number (Order А/405), зүс, markings, агт. The
+// brand (тамга) is a photo: "Зураг авах" → "Тамга".
+function renderHorse(editing) {
+  const z = document.getElementById('horseZone');
+  if (!z) return;
+  const can = canEditCow() && !offlineMode;
+  if (editing) {
+    z.innerHTML = horseFieldsHtml('he', cow) + `
+      <div class="err" id="heErr"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-primary" id="heSave" style="flex:1">Хадгалах</button>
+        <button class="lockbtn" id="heCancel" style="flex:0 0 auto">Болих</button></div>`;
+    document.getElementById('heCastratedF').style.display = cow.sex === 'male' ? 'block' : 'none';
+    document.getElementById('heCancel').addEventListener('click', () => renderHorse(false));
+    document.getElementById('heSave').addEventListener('click', saveHorse);
+    return;
+  }
+  const row = (k, v, mono) => `<div class="kv"><span>${k}</span><span${mono ? ' class="mono"' : ''}>${v}</span></div>`;
+  const missing = !cow.chip_no && !cow.national_id;
+  const ble = cowExtra.ble_name;
+  z.innerHTML =
+    row('Нас, хүйс', esc(horseLabel(cow))) +
+    row('Зүс', esc(cow.colour || '—')) +
+    row('Тэмдэг', esc((cow.markings || []).join(', ') || '—')) +
+    (cow.sex === 'male' ? row('Агт', cow.castrated ? 'Тийм' : 'Үгүй') : '') +
+    row('Чипийн дугаар', esc(cow.chip_no || '—'), true) +
+    row('Улсын дугаар', esc(cow.national_id || '—'), true) +
+    row('BLE таг', esc(ble || '—'), true) +
+    ('herd_id' in cowExtra ? row('Сүрэг', '<span id="heHerd">—</span>') : '') +
+    '<div id="heFamily"></div>' +
+    (ble && (cowExtra.ble_heard_at || cowExtra.ble_battery != null)
+      ? row('BLE сүүлд сонсогдсон', esc([cowExtra.ble_heard_at ? fmtDateTime(cowExtra.ble_heard_at) : '',
+                                         cowExtra.ble_battery != null ? 'батарей ' + cowExtra.ble_battery + '%' : '']
+                                        .filter(Boolean).join(' · '))) : '') +
+    (missing ? `<p class="hint">Чип эсвэл улсын бүртгэлийн дугаараа оруулбал алга болох, хулгайд алдахад
+       адуугаа олоход тусална. Тамгын зургийг "Зураг авах" → "Тамга" товчоор авна.</p>` : '') +
+    (can ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="lockbtn" id="heEdit">Засах</button>
+        <button class="lockbtn" id="heBle">${ble ? '📡 BLE таг салгах' : '📡 BLE таг холбох'}</button>
+        <a class="lockbtn" href="contract.html?id=${encodeURIComponent(cow.id)}" style="text-decoration:none">📄 Худалдах гэрээ</a>
+      </div>
+      <div style="margin-top:14px"><b style="font-size:.9rem">Сүүлийн шалгалтууд</b>
+        <p class="hint" style="margin-top:2px">Хэн нэгэн дугаараар нь шалгах бүрт энд бичигдэж, танд Telegram-аар мэдэгдэл ирнэ.</p>
+        <div id="hcList"></div></div>` : '');
+  if (can) {
+    document.getElementById('heEdit').addEventListener('click', () => renderHorse(true));
+    document.getElementById('heBle').addEventListener('click', () => ble ? unlinkBle() : linkBle());
+    loadChecks();
+  }
+  loadHerdChoice(can);
+  loadFamily();
+}
+
+// ---------- the horse's herd (сүрэг, schema_v59) ----------
+// Shows the herd; the owner / farm admin can move the horse to another of
+// the farm's herds right here (the herds themselves are made in the app).
+async function loadHerdChoice(can) {
+  const z = document.getElementById('heHerd');
+  if (!z || offlineMode || !navigator.onLine) return;
+  let list = null;
+  try {
+    const { data, error } = await sb.from('herds').select('id, name').eq('farm_id', cow.farm_id)
+      .is('archived_at', null).order('name');
+    if (!error) list = data || [];
+  } catch (e) {}
+  if (!list || !document.body.contains(z)) return;
+  const nameOf = id => (list.find(h => h.id === id) || {}).name || '—';
+  if (!can || !list.length) { z.textContent = nameOf(cowExtra.herd_id); return; }
+  z.innerHTML = `<select id="heHerdSel" aria-label="Сүрэг" style="max-width:190px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;font:inherit">
+    <option value="">— сүрэггүй —</option>${list.map(h =>
+      `<option value="${esc(h.id)}"${h.id === cowExtra.herd_id ? ' selected' : ''}>${esc(h.name)}</option>`).join('')}</select>`;
+  const sel = document.getElementById('heHerdSel');
+  sel.addEventListener('change', async () => {
+    const to = sel.value || null;
+    sel.disabled = true;
+    let error = null;
+    try { ({ error } = await sb.rpc('herd_members', { p_herd: to, p_add: [cow.id], p_remove: [] })); } catch (e) { error = e; }
+    sel.disabled = false;
+    if (error) { sel.value = cowExtra.herd_id || ''; return toast(mnError(error.message || error), true); }
+    cowExtra.herd_id = to; cacheSet('yt-extra:' + cow.id, cowExtra);
+    toast(to ? `"${nameOf(to)}" сүрэгт орлоо` : 'Сүргээс гарлаа');
+  });
+}
+
+// ---------- BLE tag (schema_v56) ----------
+// Our own beacons. Web Bluetooth: Android Chrome only (an iPhone browser
+// has no Bluetooth). The beacon is known by its name (set in its own app,
+// e.g. YT-H001); the browser never gives out the hardware address.
+async function linkBle() {
+  if (!navigator.bluetooth) {
+    return toast('Энэ утсан дээр вэбээс Bluetooth ашиглах боломжгүй. Android утсанд Chrome-оор нээнэ үү.', true);
+  }
+  let dev;
+  try { dev = await navigator.bluetooth.requestDevice({ acceptAllDevices: true }); }
+  catch (e) {                                   // NotFoundError: the list was closed
+    if (e && e.name !== 'NotFoundError') toast('Bluetooth: ' + (e.message || e), true);
+    return;
+  }
+  const name = String(dev.name || '').trim();
+  if (!name) return toast('Энэ таг нэргүй байна. Тагийн өөрийн апп-аар нэр өгөөд (жишээ: YT-H001) дахин оролдоно уу.', true);
+  if (!confirm(`"${name}" BLE тагийг ${animalCode(cow)}-д холбох уу?`)) return;
+  const { error } = await sb.rpc('set_ble_tag', { p_cattle_id: cow.id, p_ble_name: name });
+  if (error) return toast(mnError(error.message), true);
+  cowExtra.ble_name = name; cacheSet('yt-extra:' + cow.id, cowExtra);
+  toast('BLE таг холбогдлоо');
+  renderHorse(false);
+}
+async function unlinkBle() {
+  if (!confirm(`"${cowExtra.ble_name}" BLE тагийг салгах уу?`)) return;
+  const { error } = await sb.rpc('set_ble_tag', { p_cattle_id: cow.id, p_ble_name: null });
+  if (error) return toast(mnError(error.message), true);
+  cowExtra.ble_name = null; cacheSet('yt-extra:' + cow.id, cowExtra);
+  toast('BLE таг салгагдлаа');
+  renderHorse(false);
+}
+
+// ---------- who checked this horse (schema_v56) ----------
+async function loadChecks() {
+  const z = document.getElementById('hcList');
+  if (!z || offlineMode || !navigator.onLine) return;
+  let data = null, error = null;
+  try {
+    ({ data, error } = await sb.from('horse_checks')
+      .select('at, seen, was_lost, lat, lng, note, finder_phone')
+      .eq('cattle_id', cow.id).order('at', { ascending: false }).limit(5));
+  } catch (e) { error = e; }
+  if (error) { z.innerHTML = ''; return; }                 // database not yet on v56
+  z.innerHTML = (data || []).length ? data.map(c => `<div class="kv"><span>${c.seen ? '👁 Харсан' : '🔎 Шалгасан'}
+      ${c.note ? '· ' + esc(c.note) : ''}${c.finder_phone ? ' · 📞 ' + esc(c.finder_phone) : ''}</span>
+      <span>${fmtDateTime(c.at)}${c.lat != null ? ` · <a href="https://www.google.com/maps?q=${c.lat},${c.lng}"
+        target="_blank" rel="noopener" style="color:#1B4FA8">газрын зураг ↗</a>` : ''}</span></div>`).join('')
+    : '<p class="hint">Одоогоор хэн ч шалгаагүй.</p>';
+}
+
+async function saveHorse() {
+  const err = document.getElementById('heErr');
+  const showErr = m => { err.textContent = m; err.style.display = 'block'; };
+  err.style.display = 'none';
+  const h = readHorseFields('he', cow.sex);
+  if (h.err) return showErr(h.err);
+  const btn = document.getElementById('heSave');
+  btn.disabled = true;
+  const { error } = await sb.rpc('set_horse_details', { p_cattle_id: cow.id, ...h });
+  btn.disabled = false;
+  if (error) return showErr(mnError(error.message));
+  toast('Хадгалагдлаа');
+  await reloadCow();
+}
+
+// ---------- milk ----------
+// Today's entry: who saved it and whether its one correction (schema_v54)
+// is used. null = not known yet / no signal — the server decides anyway.
+let milkRow = null;
+
+function milkAdmin() {
+  return !!myProf && (myProf.role === 'super_admin' ||
+         (myProf.role === 'farm_admin' && myProf.farm_id === cow.farm_id));
+}
+
+function renderMilk() {
+  const z = document.getElementById('milkZone');
+  if (!z) return;
+  if (cow.milk_today == null) {
+    z.innerHTML = `
+      <div class="milk-entry">
+        <input type="number" id="milkInput" inputmode="decimal" step="0.1" min="0" placeholder="0.0">
+        <button id="milkBtn">Хадгалах</button>
+      </div>
+      <p class="hint">Литрээр оруулна уу. Өдөрт нэг удаа бүртгэнэ, дараа нь нэг удаа засах боломжтой.</p>`;
+  } else {
+    const done = `<div class="milk-done">Өнөөдөр ${Number(cow.milk_today).toFixed(1)} литр бүртгэгдсэн</div>`;
+    const admin = milkAdmin();
+    const other = milkRow && myProf && milkRow.recorded_by !== myProf.id;
+    if (!admin && milkRow && (milkRow.locked || other)) {
+      z.innerHTML = done + `<p class="hint">🔒 ${milkRow.locked ? MILK_LOCKED
+        : 'Өөр хүн бүртгэсэн. Засах бол ферм админд хандана уу.'}</p>`;
+      return;
+    }
+    z.innerHTML = done + `
+      <p class="hint">${admin ? 'Шаардлагатай бол доор шинэ утга оруулна уу.' : MILK_ONE_EDIT + ' Шинэ утгаа доор оруулна уу.'}</p>
+      <div class="milk-entry" style="margin-top:10px">
+        <input type="number" id="milkInput" inputmode="decimal" step="0.1" min="0"
+               value="${Number(cow.milk_today).toFixed(1)}">
+        <button id="milkBtn">Засах</button>
+      </div>`;
+  }
+  document.getElementById('milkBtn').addEventListener('click', saveMilk);
+}
+
+async function loadMilkRow() {
+  milkRow = null;
+  if (offlineMode || cow.milk_today == null) return;
+  try {
+    const { data, error } = await sb.from('milk_yield')
+      .select('liters, edit_count, locked, recorded_by')
+      .eq('cattle_id', cow.id).eq('yield_date', mnDate()).maybeSingle();
+    if (!error && data) { milkRow = data; renderMilk(); }
+  } catch (e) {}
+}
+
+async function saveMilk() {
+  const input = document.getElementById('milkInput');
+  const btn = document.getElementById('milkBtn');
+  const liters = parseFloat(input.value);
+  if (isNaN(liters) || liters < 0) {
+    toast('Зөв тоо оруулна уу.', true);
+    return;
+  }
+  // a correction: the same number again changes nothing (and isn't counted);
+  // a herder is told first that there is only one
+  const editing = cow.milk_today != null;
+  if (editing && input.value.trim() === Number(cow.milk_today).toFixed(1)) {
+    toast('Утга өөрчлөгдөөгүй байна.');
+    return;
+  }
+  if (editing && !milkAdmin() && !confirm(MILK_CONFIRM)) return;
+  btn.disabled = true;
+  // The signed-in user from this phone (no network call), so milk can
+  // be entered with no signal; the date is today's, fixed now.
+  let uid = cacheGet('yt-uid');
+  try { const { data: { session } } = await sb.auth.getSession(); if (session) uid = session.user.id; } catch (e) {}
+  if (!uid) { btn.disabled = false; toast('Дахин нэвтэрнэ үү.', true); return; }
+
+  const r = await ytQueue.add('milk', {
+    farm_id: cow.farm_id, cattle_id: cow.id, recorded_by: uid,
+    liters: liters, yield_date: mnDate()
+  });
+
+  btn.disabled = false;
+  if (r.queued) {
+    toast(`Сүлжээгүй — ${liters.toFixed(1)} литр утсанд хадгалагдлаа, сүлжээ орохоор илгээгдэнэ`);
+    return;
+  }
+  if (!r.sent) {
+    if (editing && r.error) { toast(milkError(r.error), true); await reloadCow(); return; }
+    toast('Хадгалж чадсангүй: ' + (r.error ? (r.error.message || r.error) : 'дахин оролдоно уу'), true);
+    return;
+  }
+  toast(`${liters.toFixed(1)} литр хадгалагдлаа`);
+  await reloadCow();
+}
+
+// ---------- photo ----------
+document.getElementById('fileInput').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const preview = document.getElementById('preview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+
+  const btn = document.getElementById('photoBtn');
+  btn.disabled = true;
+  btn.textContent = 'Хадгалж байна…';
+
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+
+    // shrink before upload — herder phones on 3G in the countryside
+    const blob = await shrinkImage(file, 1200, 0.75);
+    const path = `farm-${cow.farm_id}/cow-${cow.id}/${photoKind}-${Date.now()}.jpg`;
+
+    // 1. upload the actual file
+    const { error: upErr } = await sb.storage
+      .from('cattle-photos')
+      .upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+    if (upErr) throw upErr;
+
+    // 2. a "profile" shot also goes to the PUBLIC bucket, because the
+    //    tap page must show it to someone with no login. Muzzle prints
+    //    and everything else stay in the private bucket only.
+    // Every profile shot is public by rule. Nothing to opt into.
+    if (photoKind === 'profile') {
+      // Cache-busting filename: browsers and the CDN hold on to a
+      // public URL, so overwriting profile.jpg would keep serving the
+      // old picture for hours.
+      const pubPath = `farm-${cow.farm_id}/cow-${cow.id}/profile-${Date.now()}.jpg`;
+      const { error: pubErr } = await sb.storage
+        .from('cattle-public')
+        .upload(pubPath, blob, { contentType: 'image/jpeg', upsert: true });
+
+      if (pubErr) {
+        // Surface it rather than failing quietly — a photo the owner
+        // believes is public but isn't is worse than a visible error.
+        toast('Нийтийн зураг хадгалагдсангүй: ' + pubErr.message, true);
+      } else {
+        // Saved through a function: a direct UPDATE on cattle is
+        // rejected for herders by the row policy.
+        const { error: ptrErr } = await sb.rpc('set_public_photo', {
+          p_cattle_id: cow.id, p_path: pubPath
+        });
+        if (ptrErr) toast('Зураг холбогдсонгүй: ' + ptrErr.message, true);
+        // Record it locally too, or loadPhotos() → autoPublish() sees
+        // no public photo and uploads the same picture a second time.
+        else cow.public_photo_path = pubPath;
+      }
+    } else if (photoKind === 'brand') {
+      // The тамга's public copy (schema_v56): strangers see it only while
+      // the horse is reported lost / stolen and listed publicly.
+      const pubPath = `farm-${cow.farm_id}/cow-${cow.id}/brand-${Date.now()}.jpg`;
+      const { error: pubErr } = await sb.storage
+        .from('cattle-public')
+        .upload(pubPath, blob, { contentType: 'image/jpeg', upsert: true });
+      if (pubErr) toast('Тамгын нийтийн хуулбар хадгалагдсангүй: ' + pubErr.message, true);
+      else {
+        const { error: ptrErr } = await sb.rpc('set_public_brand', { p_cattle_id: cow.id, p_path: pubPath });
+        if (ptrErr) toast('Тамга холбогдсонгүй: ' + mnError(ptrErr.message), true);
+      }
+    }
+
+    // 3. write the record, locked immediately
+    const { error: dbErr } = await sb.from('cattle_photos').insert({
+      farm_id: cow.farm_id,
+      cattle_id: cow.id,
+      kind: photoKind,
+      storage_path: path,
+      bytes: blob.size,
+      taken_lat: gps ? gps.lat : null,
+      taken_lng: gps ? gps.lng : null,
+      taken_at: new Date().toISOString(),
+      // locked_at is NOT sent from the client. The photo-lock design
+      // freezes rows server-side; asking the browser to declare its own
+      // lock state was both redundant and part of what the insert
+      // policy rejected.
+    });
+    if (dbErr) throw dbErr;
+
+    const kb = Math.round(blob.size/1024);
+    toast(gps ? `Зураг хадгалагдлаа · ${kb}KB · GPS` : `Зураг хадгалагдлаа · ${kb}KB`);
+    preview.style.display = 'none';
+    loadPhotos();
+  } catch (err) {
+    toast('Хадгалж чадсангүй: ' + (err.message || err), true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Камер нээх';
+    e.target.value = '';
+  }
+});
+
+// Resize on the phone before upload. Two reasons:
+//  1. A 12MP phone photo is ~4MB — slow and expensive on rural mobile data.
+//  2. Storage adds up: at 1200px/0.75 a photo is ~190KB, so 1GB holds
+//     ~5,500 photos. At full size it would hold ~2,400.
+// 1200px still resolves muzzle-print detail clearly.
+function shrinkImage(file, maxSide, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      const scale = Math.min(1, maxSide / Math.max(width, height));
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Зураг боловсруулж чадсангүй')),
+                    'image/jpeg', quality);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => reject(new Error('Зураг уншиж чадсангүй'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function loadPhotos() {
+  const grid = document.getElementById('photoGrid');
+  if (!grid) return;
+
+  const { data, error } = await sb
+    .from('cattle_photos')
+    .select('id, kind, taken_at, taken_lat, storage_path, locked_at, bytes')
+    .eq('cattle_id', cow.id)
+    .order('taken_at', { ascending: false })
+    .limit(6);
+
+  if (error) {
+    grid.innerHTML = `<p class="hint" style="grid-column:1/-1;color:#B3341F">
+      Зураг уншиж чадсангүй: ${esc(error.message)}</p>`;
+    return;
+  }
+  if (!data || !data.length) { grid.innerHTML = ''; return; }
+
+  const label = { muzzle:'Хамар', profile:'Бүтэн бие', marking:'Тэмдэг',
+                  transfer:'Шилжүүлэг', health:'Эрүүл мэнд', brand:'Тамга' };
+
+  // Private bucket — thumbnails need short-lived signed URLs.
+  const paths = data.map(p => p.storage_path);
+  const { data: signed, error: sErr } = await sb.storage
+    .from('cattle-photos')
+    .createSignedUrls(paths, 3600);
+
+  if (sErr) {
+    grid.innerHTML = `<p class="hint" style="grid-column:1/-1;color:#B3341F">
+      Зургийн холбоос үүсгэж чадсангүй: ${esc(sErr.message)}</p>`;
+    return;
+  }
+
+  const urlFor = {};
+  (signed || []).forEach(x => { if (x.signedUrl) urlFor[x.path] = x.signedUrl; });
+
+  grid.innerHTML = data.map(p => {
+    const url = urlFor[p.storage_path];
+    const img = url
+      ? `<img src="${url}" alt="${label[p.kind] || p.kind}" loading="lazy">`
+      : `<img src="assets/logo-256.png" alt="" style="object-fit:contain;padding:18%;opacity:.2"
+           title="Файл олдсонгүй">`;
+    const lock = p.locked_at ? '<span class="lockicon">Түгжээтэй</span>' : '';
+    const geo = p.taken_lat ? ' · GPS' : '';
+    const kb = p.bytes ? Math.round(p.bytes / 1024) : null;
+    const pub = p.kind === 'profile'
+      ? '<span class="pubtag">Нийтийн</span>'
+      : '<span class="privtag">Хувийн</span>';
+    const del = isSuper
+      ? `<button class="delphoto" data-id="${p.id}" data-kind="${label[p.kind]||p.kind}">Устгах</button>`
+      : '';
+    return `<figure>${img}${lock}
+      <figcaption>${label[p.kind] || p.kind}<br>${fmtDate(p.taken_at)}${geo}
+        ${kb ? `<br><span class="kbtag">${kb} KB</span>` : ''}</figcaption>
+      ${pub}${del}
+    </figure>`;
+  }).join('');
+
+  // Any profile photo that is not yet public gets promoted on its own.
+  // Asking the herder to press a button for this was a design mistake:
+  // they cannot see the public page, so they cannot tell it is missing.
+  document.querySelectorAll('.delphoto').forEach(b =>
+    b.addEventListener('click', () => deletePhoto(b.dataset.id, b.dataset.kind)));
+
+  autoPublish(data);
+
+  // Tell the owner plainly whether a public photo exists, because the
+  // tap page is the one screen they cannot check for themselves.
+  const note = document.getElementById('pubNote');
+  if (note) {
+    note.innerHTML = cow.public_photo_path
+      ? `<span style="color:var(--steppe)">✓ Нийтийн зураг бэлэн — таг уншуулахад харагдана</span>`
+      : `<span style="color:var(--gold)">"Бүтэн бие" зураг аваарай — таг уншуулсан хүнд зөвхөн тэр зураг харагдана.</span>`;
+  }
+}
+
+// ---------- feeding ----------
+// Last 5 feedings. A mistaken one can be deleted by whoever entered it
+// (7 days) or by an admin — schema_v35 delete_feeding enforces it.
+async function loadFeedings() {
+  const box = document.getElementById('feedList');
+  if (!box || !cow || offlineMode || !navigator.onLine) return;
+  let rows = [];
+  try {
+    const { data, error } = await sb.from('health_events').select('id, occurred_at, recorded_by')
+      .eq('cattle_id', cow.id).eq('kind', 'feeding').order('occurred_at', { ascending: false }).limit(5);
+    if (error) return;
+    rows = data || [];
+  } catch (e) { return; }
+  const admin = myProf && (myProf.role === 'super_admin' || (myProf.role === 'farm_admin' && myProf.farm_id === cow.farm_id));
+  const me = myProf && myProf.id;
+  box.innerHTML = rows.length ? `<p class="hint" style="margin:0 0 4px">Сүүлийн тэжээлүүд</p>` + rows.map(r => {
+    const can = admin || (r.recorded_by === me && Date.now() - new Date(r.occurred_at) < 7 * 86400000);
+    return `<div class="kv" style="align-items:center"><span>${fmtDateTime(r.occurred_at)}</span>
+      ${can ? `<button class="delphoto" style="width:auto;padding:4px 8px" data-feeddel="${esc(r.id)}" title="Устгах">✕</button>` : '<span></span>'}</div>`;
+  }).join('') : '';
+  box.querySelectorAll('[data-feeddel]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm('Энэ тэжээлийн бүртгэлийг устгах уу?')) return;
+    const { error } = await sb.rpc('delete_feeding', { p_event_id: b.dataset.feeddel });
+    if (error) { toast('Устгаж чадсангүй: ' + error.message, true); return; }
+    toast('Тэжээлийн бүртгэл устгагдлаа');
+    const left = rows.filter(r => r.id !== b.dataset.feeddel);
+    document.getElementById('lastFedVal').textContent = left.length ? fmtDate(left[0].occurred_at) : '—';
+    loadFeedings();
+  }));
+}
+
+async function logFeeding() {
+  const btn = document.getElementById('feedBtn');
+  btn.disabled = true;
+  const { error } = await sb.rpc('log_feeding', {
+    p_cattle_id: cow.id,
+    p_title: 'Тэжээл',
+    p_detail: null
+  });
+  btn.disabled = false;
+  if (error) { toast('Бүртгэж чадсангүй: ' + error.message, true); return; }
+  toast('Тэжээсэн гэж тэмдэглэлээ');
+  document.getElementById('lastFedVal').textContent = fmtDate(new Date().toISOString());
+  loadFeedings();
+}
+
+// ---------- milk history ----------
+async function loadMilkHistory(range) {
+  const el = document.getElementById('milkChart');
+  if (!el) return;
+
+  const today = new Date();
+  let since, buckets, labelFor;
+
+  if (range === 'week') {
+    since = new Date(today); since.setDate(today.getDate() - 6);
+    buckets = 7;
+    labelFor = d => ['Ням','Дав','Мяг','Лха','Пүр','Баа','Бям'][d.getDay()];
+  } else if (range === 'month') {
+    since = new Date(today); since.setDate(today.getDate() - 29);
+    buckets = 30;
+    labelFor = d => d.getDate();
+  } else {
+    // Start on the 1st so the oldest bar is a whole month, not a
+    // month cut off at today's day number.
+    since = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    buckets = 12;
+    labelFor = d => (d.getMonth() + 1) + 'сар';
+  }
+
+  const { data, error } = await sb
+    .from('milk_yield')
+    .select('liters, yield_date')
+    .eq('cattle_id', cow.id)
+    .gte('yield_date', mnDate(since))
+    .order('yield_date');
+
+  if (error) { el.innerHTML = '<p class="hint">Ачаалж чадсангүй.</p>'; return; }
+
+  // build empty buckets then fill
+  const series = [];
+  for (let i = 0; i < buckets; i++) {
+    const d = new Date(since);
+    if (range === 'year') d.setMonth(since.getMonth() + i);
+    else d.setDate(since.getDate() + i);
+    series.push({ date: d, label: labelFor(d), liters: 0 });
+  }
+
+  (data || []).forEach(row => {
+    const rd = new Date(row.yield_date + 'T00:00:00');
+    let idx;
+    if (range === 'year') {
+      idx = (rd.getFullYear() - since.getFullYear()) * 12 + (rd.getMonth() - since.getMonth());
+    } else {
+      idx = Math.round((rd - new Date(since.toDateString())) / 86400000);
+    }
+    if (idx >= 0 && idx < buckets) series[idx].liters += Number(row.liters);
+  });
+
+  const max = Math.max(...series.map(s => s.liters), 1);
+  const total = series.reduce((s, x) => s + x.liters, 0);
+  const days = series.filter(s => s.liters > 0).length;
+  const avg = days ? total / days : 0;
+
+  // for month view, only label every 5th day so it stays readable
+  const showLabel = (i) => range === 'month' ? (i % 5 === 0) : true;
+
+  el.innerHTML = `
+    <div class="bars">
+      ${series.map(s => `<div class="${s.liters ? '' : 'zero'}"
+        style="height:${Math.max(2, (s.liters / max) * 100)}%"
+        title="${s.label}: ${s.liters.toFixed(1)} л"></div>`).join('')}
+    </div>
+    <div class="barlabels">
+      ${series.map((s,i) => `<span>${showLabel(i) ? s.label : ''}</span>`).join('')}
+    </div>
+    <div class="milk-total"><span>Нийт</span><b>${total.toFixed(1)} л</b></div>
+    <div class="milk-total" style="border-top:0;padding-top:0;margin-top:0">
+      <span>Дунджаар (бүртгэсэн өдөр)</span><b>${avg.toFixed(1)} л</b></div>
+  `;
+}
+
+// ---------- offline queue notice ----------
+// Shows how many entries wait on this phone, and any the server
+// refused (so nothing is lost without the herder knowing).
+const QK = { milk: 'сүү', repro: 'хээл/төл', app_scan: 'уншуулалт', public_scan: 'уншуулалт' };
+function watchQueue() {
+  if (watchQueue.on) return; watchQueue.on = true;
+  ytQueue.onChange(n => {
+    const el = document.getElementById('queueNote');
+    if (!el) return;
+    let rej = [];
+    try { rej = JSON.parse(localStorage.getItem('yt-rejected') || '[]'); } catch (e) {}
+    const parts = [];
+    if (n) parts.push(`⏳ ${n} бүртгэл илгээгдэхийг хүлээж байна`);
+    if (rej.length) parts.push(`<a href="#" id="rejLink" style="color:#FFB4A8">⚠ ${rej.length} бүртгэл хадгалагдсангүй</a>`);
+    el.innerHTML = parts.join(' · ');
+    el.style.display = parts.length ? 'block' : 'none';
+    const a = document.getElementById('rejLink');
+    if (a) a.onclick = e => {
+      e.preventDefault();
+      const txt = rej.map(r => `${fmtDateTime(r.created)} — ${QK[r.kind] || r.kind}: ${r.error}`).join('\n');
+      if (confirm(`Сервер хүлээж аваагүй бүртгэл:\n\n${txt}\n\nЖагсаалтыг цэвэрлэх үү?`)) {
+        localStorage.removeItem('yt-rejected'); ytQueue.flush();
+      }
+    };
+  });
+}
+
+// ---------- scan log ----------
+// Through the offline queue (offline.js): kept on the phone first,
+// sent now if there is signal, otherwise as soon as there is.
+// scan_events.client_uuid is unique, so a retry can never double up.
+async function logScan() {
+  let uid = cacheGet('yt-uid');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) uid = session.user.id;
+  } catch (e) {}
+  if (!uid) return;
+
+  const r = await ytQueue.add('app_scan', {
+    client_uuid: ytUuid(),
+    farm_id: cow.farm_id,
+    cattle_id: cow.id,
+    scanned_by: uid,
+    method: 'nfc',
+    lat: gps ? gps.lat : null,
+    lng: gps ? gps.lng : null,
+    accuracy_m: gps ? gps.accuracy : null,
+    scanned_at: openedAt
+  });
+  if (r.queued) toast('Сүлжээгүй — уншуулалт утсанд хадгалагдлаа');
+}
+
+boot();
+</script>
+</body>
+</html>

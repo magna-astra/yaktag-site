@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<!-- Never shown inside another site's frame (click-jacking guard;
+     GitHub Pages cannot send an X-Frame-Options header). -->
+<style id="yt-noframe">html{display:none}</style>
+<script>if (window.self === window.top) document.getElementById('yt-noframe').remove(); else window.top.location = window.self.location.href;</script>
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>YAK-TAG Малчин</title>
+<!--
+  YAK-TAG herder app — https://yaktag.org/app/
+  For herders and farm admins: log in with phone number + password, see
+  "Миний мал", open an animal (cow.html) to add milk, vaccines, pregnancy
+  and photos. Installable on any phone (manifest.json + sw.js), opens with
+  no signal. Super admins and Админ use the dashboard (admin/).
+  The database decides what each login sees (RLS); this page only shows it.
+-->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="../assets/favicon.ico">
+<link rel="apple-touch-icon" href="../assets/app-icon-180.png">
+<meta name="theme-color" content="#23633A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="YAK-TAG">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>
+// The horse app "YAK-TAG Адуу" (owner, 2026-10-25) is this page with
+// ?app=horse: its own name, icon (assets/horse-icon-*) and brown colour,
+// so the phone installs it as a second app that opens straight into the
+// horses and is never mixed up with the cattle one.
+const HORSE_APP = new URLSearchParams(location.search).get('app') === 'horse';
+if (HORSE_APP) {
+  document.querySelector('link[rel="manifest"]').href = 'manifest-horse.json';
+  document.querySelector('link[rel="apple-touch-icon"]').href = '../assets/horse-icon-180.png';
+  document.querySelector('meta[name="theme-color"]').content = '#4A2C16';
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').content = 'Адуу';
+  document.title = 'YAK-TAG Адуу';
+  document.documentElement.classList.add('horse-app');
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<style>
+:root{
+  --bg:#FFFDF8; --card:#fff; --ink:#14243B; --ink2:#46556B; --muted:#5E6878; --line:#E9E2D3;
+  --green:#2E7D46; --green-d:#23633A; --green-l:#E7F2E6; --red:#B3341F; --red-l:#FCEAE7;
+  --sun:#9A6A00; --sun-l:#FDF3DC; --r:16px;
+  --font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--font);-webkit-text-size-adjust:100%}
+body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+button,input{font:inherit}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+
+header.top{background:linear-gradient(135deg,#23633A 0%,#2E7D46 60%,#3E9A58 100%);color:#fff;
+  padding:calc(14px + env(safe-area-inset-top)) 0 16px;box-shadow:0 8px 22px rgba(35,99,58,.2)}
+header.top .wrap{display:flex;align-items:center;gap:10px}
+header.top img{width:30px;height:30px;filter:invert(1)}
+header.top .brand{font-weight:800;letter-spacing:.03em;white-space:nowrap}
+header.top .brand small{display:block;font-weight:600;font-size:.74rem;letter-spacing:0;opacity:.85}
+/* the horse app: brown instead of green everywhere */
+html.horse-app{--green:#7A4A22;--green-d:#5C3A1E;--green-l:#F4EADF}
+html.horse-app header.top{background:linear-gradient(135deg,#3E2412 0%,#5C3A1E 60%,#7A4E2A 100%);
+  box-shadow:0 8px 22px rgba(74,44,22,.25)}
+html.horse-app header.top img{filter:none}
+header.top .out{margin-left:auto;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);
+  border-radius:10px;padding:6px 12px;font-size:.85rem;cursor:pointer;white-space:nowrap}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:16px;
+  box-shadow:0 6px 18px rgba(20,36,59,.05)}
+h1{font-size:1.25rem;margin-bottom:4px}
+h2{font-size:1.05rem;margin-bottom:8px}
+.sub{color:var(--muted);font-size:.9rem}
+label{display:block;font-size:.85rem;font-weight:700;color:var(--ink2);margin:14px 0 6px}
+input[type=tel],input[type=password],input[type=text],input[type=search]{width:100%;padding:13px 14px;font-size:1.05rem;
+  border:1.5px solid #8F887A;border-radius:12px;background:#fff;color:var(--ink)}
+input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px var(--green-l)}
+.btn{display:block;width:100%;margin-top:16px;padding:14px;border:0;border-radius:12px;background:var(--green);
+  color:#fff;font-weight:800;font-size:1.02rem;cursor:pointer;text-align:center;text-decoration:none}
+.btn:disabled{opacity:.6}
+.btn.ghost{background:var(--green-l);color:var(--green-d)}
+.err{display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--red-l);color:var(--red);font-size:.9rem}
+.okmsg{display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--green-l);color:var(--green-d);font-size:.9rem}
+#rsCode{font-family:var(--mono);font-size:1.3rem;letter-spacing:.3em;text-align:center}
+.note{font-size:.84rem;color:var(--muted);margin-top:12px;text-align:center}
+.link{color:var(--green-d);font-weight:700}
+
+#install ol{margin:8px 0 0 20px;font-size:.92rem}
+#install li{margin:4px 0}
+#install .share{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 6px;font-weight:700}
+
+.bar{display:none;margin-top:12px;padding:9px 12px;border-radius:10px;font-size:.88rem}
+.bar.off{background:var(--sun-l);color:var(--sun)}
+.bar.q{background:#E8EFFB;color:#1B4FA8}
+
+.open{display:flex;gap:8px;margin-top:10px}
+.open input{flex:1;font-family:var(--mono);text-transform:uppercase}
+.open button{flex:none;padding:0 18px;border:0;border-radius:12px;background:var(--ink);color:#fff;font-weight:800;cursor:pointer}
+#nfcBtn{display:none}
+#nfcMsg{margin-top:8px;font-size:.88rem;color:var(--ink2);text-align:center}
+
+.listhead{display:flex;align-items:baseline;gap:8px;margin:20px 0 8px}
+.listhead h2{margin:0}
+.listhead .sub{margin-left:auto}
+.listhead button{border:0;background:none;color:var(--green-d);font-weight:700;cursor:pointer;font-size:.9rem}
+#search{margin-bottom:10px}
+/* cows and horses are separate sections: a small button switches */
+.hellorow{display:flex;align-items:flex-start;gap:10px}
+.hellorow h1{flex:1}
+.kindbtn{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;
+  font-weight:800;font-size:.88rem;color:var(--ink);cursor:pointer;white-space:nowrap}
+.kindbtn:active{background:var(--green-l)}
+.animal{display:block;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;
+  color:inherit;text-decoration:none}
+.animal:active{background:var(--green-l)}
+.animal .row{display:flex;align-items:center;gap:8px}
+.animal .code{font-family:var(--mono);font-weight:800;font-size:1.05rem}
+.animal .go{margin-left:auto;color:var(--muted);font-size:1.3rem;line-height:1}
+.animal .meta{color:var(--ink2);font-size:.87rem;margin-top:2px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.b{font-size:.76rem;font-weight:700;padding:3px 8px;border-radius:999px;background:#EEF0F4;color:var(--ink2)}
+.b.ok{background:var(--green-l);color:var(--green-d)}
+.b.warn{background:var(--sun-l);color:var(--sun)}
+.b.bad{background:var(--red-l);color:var(--red)}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+/* horse herds (schema_v59) */
+.herd{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.herd.late{border-color:#E3A99D;background:#FFFBFA}
+.herd .top{display:flex;align-items:center;gap:8px;cursor:pointer}
+.herd .hname{flex:1;min-width:0;font-weight:800;font-size:1.02rem;overflow-wrap:anywhere}
+.herd .go{color:var(--muted);font-size:1.1rem;line-height:1}
+.herd .meta{color:var(--ink2);font-size:.87rem;margin-top:2px}
+.herd a{color:var(--green-d);font-weight:700}
+.pinrow{display:flex;gap:8px;margin-top:10px}
+.pinrow input{flex:none;width:86px;padding:10px 8px;font-size:1rem;text-align:center;border:1.5px solid #8F887A;border-radius:10px;background:#fff;color:var(--ink)}
+.pinrow button{flex:1;padding:11px;border:0;border-radius:10px;background:var(--green);color:#fff;font-weight:800;font-size:1rem;cursor:pointer}
+.pinrow button:disabled{opacity:.65}
+.pinmsg{margin-top:6px;font-size:.86rem}
+.herdmore{margin-top:12px;border-top:1px solid #F0F2F5;padding-top:6px;font-size:.9rem}
+.herdmore h3{font-size:.84rem;color:var(--ink2);margin:10px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips a{font-size:.82rem;font-weight:600;padding:5px 9px;border-radius:999px;background:#EEF0F4;color:var(--ink);text-decoration:none}
+.pinlist>div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #F4F1EA;font-size:.85rem}
+.minibtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.minibtns button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;font-size:.88rem;color:var(--ink);cursor:pointer}
+.minibtns button.danger{color:var(--red)}
+.checklist label{display:flex;align-items:center;gap:10px;margin:0;padding:9px 0;border-bottom:1px solid #F4F1EA;font-weight:600;font-size:.92rem;color:var(--ink)}
+.checklist input{width:20px;height:20px;flex:none}
+.hform select,.hform textarea{width:100%;padding:12px;font-size:1rem;border:1.5px solid #8F887A;border-radius:12px;background:#fff;color:var(--ink);font-family:inherit}
+footer{text-align:center;margin:28px 0 18px;font-size:.84rem}
+footer a{color:var(--muted)}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <img src="../assets/logo-64.png" alt="" id="topLogo">
+    <div class="brand">YAK-TAG<small id="topSub">Малчны апп</small></div>
+    <button class="out" id="outBtn" hidden>Гарах</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===== Install (hidden once opened as the installed app) ===== -->
+  <section class="card" id="install" hidden>
+    <h2>📲 Утсандаа суулгах</h2>
+    <p class="sub">Нэг удаа суулгавал утасны нүүр дэлгэцэнд YAK-TAG дүрс гарч, апп шиг нээгдэнэ. Сүлжээгүй үед ч ажиллана. Үнэгүй.</p>
+    <button class="btn" id="installBtn" hidden>Суулгах</button>
+    <div id="iosSteps" hidden>
+      <ol>
+        <li>Safari-ийн доод хэсгийн <span class="share">⬆</span> «Хуваалцах» товчийг дарна.</li>
+        <li>«Нүүр дэлгэцэнд нэмэх» (Add to Home Screen)-ийг сонгоно.</li>
+        <li>«Нэмэх» (Add) дарна.</li>
+      </ol>
+    </div>
+    <div id="otherSteps" hidden>
+      <ol>
+        <li>Хөтчийн цэс <b>⋮</b>-ийг дарна.</li>
+        <li>«Апп суулгах» эсвэл «Нүүр дэлгэцэнд нэмэх»-ийг сонгоно.</li>
+      </ol>
+    </div>
+    <p class="note">Бусад малчинд энэ хаягийг илгээнэ: <b>yaktag.org/app</b></p>
+  </section>
+
+  <!-- ===== Login ===== -->
+  <section class="card" id="loginView" hidden>
+    <h1>Нэвтрэх</h1>
+    <p class="sub">Малчин, ферм админд зориулсан.</p>
+    <div class="err" id="loginErr"></div>
+    <label for="phone">Утасны дугаар</label>
+    <input type="tel" id="phone" inputmode="tel" autocomplete="username" placeholder="9911 2233">
+    <label for="password">Нууц үг</label>
+    <input type="password" id="password" autocomplete="current-password">
+    <button class="btn" id="loginBtn">Нэвтрэх</button>
+    <button class="btn ghost" id="forgotBtn">Нууц үгээ мартсан уу?</button>
+  </section>
+
+  <!-- ===== Forgotten password: code through Telegram ===== -->
+  <section class="card" id="resetView" hidden>
+    <h1>Нууц үг сэргээх</h1>
+    <p class="sub">YAK-TAG-ийн Telegram бот таны Telegram руу 6 оронтой код илгээнэ.</p>
+    <div class="err" id="rsErr"></div>
+    <div class="okmsg" id="rsMsg"></div>
+    <div id="rsStep1">
+      <label for="rsPhone">Утасны дугаар</label>
+      <input type="tel" id="rsPhone" inputmode="tel" autocomplete="username" placeholder="9911 2233">
+      <button class="btn" id="rsSend">📨 Telegram-аар код авах</button>
+    </div>
+    <div id="rsStep2" hidden>
+      <label for="rsCode">Telegram-д ирсэн код</label>
+      <input type="text" id="rsCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456">
+      <label for="rsPw">Шинэ нууц үг (8+ тэмдэгт)</label>
+      <input type="password" id="rsPw" autocomplete="new-password">
+      <label for="rsPw2">Шинэ нууц үг дахин</label>
+      <input type="password" id="rsPw2" autocomplete="new-password">
+      <button class="btn" id="rsSave">Нууц үг солих</button>
+      <button class="btn ghost" id="rsResend">Код дахин авах</button>
+    </div>
+    <p class="note">Telegram холбоогүй бол Ерөнхий админ эсвэл Админд хандаж шинэ нууц үг авна уу<span id="rsPhoneLine"></span>.</p>
+    <button class="btn ghost" id="rsBack">← Нэвтрэх рүү буцах</button>
+  </section>
+
+  <!-- ===== Админ: uses the dashboard (the super admin may use both) ===== -->
+  <section class="card" id="roleView" hidden>
+    <h2>Удирдлагын самбарыг ашиглана уу</h2>
+    <p class="sub">Энэ апп малчин, ферм админд зориулсан. Админ удирдлагын самбараар ажиллана.</p>
+    <a class="btn" href="../admin/">Удирдлагын самбар нээх</a>
+  </section>
+
+  <!-- ===== the horse app before launch: only the super admin and testers ===== -->
+  <section class="card" id="soonView" hidden>
+    <h2>🐎 YAK-TAG Адуу тун удахгүй</h2>
+    <p class="sub">Адууны апп одоогоор туршилтад байна. Малынхаа бүртгэлийг YAK-TAG апп-аас хөтөлнө.</p>
+    <a class="btn" href="./">YAK-TAG апп нээх</a>
+  </section>
+
+  <!-- ===== Home: my animals ===== -->
+  <section id="homeView" hidden>
+    <div class="card">
+      <div class="hellorow">
+        <h1 id="hello">Сайн байна уу</h1>
+        <button class="kindbtn" id="kindBtn">🐎 Адуу</button>
+      </div>
+      <p class="sub" id="whoami"></p>
+      <div class="bar off" id="offBar"></div>
+      <div class="bar q" id="queueBar"></div>
+
+      <button class="btn" id="nfcBtn">📶 Таг уншуулах</button>
+      <div id="nfcMsg" hidden></div>
+
+      <label for="code">Тагийн дугаараар нээх</label>
+      <div class="open">
+        <input type="text" id="code" placeholder="YT-008000" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <button id="codeBtn">Нээх</button>
+      </div>
+      <p class="note" style="text-align:left" id="codeNote">Шинэ таг бол энд нээгээд мал бүртгэнэ.</p>
+      <!-- horse section: most horses wear no YAK-TAG tag (chip + тамга identify them) -->
+      <button class="btn ghost" id="horseNewBtn" hidden>＋ Таггүй адуу бүртгэх</button>
+      <div id="horseTools" hidden>
+        <button class="btn ghost" id="bleBtn">📡 Ойролцоох адуу (BLE)</button>
+        <div class="note" id="bleMsg" style="text-align:left" hidden></div>
+        <!-- listener boxes at wells / winter camps (schema_v57, BLE_TAG_SPEC.md) -->
+        <button class="btn ghost" id="gwBtn">📶 Сонсогч төхөөрөмж (худаг, өвөлжөө)</button>
+        <div id="gwBox" hidden></div>
+        <p class="note"><a href="../check.html" style="color:var(--green-d);font-weight:700">🔎 Адуу шалгах · алга болсон адуу</a></p>
+      </div>
+    </div>
+
+    <!-- Telegram: lost-animal alerts and the password-reset code -->
+    <div class="card" id="tgCard" hidden>
+      <h2>🔔 Telegram холбох</h2>
+      <p class="sub">Мал тань алга болоод хэн нэгэн уншуулбал мэдэгдэл ирнэ. Нууц үгээ мартвал сэргээх код ирнэ. Үнэгүй.</p>
+      <button class="btn" id="tgBtn">Telegram холбох</button>
+      <a class="btn" id="tgOpen" target="_blank" rel="noopener" hidden>Telegram нээх</a>
+      <p class="note" id="tgHint" hidden>Telegram нээгдэхэд <b>Start</b> (Эхлэх) дарна. Холбоос 30 минут хүчинтэй.</p>
+    </div>
+    <p class="note" id="tgOk" hidden>✓ Telegram холбогдсон — мэдэгдэл, нууц үг сэргээх код ирнэ.</p>
+
+    <!-- horse section: herds (сүрэг, schema_v59) -->
+    <div id="herdsBox" hidden>
+      <div class="listhead">
+        <h2>Сүрэг</h2>
+        <span class="sub" id="herdCount"></span>
+        <button id="herdNewBtn" hidden>＋ Шинэ сүрэг</button>
+      </div>
+      <div id="herdFormBox" hidden></div>
+      <div id="herdList"></div>
+    </div>
+
+    <!-- horse section: mare's milk per milking group (зэл, schema_v62) -->
+    <div id="mareMilkBox" hidden>
+      <div class="listhead">
+        <h2>🥛 Гүүний сүү</h2>
+        <span class="sub" id="mmSeason"></span>
+      </div>
+      <div id="mmList"></div>
+    </div>
+
+    <div class="listhead">
+      <h2 id="listTitle">Миний мал</h2>
+      <span class="sub" id="count"></span>
+      <button id="reloadBtn" title="Шинэчлэх">↻</button>
+    </div>
+    <input type="search" id="search" placeholder="Хайх: дугаар, үүлдэр…" hidden>
+    <div id="list"></div>
+  </section>
+
+  <footer><a href="../">yaktag.org</a></footer>
+</main>
+
+<script src="../config.js?v=2026102601"></script>
+<script src="../offline.js?v=20261026"></script>
+<script>
+// ============================================================
+// Herder app. Uses config.js (sb, loginEmail, normPhone, mnError,
+// mnDate, daysUntil) and offline.js (ytQueue, ytUuid, service worker).
+// ============================================================
+const $ = id => document.getElementById(id);
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+function isOffline(error) {
+  if (!navigator.onLine) return true;
+  return /fetch|network|load failed|timeout|abort/i.test(String(error && (error.message || error)));
+}
+function cacheGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+function cacheSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function show(id) {
+  ['loginView', 'resetView', 'roleView', 'soonView', 'homeView'].forEach(v => { $(v).hidden = v !== id; });
+  $('outBtn').hidden = id === 'loginView' || id === 'resetView';
+}
+if (HORSE_APP) {                                // the horse app's own header
+  $('topLogo').src = '../assets/horse-logo-128.png';
+  $('topSub').textContent = 'Адууны апп';
+}
+
+// ---------- install ----------
+const standalone = (() => {
+  try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
+  catch (e) { return false; }
+})();
+let installEvt = null;
+if (!standalone) {
+  $('install').hidden = false;
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (ios) $('iosSteps').hidden = false; else $('otherSteps').hidden = false;
+  // Android Chrome / Edge / Samsung: the browser offers its own install window.
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    installEvt = e;
+    $('installBtn').hidden = false;
+    $('otherSteps').hidden = true;
+  });
+  $('installBtn').addEventListener('click', async () => {
+    if (!installEvt) return;
+    installEvt.prompt();
+    try { await installEvt.userChoice; } catch (e) {}
+    installEvt = null;
+    $('installBtn').hidden = true;
+  });
+  window.addEventListener('appinstalled', () => { $('install').hidden = true; });
+}
+
+// ---------- login (phone number + password) ----------
+async function doLogin() {
+  const phone = $('phone').value.trim(), password = $('password').value;
+  const err = $('loginErr');
+  const fail = m => { err.textContent = m; err.style.display = 'block'; };
+  err.style.display = 'none';
+  const bad = loginPhoneError(phone);
+  if (bad) return fail(bad);
+  if (!password) return fail('Нууц үгээ оруулна уу.');
+  $('loginBtn').disabled = true; $('loginBtn').textContent = 'Нэвтэрч байна…';
+  let error = null;
+  try { ({ error } = await sb.auth.signInWithPassword({ email: loginEmail(phone), password })); }
+  catch (e) { error = e; }
+  $('loginBtn').disabled = false; $('loginBtn').textContent = 'Нэвтрэх';
+  if (error) {
+    return fail((isOffline(error) || error.name === 'AuthRetryableFetchError')
+      ? 'Сүлжээ муу байна. Дахин оролдоно уу.'
+      : 'Утасны дугаар эсвэл нууц үг буруу байна.');
+  }
+  $('password').value = '';
+  boot();
+}
+$('loginBtn').addEventListener('click', doLogin);
+$('password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// ---------- forgotten password: a code through Telegram ----------
+// supabase/functions/password-reset. Someone without Telegram asks the
+// super admin / Админ (dashboard → Хэрэглэгчид → "Нууц үг").
+async function resetCall(body) {
+  if (!navigator.onLine) return { error: 'Сүлжээ байхгүй байна. Сүлжээтэй үед дахин оролдоно уу.' };
+  try {
+    const { data, error } = await sb.functions.invoke('password-reset', { body });
+    if (!error) return { data };
+    let msg = error.message, status = 0;
+    try { status = error.context.status; const j = await error.context.json(); if (j && j.error) msg = j.error; } catch (e) {}
+    if (error.name === 'FunctionsFetchError') msg = 'Сүлжээ муу байна. Дахин оролдоно уу.';
+    else if (status === 404) msg = 'Нууц үг сэргээх үйлчилгээ одоогоор ажиллахгүй байна. Админд хандана уу.';
+    else if (status === 401) msg = 'Нууц үг сэргээх тохиргоо дутуу байна. Админд хандана уу.';
+    return { error: msg };
+  } catch (e) {
+    return { error: isOffline(e) ? 'Сүлжээ муу байна. Дахин оролдоно уу.' : String((e && e.message) || e) };
+  }
+}
+function rsSay(kind, text) {
+  $('rsErr').style.display = kind === 'err' ? 'block' : 'none';
+  $('rsMsg').style.display = kind === 'ok' ? 'block' : 'none';
+  if (kind === 'err') $('rsErr').textContent = text;
+  if (kind === 'ok') $('rsMsg').textContent = text;
+}
+let rsWait = null;
+function rsCooldown(sec) {                  // the server sends at most one code a minute
+  clearInterval(rsWait);
+  const b1 = $('rsSend'), b2 = $('rsResend');
+  const tick = () => {
+    const off = sec > 0;
+    b1.disabled = b2.disabled = off;
+    b1.textContent = off ? `📨 ${sec} сек хүлээнэ үү` : '📨 Telegram-аар код авах';
+    b2.textContent = off ? `Код дахин авах (${sec})` : 'Код дахин авах';
+    if (sec-- <= 0) clearInterval(rsWait);
+  };
+  tick(); rsWait = setInterval(tick, 1000);
+}
+async function openReset() {
+  show('resetView');
+  rsSay('', '');
+  if (!$('rsPhone').value) $('rsPhone').value = $('phone').value;
+  // the super admin's phone from the website settings (public), as the last resort
+  try {
+    const { data } = await sb.from('site_settings').select('phone').maybeSingle();
+    const p = data && String(data.phone || '').trim();
+    $('rsPhoneLine').textContent = p ? ` (📞 ${p})` : '';
+  } catch (e) {}
+}
+async function rsSend() {
+  const phone = $('rsPhone').value.trim();
+  const bad = loginPhoneError(phone);
+  if (bad) return rsSay('err', bad);
+  $('rsSend').disabled = $('rsResend').disabled = true;
+  const r = await resetCall({ action: 'request', phone });
+  if (r.error) { $('rsSend').disabled = $('rsResend').disabled = false; return rsSay('err', r.error); }
+  rsSay('ok', r.data.message || 'Код илгээлээ. Telegram-аа шалгана уу.');
+  $('rsStep1').hidden = true; $('rsStep2').hidden = false;
+  rsCooldown(60);
+  try { $('rsCode').focus(); } catch (e) {}
+}
+$('forgotBtn').addEventListener('click', openReset);
+$('rsBack').addEventListener('click', () => { clearInterval(rsWait); show('loginView'); });
+$('rsSend').addEventListener('click', rsSend);
+$('rsResend').addEventListener('click', rsSend);
+$('rsSave').addEventListener('click', async () => {
+  const phone = $('rsPhone').value.trim(), code = $('rsCode').value.replace(/\D/g, '');
+  const pw = $('rsPw').value, pw2 = $('rsPw2').value;
+  if (code.length !== 6) return rsSay('err', 'Telegram-д ирсэн 6 оронтой кодыг оруулна уу.');
+  if (pw.length < 8) return rsSay('err', 'Нууц үг хамгийн багадаа 8 тэмдэгт байна.');
+  if (pw !== pw2) return rsSay('err', 'Хоёр нууц үг таарахгүй байна.');
+  $('rsSave').disabled = true;
+  const r = await resetCall({ action: 'confirm', phone, code, password: pw });
+  $('rsSave').disabled = false;
+  if (r.error) return rsSay('err', r.error);
+  // logged straight in with the new password
+  rsSay('ok', 'Нууц үг солигдлоо. Нэвтэрч байна…');
+  clearInterval(rsWait);
+  ['rsCode', 'rsPw', 'rsPw2'].forEach(id => { $(id).value = ''; });
+  $('phone').value = phone;
+  let error = null;
+  try { ({ error } = await sb.auth.signInWithPassword({ email: loginEmail(phone), password: pw })); } catch (e) { error = e; }
+  if (error) { show('loginView'); return; }
+  boot();
+});
+
+// ---------- log out ----------
+$('outBtn').addEventListener('click', async () => {
+  let waiting = 0;
+  try { waiting = await ytQueue.count(); } catch (e) {}
+  if (waiting && !confirm(`${waiting} бүртгэл илгээгдээгүй байна. Сүлжээ ороход автоматаар илгээгдэнэ.\n\nОдоо гарвал эдгээр бүртгэл устна. Гарах уу?`)) return;
+  // the login and everything of this person's on the phone (config.js)
+  await ytSignOut();
+  location.reload();
+});
+
+// ---------- start ----------
+let me = null, offlineMode = false, animals = [];
+// Cows and horses are separate sections (#horse = the horse section);
+// the small button at the top switches, the phone's back button returns.
+// The horse app shows only the horse section.
+// (horses hidden until launch: config.js HORSES_PUBLIC / ?horses=1 / super admin)
+const wantSection = () => horsesOn && (HORSE_APP || location.hash === '#horse') ? 'horse' : 'cattle';
+let section = wantSection();
+
+async function boot() {
+  let session = null, sErr = null;
+  try { ({ data: { session }, error: sErr } = await sb.auth.getSession()); } catch (e) { sErr = e; }
+  // No signal and the login needs refreshing: open from what this phone saved.
+  const noNet = !navigator.onLine || (sErr && (isOffline(sErr) || sErr.name === 'AuthRetryableFetchError'));
+  offlineMode = !session && noNet && !!cacheGet('yt-uid');
+  if (!session && !offlineMode) {
+    // the login pages' "Нууц үгээ мартсан уу?" links come here as app/?reset=1
+    if (/[?&]reset=1/.test(location.search || '')) openReset(); else show('loginView');
+    return;
+  }
+  if (session) cacheSet('yt-uid', session.user.id);
+
+  let prof = null;
+  if (!offlineMode) { try { prof = await myProfile(); } catch (e) {} }
+  if (prof) cacheSet('yt-prof', prof);
+  me = prof || cacheGet('yt-prof');
+
+  if (me && me.role === 'admin') { show('roleView'); return; }
+  if (me) horsesForRole(me.role);               // the super admin: horses on (config.js)
+  if (HORSE_APP && !horsesOn) { show('soonView'); return; }
+  section = wantSection();
+  show('homeView');
+  $('hello').textContent = me && me.full_name ? `Сайн байна уу, ${me.full_name}` : 'Сайн байна уу';
+  applySection();
+  watchQueue();
+  setupNfc();
+  if (!offlineMode) telegramCard();
+  await Promise.all([loadAnimals(), loadHerds(), loadMareMilk()]);
+}
+
+// ---------- Telegram link (lost-animal alerts + password-reset code) ----------
+// Same database calls as the animal page's Telegram button (schema v38).
+let tgPoll = null;
+async function telegramCard() {
+  let st = null;
+  try { ({ data: st } = await sb.rpc('telegram_status')); } catch (e) {}
+  if (!st || !st.configured) { $('tgCard').hidden = true; $('tgOk').hidden = true; return; }
+  $('tgOk').hidden = !st.linked;
+  $('tgCard').hidden = !!st.linked;
+}
+$('tgBtn').addEventListener('click', async () => {
+  $('tgBtn').disabled = true;
+  let lk = null, error = null;
+  try { ({ data: lk, error } = await sb.rpc('telegram_link_code')); } catch (e) { error = e; }
+  $('tgBtn').disabled = false;
+  if (error || !lk || !lk.url) { alert(mnError((error && error.message) || 'Холбоос үүсгэж чадсангүй.')); return; }
+  // a real link the person taps: opening Telegram from a script is often blocked
+  $('tgOpen').href = lk.url;
+  $('tgOpen').hidden = false; $('tgHint').hidden = false; $('tgBtn').hidden = true;
+  clearInterval(tgPoll);
+  let n = 0;
+  tgPoll = setInterval(async () => {
+    if (++n > 90) { clearInterval(tgPoll); return; }
+    try {
+      const { data } = await sb.rpc('telegram_status');
+      if (data && data.linked) { clearInterval(tgPoll); $('tgCard').hidden = true; $('tgOk').hidden = false; }
+    } catch (e) {}
+  }, 4000);
+});
+
+// ---------- my animals ----------
+// The database returns only what this login may see: a herder's own
+// animals, a farm admin's whole farm.
+const COLS = 'id,tag_code,breed,sex,birth_year,status,reported_lost_at,milk_today,next_vaccination_due,owner_name,owner_id,farm_id,farm_code';
+const HORSE_COLS = ',species,colour,chip_no,national_id,castrated';     // schema_v55
+const HERD_COLS = ',herd_id,herd_name';                                  // schema_v59
+async function fetchAnimals() {
+  const out = [];
+  const older = [COLS + HORSE_COLS, COLS];
+  let cols = COLS + HORSE_COLS + HERD_COLS;
+  for (let from = 0; from < 20000; from += 1000) {
+    let { data, error } = await sb.from('cattle_dashboard').select(cols)
+      .order('tag_code').range(from, from + 999);
+    // database not yet on v59 / v55: the list without the newer columns
+    while (error && error.code === '42703' && older.length) {
+      cols = older.shift();
+      ({ data, error } = await sb.from('cattle_dashboard').select(cols).order('tag_code').range(from, from + 999));
+    }
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  return out;
+}
+async function loadAnimals() {
+  $('list').innerHTML = '<div class="empty">Ачаалж байна…</div>';
+  let rows = null, fromCache = false;
+  if (!offlineMode) {
+    try { rows = await fetchAnimals(); cacheSet('yt-applist', { at: Date.now(), rows }); }
+    catch (e) {
+      if (!isOffline(e)) { $('list').innerHTML = `<div class="empty">${esc(mnError(e.message || e))}</div>`; return; }
+    }
+  }
+  if (!rows) {
+    const saved = cacheGet('yt-applist');
+    rows = (saved && saved.rows) || [];
+    fromCache = true;
+    const bar = $('offBar');
+    bar.textContent = saved
+      ? `Сүлжээгүй — энэ утсанд ${fmtDateTime(saved.at)}-д хадгалсан жагсаалт. Мал руу ороод сүү оруулбал утсанд хадгалагдаж, сүлжээ ороход илгээгдэнэ.`
+      : 'Сүлжээгүй. Сүлжээтэй үед нэг удаа нээгээрэй.';
+    bar.style.display = 'block';
+  } else {
+    $('offBar').style.display = 'none';
+  }
+  animals = rows;
+  $('search').hidden = rows.length < 8;
+  render();
+  if (herdsReady) renderHerds();                // the horses inside open herds
+  if (fromCache && !rows.length) $('list').innerHTML = '<div class="empty">Энэ утсанд хадгалсан жагсаалт алга.</div>';
+}
+
+const STATUS_MN = { sold:'Зарагдсан', slaughtered:'Нядалсан', dead:'Үхсэн', lost:'Алга болсон', stolen:'Хулгайлагдсан' };
+function card(c) {
+  const horse = c.species === 'horse';
+  const age = c.birth_year ? `${new Date().getFullYear() - c.birth_year} нас` : '';
+  const meta = (horse ? [horseLabel(c), c.breed, c.colour]
+                      : [c.sex === 'female' ? 'Эм' : c.sex === 'male' ? 'Эр' : '', age, c.breed])
+    .concat(me && me.role === 'farm_admin' ? c.owner_name : '',
+            me && me.role === 'super_admin' ? [c.owner_name, c.farm_code] : []).filter(Boolean).join(' · ');
+  const b = [];
+  const lost = c.reported_lost_at || c.status === 'lost' || c.status === 'stolen';
+  if (lost) b.push('<span class="b bad">⚠ Алга болсон</span>');
+  else if (STATUS_MN[c.status]) b.push(`<span class="b">${STATUS_MN[c.status]}</span>`);
+  if (horse && c.status === 'active' && !c.tag_code && !c.chip_no && !c.national_id) {
+    b.push('<span class="b warn">Чип / улсын дугаар алга</span>');
+  }
+  if (horse && c.herd_name) b.push(`<span class="b">🐎 ${esc(c.herd_name)}</span>`);
+  if (!horse && c.status === 'active' && c.sex !== 'male') {
+    b.push(c.milk_today != null ? `<span class="b ok">🥛 Өнөөдөр ${Number(c.milk_today).toFixed(1)} л</span>`
+                                : '<span class="b">🥛 Өнөөдөр —</span>');
+  }
+  const d = daysUntil(c.next_vaccination_due);
+  if (c.status === 'active' && d != null) {
+    if (d < 0) b.push('<span class="b bad">💉 Вакцин хэтэрсэн</span>');
+    else if (d <= 7) b.push(`<span class="b warn">💉 Вакцин ${d === 0 ? 'өнөөдөр' : d + ' хоногт'}</span>`);
+  }
+  return `<a class="animal" href="${esc(cowUrl(c, '../'))}">
+    <div class="row"><span class="code">${esc(animalCode(c))}</span><span class="go">›</span></div>
+    ${meta ? `<div class="meta">${esc(meta)}</div>` : ''}
+    ${b.length ? `<div class="badges">${b.join('')}</div>` : ''}
+  </a>`;
+}
+function render() {
+  const q = $('search').value.trim().toLowerCase();
+  // this section only: horses in the horse section, everything else (cows) in the cow one
+  const mine = animals.filter(c => (c.species === 'horse') === (section === 'horse'));
+  // active animals first, then the rest (sold, dead…) in tag order
+  const rank = c => (c.status === 'active' || c.reported_lost_at) ? 0 : 1;
+  const list = mine
+    .filter(c => !q || [c.tag_code, c.breed, c.owner_name, c.colour, c.chip_no, c.national_id]
+      .some(v => String(v || '').toLowerCase().includes(q)))
+    .sort((a, b) => rank(a) - rank(b) || String(animalCode(a)).localeCompare(String(animalCode(b))));
+  const active = mine.filter(c => c.status === 'active').length;
+  $('search').hidden = mine.length < 8;
+  $('count').textContent = mine.length ? `${active} идэвхтэй${mine.length > active ? ` / ${mine.length}` : ''}` : '';
+  const none = section === 'horse'
+    ? 'Танд бүртгэлтэй адуу алга.<br>"Таггүй адуу бүртгэх" дарж эсвэл шинэ тагаа уншуулж бүртгэнэ.'
+    : 'Танд бүртгэлтэй мал алга.<br>Шинэ тагаа дээр уншуулж эсвэл дугаараар нээгээд мал бүртгэнэ.';
+  $('list').innerHTML = list.length ? list.map(card).join('')
+    : `<div class="empty">${mine.length ? 'Олдсонгүй.' : none}</div>`;
+}
+$('search').addEventListener('input', render);
+$('reloadBtn').addEventListener('click', () => { offlineMode = false; boot(); });
+
+// ---------- cows | horses ----------
+function applySection() {
+  const horse = section === 'horse';
+  $('kindBtn').hidden = !horsesOn || HORSE_APP;          // the horse app: horses only
+  $('kindBtn').textContent = horse ? '🐄 Үхэр' : '🐎 Адуу';
+  $('kindBtn').title = horse ? 'Үхрийн хэсэг рүү' : 'Адууны хэсэг рүү';
+  $('listTitle').textContent = horse ? 'Миний адуу' : 'Миний мал';
+  $('whoami').textContent = !me ? '' : (horse ? 'Адууны хэсэг · ' : '') +
+    (me.role === 'super_admin' ? (horse ? 'Ерөнхий админ — бүх фермийн адуу' : 'Ерөнхий админ — бүх фермийн мал')
+     : me.role === 'farm_admin' ? (horse ? 'фермийн бүх адуу' : 'Ферм админ — фермийн бүх мал')
+                                : (horse ? 'таны адуу' : 'Малчин — таны мал'));
+  $('codeNote').textContent = horse ? 'Шинэ таг бол энд нээгээд адуу бүртгэнэ.' : 'Шинэ таг бол энд нээгээд мал бүртгэнэ.';
+  $('search').placeholder = horse ? 'Хайх: дугаар, чип, зүс, үүлдэр…' : 'Хайх: дугаар, үүлдэр…';
+  $('horseNewBtn').hidden = !horse || !me || !['herder', 'farm_admin', 'super_admin'].includes(me.role) || offlineMode;
+  $('horseTools').hidden = !horse;
+  render();
+  renderHerds();
+}
+
+// ---------- 🐎 herds (сүрэг, schema_v59) ----------
+// One call brings every herd I may see (herd_overview); the horses in it
+// come from my own list — a herder sees only his own horses in a herd
+// (the size counts all), the farm admin all of them. "📍 Энд харлаа"
+// goes through the offline queue: with no signal it waits on the phone
+// and is sent once, dated when it was tapped.
+let herds = [], herdsReady = false;
+const openHerds = new Set();
+async function loadHerds() {
+  if (!horsesOn) return;
+  let rows = null, error = null;
+  if (!offlineMode) {
+    try { ({ data: rows, error } = await sb.rpc('herd_overview')); } catch (e) { error = e; }
+    if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
+      herdsReady = false; renderHerds(); return;                  // database not yet on v59
+    }
+    if (error && !isOffline(error)) {
+      herdsReady = true; herds = [];
+      renderHerds();
+      $('herdList').innerHTML = `<div class="empty">${esc(mnError(error.message || error))}</div>`;
+      return;
+    }
+    if (!error) cacheSet('yt-herds', { at: Date.now(), rows: rows || [] });
+  }
+  if (offlineMode || error) rows = (cacheGet('yt-herds') || {}).rows || [];
+  herds = rows || [];
+  herdsReady = true;
+  renderHerds();
+}
+function herdHorses(h) { return animals.filter(c => c.herd_id === h.id && c.species === 'horse'); }
+// horses I may move between herds: a herder his own, the farm admin all
+// (his list is his farm), the super admin all
+function editableHorses() {
+  return animals.filter(c => c.species === 'horse' && c.status === 'active' && me &&
+                             (['farm_admin', 'super_admin'].includes(me.role) || c.owner_id === me.id));
+}
+const horseName = c => [animalCode(c), horseLabel(c), c.colour].filter(Boolean).join(' · ');
+const mapLink = (lat, lng, text) => `<a href="https://www.google.com/maps?q=${Number(lat)},${Number(lng)}" target="_blank" rel="noopener">${text}</a>`;
+
+function renderHerds() {
+  const box = $('herdsBox');
+  box.hidden = section !== 'horse' || !herdsReady;
+  if (box.hidden) return;
+  $('herdNewBtn').hidden = offlineMode || !me || !['herder', 'farm_admin', 'super_admin'].includes(me.role);
+  $('herdCount').textContent = herds.length || '';
+  $('herdList').innerHTML = herds.length ? herds.map(herdCard).join('')
+    : `<div class="empty">Сүрэг алга. "＋ Шинэ сүрэг" дарж адуугаа сүрэгт хуваана —
+       дараа нь сүргээ харах бүрт "📍 Энд харлаа" дарвал хаана, хэзээ харсан нь хадгалагдана.</div>`;
+  herds.forEach(h => { if (openHerds.has(h.id)) fillHerdMore(h); });
+  renderMareMilk();
+}
+
+// ---------- 🥛 mare's milk per milking group (зэл = a herd, schema_v62) ----------
+// Each group's day: litres + mares milked. A herder corrects his entry
+// once, then only the farm admin. Through the offline queue (sent once).
+// The season: June–October (totals from 1 June).
+let mareMilk = [], mareMilkReady = false;
+const seasonStart = () => { const d = mnDate(); return (d.slice(5) < '06-01' ? Number(d.slice(0, 4)) - 1 : d.slice(0, 4)) + '-06-01'; };
+async function loadMareMilk() {
+  if (!horsesOn) return;
+  let rows = null, error = null;
+  if (!offlineMode) {
+    try {
+      ({ data: rows, error } = await sb.from('mare_milk').select('herd_id,milk_date,liters,mares')
+        .not('herd_id', 'is', null).gte('milk_date', seasonStart()).order('milk_date', { ascending: false }).limit(5000));
+    } catch (e) { error = e; }
+    if (error && !isOffline(error)) { mareMilkReady = false; renderMareMilk(); return; }   // database not yet on v62
+    if (!error) cacheSet('yt-maremilk', rows || []);
+  }
+  if (offlineMode || error) rows = cacheGet('yt-maremilk') || [];
+  mareMilk = rows || [];
+  mareMilkReady = true;
+  renderMareMilk();
+}
+function renderMareMilk() {
+  const box = $('mareMilkBox');
+  const groups = herds.filter(h => h.can_pin)
+    .sort((a, b) => (b.kind === 'mares') - (a.kind === 'mares') || a.name.localeCompare(b.name));
+  box.hidden = section !== 'horse' || !mareMilkReady || !herdsReady || !groups.length;
+  if (box.hidden) return;
+  const today = mnDate(), total = mareMilk.reduce((s, r) => s + Number(r.liters), 0);
+  $('mmSeason').textContent = `${seasonStart().slice(0, 4)} оны улирал: ${total.toFixed(0)} л`;
+  $('mmList').innerHTML = groups.map(h => {
+    const rows = mareMilk.filter(r => r.herd_id === h.id), t = rows.find(r => r.milk_date === today);
+    const sum = rows.reduce((s, r) => s + Number(r.liters), 0);
+    return `<div class="herd" data-mm="${esc(h.id)}">
+      <div class="top"><span class="hname">${esc(h.name)}</span></div>
+      <div class="meta">${t ? `Өнөөдөр: <b>${Number(t.liters).toFixed(1)} л</b>${t.mares
+          ? ` · ${t.mares} гүү (${(t.liters / t.mares).toFixed(1)} л/гүү)` : ''}` : 'Өнөөдөр бүртгээгүй'}
+        · улиралд ${sum.toFixed(0)} л, ${rows.length} өдөр</div>
+      <div class="pinrow">
+        <input type="number" inputmode="decimal" step="0.1" min="0" max="5000" placeholder="литр" aria-label="Өнөөдрийн сүү, литр" data-l value="${t ? Number(t.liters).toFixed(1) : ''}">
+        <input type="number" inputmode="numeric" min="1" max="500" placeholder="гүү" aria-label="Саасан гүүний тоо" data-m value="${t && t.mares ? t.mares : ''}">
+        <button data-act="mm">${t ? 'Засах' : 'Хадгалах'}</button></div>
+      <div class="pinmsg" data-msg hidden></div>
+    </div>`;
+  }).join('') + '<p class="note" style="text-align:left">Саалийн улирал 6–10 сар. Малчин нэг удаа засна, дараа нь ферм админ засна.</p>';
+}
+$('mmList').addEventListener('click', async e => {
+  const b = e.target.closest('[data-act="mm"]');
+  if (!b) return;
+  const card = b.closest('[data-mm]'), id = card.dataset.mm;
+  const say = (text, bad) => {
+    const el = document.querySelector(`[data-mm="${id}"] [data-msg]`);
+    if (el) { el.textContent = text; el.style.color = bad ? 'var(--red)' : 'var(--green-d)'; el.hidden = false; }
+  };
+  const l = parseFloat(card.querySelector('[data-l]').value), m = card.querySelector('[data-m]').value.trim();
+  const mares = m === '' ? null : Number(m);
+  if (!(l >= 0 && l <= 5000)) return say('Литрээ зөв оруулна уу.', true);
+  if (mares != null && !(Number.isInteger(mares) && mares >= 1 && mares <= 500)) return say('Гүүний тоог зөв оруулна уу (1–500).', true);
+  b.disabled = true;
+  const r = await ytQueue.add('mare_milk', { p_herd: id, p_cattle: null, p_date: mnDate(), p_liters: l,
+                                             p_mares: mares, p_client_uuid: ytUuid() });
+  b.disabled = false;
+  if (!r.sent && !r.queued) return say(mnError(r.error || 'Хадгалж чадсангүй.'), true);
+  // shown at once; the next load brings the server's own view
+  const today = mnDate(), old = mareMilk.find(x => x.herd_id === id && x.milk_date === today);
+  if (old) Object.assign(old, { liters: l, mares }); else mareMilk.unshift({ herd_id: id, milk_date: today, liters: l, mares });
+  cacheSet('yt-maremilk', mareMilk);
+  renderMareMilk();
+  say(r.sent ? '✓ Хадгалагдлаа.' : '📵 Утсанд хадгалагдлаа — сүлжээ ороход илгээгдэнэ.', false);
+});
+function herdCard(h) {
+  const late = herdOverdue(h);
+  const others = me && me.role === 'herder' && h.mine < h.horses ? ` · таных ${h.mine}` : '';
+  const meta = [me && me.role === 'super_admin' && h.farm_code, HERD_KINDS[h.kind], `${h.horses} адуу${others}`,
+                h.herder_name && 'адуучин ' + h.herder_name]
+    .filter(Boolean).join(' · ');
+  const seen = h.last_seen_at
+    ? `Сүүлд: <b>${esc(agoText(h.last_seen_at))}</b>${h.last_count != null ? ` · ${h.last_count}/${h.horses} тоолсон` : ''}
+       · ${esc(HERD_SOURCES[h.last_source] || '')}${h.last_lat != null ? ' · ' + mapLink(h.last_lat, h.last_lng, 'газрын зураг ↗') : ''}`
+    : 'Одоогоор тэмдэглээгүй';
+  const open = openHerds.has(h.id);
+  return `<div class="herd${late ? ' late' : ''}" data-id="${esc(h.id)}">
+    <div class="top" data-act="toggle"><span class="hname">${esc(h.name)}</span>
+      ${late ? `<span class="b bad">⚠ ${herdDaysUnseen(h)} хоног харагдаагүй</span>` : ''}
+      <span class="go">${open ? '⌃' : '⌄'}</span></div>
+    <div class="meta">${esc(meta)}</div>
+    <div class="meta">${seen}</div>
+    ${h.can_pin ? `<div class="pinrow">
+        <input type="number" inputmode="numeric" min="0" max="5000" placeholder="тоо" aria-label="Тоолсон адуу (заавал биш)" data-cnt>
+        <button data-act="pin">📍 Энд харлаа</button></div>
+      <div class="pinmsg" data-msg hidden></div>` : ''}
+    <div class="herdmore" data-more${open ? '' : ' hidden'}></div>
+  </div>`;
+}
+function herdMsg(id, text, bad) {
+  const m = document.querySelector(`.herd[data-id="${id}"] [data-msg]`);
+  if (!m) return;
+  m.textContent = text; m.style.color = bad ? 'var(--red)' : 'var(--green-d)'; m.hidden = false;
+}
+function fillHerdMore(h) {
+  const card = document.querySelector(`.herd[data-id="${h.id}"]`);
+  if (!card) return;
+  const mine = herdHorses(h).sort((a, b) => String(animalCode(a)).localeCompare(String(animalCode(b))));
+  const head = c => c.id === h.stallion_id ? ' · азарга' : c.id === h.lead_mare_id ? ' · ахлагч гүү' : '';
+  const others = Math.max(0, h.horses - mine.filter(c => c.status === 'active').length);
+  const online = !offlineMode && navigator.onLine;
+  card.querySelector('[data-more]').innerHTML = `
+    <h3>Адуу</h3>
+    <div class="chips">${mine.length ? mine.map(c => `<a data-horse href="${esc(cowUrl(c, '../'))}">${esc(horseName(c) + head(c))}</a>`).join('')
+      : `<span class="sub">${h.horses ? 'Таны адуу энэ сүрэгт алга.' : 'Сүрэгт адуу алга.'}</span>`}</div>
+    ${others ? `<p class="sub" style="margin-top:6px">+ ${others} бусад малчны адуу</p>` : ''}
+    ${h.note ? `<p class="sub" style="margin-top:6px">📝 ${esc(h.note)}</p>` : ''}
+    ${h.remind_days != null ? `<p class="sub" style="margin-top:6px">🔔 ${h.remind_days} хоног харагдахгүй бол Telegram-аар сануулна.</p>` : ''}
+    <h3>Сүүлийн тэмдэглэлүүд</h3>
+    <div class="pinlist" data-pins><span class="sub">${online ? 'Ачаалж байна…' : 'Сүлжээтэй үед харагдана.'}</span></div>
+    <div class="minibtns">
+      ${online && editableHorses().length ? '<button data-act="members">Адуу нэмэх / хасах</button>' : ''}
+      ${online && h.can_edit ? '<button data-act="edit">Засах</button><button data-act="archive" class="danger">Сүргийг хаах</button>' : ''}
+    </div>
+    <div data-members hidden></div>`;
+  if (online) loadPins(h, card);
+}
+async function loadPins(h, card) {
+  let data = null, error = null;
+  try {
+    ({ data, error } = await sb.from('herd_sightings').select('seen_at,source,counted,total,lat,lng')
+      .eq('herd_id', h.id).order('seen_at', { ascending: false }).limit(10));
+  } catch (e) { error = e; }
+  const box = card.querySelector('[data-pins]');
+  if (!box) return;
+  if (error) { box.innerHTML = `<span class="sub">${esc(mnError(error.message || error))}</span>`; return; }
+  box.innerHTML = (data || []).length ? data.map(s => `<div>
+      <span>${esc(HERD_SOURCES[s.source] || s.source)}${s.counted != null ? ` · ${s.counted}${s.total != null ? '/' + s.total : ''} тоолсон` : ''}</span>
+      <span>${esc(fmtDateTime(s.seen_at))}${s.lat != null ? ' · ' + mapLink(s.lat, s.lng, '↗') : ''}</span></div>`).join('')
+    : '<span class="sub">Одоогоор тэмдэглэл алга.</span>';
+}
+
+async function herdPin(h, card) {
+  const btn = card.querySelector('[data-act="pin"]'), raw = card.querySelector('[data-cnt]').value.trim();
+  const counted = raw === '' ? null : Number(raw);
+  if (counted != null && !(Number.isInteger(counted) && counted >= 0 && counted <= 5000)) {
+    return herdMsg(h.id, 'Тоог зөв оруулна уу (0–5000) эсвэл хоосон орхино уу.', true);
+  }
+  btn.disabled = true; btn.textContent = '📍 Байршил авч байна…';
+  const g = await gpsOnce();
+  btn.textContent = '📍 Хадгалж байна…';
+  const seenAt = new Date().toISOString();
+  const r = await ytQueue.add('herd_seen', {
+    p_herd: h.id, p_lat: g ? g.latitude : null, p_lng: g ? g.longitude : null, p_accuracy: g ? g.accuracy : null,
+    p_counted: counted, p_client_uuid: ytUuid(), p_seen_at: seenAt });
+  btn.disabled = false; btn.textContent = '📍 Энд харлаа';
+  if (!r.sent && !r.queued) return herdMsg(h.id, mnError(r.error || 'Хадгалж чадсангүй.'), true);
+  // shown at once; the next load brings the server's own view
+  Object.assign(h, { last_seen_at: seenAt, last_source: 'tap', last_count: counted },
+                g ? { last_lat: g.latitude, last_lng: g.longitude, last_place_at: seenAt } : {});
+  cacheSet('yt-herds', { at: Date.now(), rows: herds });
+  renderHerds();
+  herdMsg(h.id, r.sent ? (g ? '✓ Тэмдэглэгдлээ.' : '✓ Тэмдэглэгдлээ — байршилгүй (утасны байршлыг асааж, зөвшөөрнө үү).')
+                       : '📵 Утсанд хадгалагдлаа — сүлжээ ороход илгээгдэнэ.', false);
+}
+
+function openMembers(h, card) {
+  const box = card.querySelector('[data-members]');
+  if (!box.hidden) { box.hidden = true; return; }
+  const list = editableHorses().sort((a, b) => (b.herd_id === h.id) - (a.herd_id === h.id)
+    || String(animalCode(a)).localeCompare(String(animalCode(b))));
+  box.innerHTML = `<h3>Аль адуу энэ сүрэгт байх вэ?</h3><div class="checklist">${list.map(c => `<label>
+      <input type="checkbox" value="${esc(c.id)}"${c.herd_id === h.id ? ' checked' : ''}>
+      <span>${esc(horseName(c))}${c.herd_id && c.herd_id !== h.id ? ` <span class="sub">(одоо: ${esc(c.herd_name || 'өөр сүрэг')})</span>` : ''}</span>
+    </label>`).join('')}</div>
+    <div class="err" data-err></div>
+    <button class="btn" data-save>Хадгалах</button>`;
+  box.hidden = false;
+  const save = box.querySelector('[data-save]');
+  save.addEventListener('click', async () => {
+    const add = [], remove = [];
+    box.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      const c = list.find(x => x.id === cb.value);
+      if (cb.checked && c.herd_id !== h.id) add.push(c.id);
+      if (!cb.checked && c.herd_id === h.id) remove.push(c.id);
+    });
+    if (!add.length && !remove.length) { box.hidden = true; return; }
+    save.disabled = true; save.textContent = 'Хадгалж байна…';
+    let error = null;
+    try { ({ error } = await sb.rpc('herd_members', { p_herd: h.id, p_add: add, p_remove: remove })); } catch (e) { error = e; }
+    if (error) {
+      save.disabled = false; save.textContent = 'Хадгалах';
+      const err = box.querySelector('[data-err]');
+      err.textContent = mnError(error.message || error); err.style.display = 'block';
+      return;
+    }
+    await Promise.all([loadAnimals(), loadHerds()]);
+  });
+}
+
+// new herd / change a herd. The super admin picks the farm of a new herd;
+// the stallion, lead mare and адуучин lists follow the farm.
+async function openHerdForm(h) {
+  const box = $('herdFormBox');
+  const superAdmin = !!me && me.role === 'super_admin';
+  const horses = animals.filter(c => c.species === 'horse' && c.status === 'active');
+  const pool = [...new Set([...editableHorses(), ...(h ? horses.filter(c => c.herd_id === h.id) : [])])];
+  const options = (list, cur, curLabel) => '<option value="">— сонгоогүй —</option>' + list
+    .map(c => `<option value="${esc(c.id)}"${c.id === cur ? ' selected' : ''}>${esc(horseName(c))}</option>`).join('')
+    + (cur && !list.some(c => c.id === cur) ? `<option value="${esc(cur)}" selected>${esc(curLabel)}</option>` : '');
+  const remind = h ? h.remind_days : 3;
+  box.innerHTML = `<div class="card hform">
+    <h2>${h ? 'Сүрэг засах' : 'Шинэ сүрэг'}</h2>
+    ${superAdmin && !h ? `<label for="hfFarm">Ферм</label>
+    <select id="hfFarm"><option value="">Ачаалж байна…</option></select>` : ''}
+    <label for="hfName">Нэр</label>
+    <input type="text" id="hfName" maxlength="60" placeholder="Хар азарганы сүрэг" value="${esc(h ? h.name : '')}">
+    <label for="hfKind">Төрөл</label>
+    <select id="hfKind">${Object.entries(HERD_KINDS).map(([k, v]) =>
+      `<option value="${k}"${(h ? h.kind : 'stallion') === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select>
+    <label for="hfStallion">Азарга</label>
+    <select id="hfStallion"></select>
+    <label for="hfMare">Ахлагч гүү</label>
+    <select id="hfMare"></select>
+    <label for="hfHerder">Адуучин</label>
+    <select id="hfHerder"><option value="">— сонгоогүй —</option></select>
+    <label for="hfRemind">Харагдахгүй бол Telegram-аар сануулах</label>
+    <select id="hfRemind"><option value="">Сануулахгүй</option>${HERD_REMIND_DAYS.map(d =>
+      `<option value="${d}"${remind === d ? ' selected' : ''}>${d} хоног харагдахгүй бол</option>`).join('')}</select>
+    <label for="hfNote">Тэмдэглэл</label>
+    <textarea id="hfNote" rows="2" maxlength="300" placeholder="Бэлчээр, онцлог…">${esc(h && h.note || '')}</textarea>
+    <div class="err" id="hfErr"></div>
+    <button class="btn" id="hfSave">${h ? 'Хадгалах' : 'Сүрэг нэмэх'}</button>
+    <button class="btn ghost" id="hfCancel">Болих</button>
+  </div>`;
+  box.hidden = false;
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('hfCancel').addEventListener('click', () => { box.hidden = true; box.innerHTML = ''; });
+  $('hfSave').addEventListener('click', () => saveHerd(h));
+
+  // the parts that depend on the farm
+  const fillFarm = async farmId => {
+    const here = pool.filter(c => farmId ? c.farm_id === farmId : !superAdmin);   // super admin: once a farm is picked
+    $('hfStallion').innerHTML = options(here.filter(c => c.sex === 'male' && !c.castrated), h && h.stallion_id, 'одоогийн азарга');
+    $('hfMare').innerHTML = options(here.filter(c => c.sex === 'female'), h && h.lead_mare_id, 'одоогийн ахлагч гүү');
+    // адуучин: the farm admin / super admin pick from the farm's people; a herder: himself
+    let people = me && me.role !== 'super_admin' ? [{ id: me.id, full_name: me.full_name || 'Би' }] : [];
+    if (me && ['farm_admin', 'super_admin'].includes(me.role) && farmId) {
+      try {
+        const { data } = await sb.from('profiles').select('id, full_name, phone').eq('farm_id', farmId)
+          .eq('status', 'active').in('role', ['herder', 'farm_admin']).order('full_name');
+        if (data && (data.length || superAdmin)) people = data;
+      } catch (e) {}
+      // two people with the same name: the end of the phone number tells them apart
+      const names = people.map(p => p.full_name);
+      people.forEach((p, i) => {
+        if (p.phone && names.filter(n => n === names[i]).length > 1) {
+          p.full_name += ` (…${String(p.phone).replace(/\D/g, '').slice(-4)})`;
+        }
+      });
+    }
+    const cur = h ? h.herder_id : (me && me.role === 'herder' ? me.id : null);
+    if (cur && !people.some(p => p.id === cur)) people.push({ id: cur, full_name: (h && h.herder_name) || 'одоогийн адуучин' });
+    if ($('hfHerder')) $('hfHerder').innerHTML = '<option value="">— сонгоогүй —</option>' + people.map(p =>
+      `<option value="${esc(p.id)}"${p.id === cur ? ' selected' : ''}>${esc(p.full_name)}</option>`).join('');
+  };
+
+  if (superAdmin && !h) {
+    let farms = [];
+    try { ({ data: farms } = await sb.from('farms').select('id, code, name').order('code')); } catch (e) {}
+    const sel = $('hfFarm');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— фермээ сонгоно уу —</option>' + (farms || []).map(f =>
+      `<option value="${esc(f.id)}">${esc(f.code ? f.code + ' · ' : '')}${esc(f.name)}</option>`).join('');
+    sel.addEventListener('change', () => fillFarm(sel.value || null));
+    await fillFarm(null);
+  } else {
+    await fillFarm(h ? h.farm_id : me && me.farm_id);
+  }
+}
+async function saveHerd(h) {
+  const err = $('hfErr'), btn = $('hfSave');
+  const fail = m => { err.textContent = m; err.style.display = 'block'; };
+  err.style.display = 'none';
+  const name = $('hfName').value.trim();
+  const farm = $('hfFarm') ? $('hfFarm').value : null;          // the super admin's new herd
+  if ($('hfFarm') && !farm) return fail('Фермээ сонгоно уу.');
+  if (!name) return fail('Сүргийн нэрийг оруулна уу.');
+  const v = id => $(id).value || null;
+  btn.disabled = true;
+  let id = null, error = null;
+  try {
+    ({ data: id, error } = await sb.rpc('herd_save', {
+      p_id: h ? h.id : null, p_farm: farm || null, p_name: name, p_kind: $('hfKind').value,
+      p_stallion: v('hfStallion'), p_lead_mare: v('hfMare'), p_herder: v('hfHerder'),
+      p_remind_days: v('hfRemind') ? Number(v('hfRemind')) : null, p_note: $('hfNote').value.trim() || null }));
+  } catch (e) { error = e; }
+  btn.disabled = false;
+  if (error) return fail(mnError(error.message || error));
+  $('herdFormBox').hidden = true; $('herdFormBox').innerHTML = '';
+  if (id) openHerds.add(id);
+  await Promise.all([loadAnimals(), loadHerds()]);
+}
+async function archiveHerd(h) {
+  if (!confirm(`"${h.name}" сүргийг хаах уу?\nАдуу нь сүрэггүй болно, хуучин тэмдэглэлүүд нь хадгалагдана.`)) return;
+  let error = null;
+  try { ({ error } = await sb.rpc('herd_archive', { p_herd: h.id })); } catch (e) { error = e; }
+  if (error) return alert(mnError(error.message || error));
+  openHerds.delete(h.id);
+  await Promise.all([loadAnimals(), loadHerds()]);
+}
+
+$('herdNewBtn').addEventListener('click', () => openHerdForm(null));
+$('herdList').addEventListener('click', e => {
+  const link = e.target.closest('a[data-horse]');
+  if (link) { e.preventDefault(); openUrl(link.getAttribute('href')); return; }
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const card = el.closest('.herd'), h = card && herds.find(x => x.id === card.dataset.id);
+  if (!h) return;
+  const act = el.dataset.act;
+  if (act === 'toggle') {
+    const open = !openHerds.has(h.id);
+    if (open) openHerds.add(h.id); else openHerds.delete(h.id);
+    card.querySelector('[data-more]').hidden = !open;
+    card.querySelector('.go').textContent = open ? '⌃' : '⌄';
+    if (open) fillHerdMore(h);
+  } else if (act === 'pin') herdPin(h, card);
+  else if (act === 'members') openMembers(h, card);
+  else if (act === 'edit') openHerdForm(h);
+  else if (act === 'archive') archiveHerd(h);
+});
+$('herdList').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches('[data-cnt]')) {
+    const card = e.target.closest('.herd'), h = herds.find(x => x.id === card.dataset.id);
+    if (h) herdPin(h, card);
+  }
+});
+
+// ---------- 📶 listener boxes (schema_v57) ----------
+// An ESP32 at a well / winter camp hears every YAK-TAG tag nearby and
+// reports it with the box's place. Added here at the box's place (this
+// phone's GPS); its secret key is shown once, for the box's settings.
+async function loadGateways() {
+  const box = $('gwBox');
+  let rows = [], error = null;
+  try { ({ data: rows, error } = await sb.from('ble_gateways').select('id, name, lat, lng, last_report_at').order('name')); }
+  catch (e) { error = e; }
+  if (error) { box.innerHTML = `<p class="note">${esc(mnError(error.message || error))}</p>`; return; }
+  const ago = t => t ? fmtDateTime(t) : 'хараахан илгээгээгүй';
+  box.innerHTML = (rows || []).map(g => `<div class="animal" style="cursor:default">
+      <div class="row"><span class="code" style="font-family:inherit">${esc(g.name)}</span>
+        <button class="gwDel" data-id="${esc(g.id)}" style="margin-left:auto;border:0;background:none;color:var(--red);font-weight:700;cursor:pointer">Устгах</button></div>
+      <div class="meta">Сүүлд илгээсэн: ${esc(ago(g.last_report_at))}${g.lat != null
+        ? ` · <a href="https://www.google.com/maps?q=${g.lat},${g.lng}" target="_blank" rel="noopener">газрын зураг ↗</a>` : ''}</div>
+    </div>`).join('') + `
+    <label for="gwName">Шинэ сонсогч — энд, яг байгаа газраа нэмнэ</label>
+    <div class="open"><input type="text" id="gwName" placeholder="Хойд худаг" maxlength="60" style="text-transform:none;font-family:inherit">
+      <button id="gwAdd">Нэмэх</button></div>
+    <div class="note" id="gwKey" style="text-align:left" hidden></div>`;
+  $('gwAdd').addEventListener('click', addGateway);
+  box.querySelectorAll('.gwDel').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm('Энэ сонсогчийг устгах уу? Хуучин бүртгэлүүд нь хадгалагдана.')) return;
+    const { error: e } = await sb.rpc('ble_gateway_delete', { p_id: b.dataset.id });
+    if (e) return alert(mnError(e.message));
+    loadGateways();
+  }));
+}
+async function addGateway() {
+  const name = $('gwName').value.trim();
+  if (!name) return alert('Нэр өгнө үү (жишээ: Хойд худаг).');
+  $('gwAdd').disabled = true;
+  const g = await gpsOnce();
+  if (!g && !confirm('Байршил олдсонгүй. Байршилгүй нэмэх үү? (Сонсогчийн мэдээ газрын зурагт гарахгүй.)')) {
+    $('gwAdd').disabled = false; return;
+  }
+  const { data: key, error } = await sb.rpc('ble_gateway_create', {
+    p_name: name, p_lat: g ? g.latitude : null, p_lng: g ? g.longitude : null });
+  $('gwAdd').disabled = false;
+  if (error) return alert(mnError(error.message));
+  await loadGateways();
+  const k = $('gwKey');
+  k.innerHTML = `<b>✓ "${esc(name)}" нэмэгдлээ.</b> Энэ түлхүүрийг ESP32 төхөөрөмжийн тохиргоонд
+    (<code>YT_KEY</code>) хуулна уу — <b>дахин харагдахгүй</b>:<br>
+    <code style="word-break:break-all;user-select:all;display:block;background:#F3F1EA;padding:8px;border-radius:8px;margin-top:6px">${esc(key)}</code>`;
+  k.hidden = false;
+}
+$('gwBtn').addEventListener('click', () => {
+  const box = $('gwBox');
+  box.hidden = !box.hidden;
+  if (!box.hidden) { box.innerHTML = '<p class="note">Ачаалж байна…</p>'; loadGateways(); }
+});
+
+// ---------- 📡 nearby horses: our BLE beacons (schema_v56) ----------
+// Web Bluetooth (Android Chrome; an iPhone browser has none). The phone's
+// list shows only my horses' beacons that are in range (~100 m in the open);
+// picking one logs an encounter with GPS, so "last seen" moves here.
+function gpsOnce(ms = 10000) {
+  return new Promise(res => {
+    if (!navigator.geolocation) return res(null);
+    const t = setTimeout(() => res(null), ms);
+    navigator.geolocation.getCurrentPosition(
+      p => { clearTimeout(t); res(p.coords); }, () => { clearTimeout(t); res(null); },
+      { enableHighAccuracy: true, timeout: ms, maximumAge: 30000 });
+  });
+}
+$('bleBtn').addEventListener('click', async () => {
+  const msg = $('bleMsg');
+  const say = h => { msg.innerHTML = h; msg.hidden = false; };
+  if (!navigator.bluetooth) {
+    return say('Энэ утсан дээр вэбээс Bluetooth ашиглах боломжгүй (iPhone). Android утсанд Chrome-оор нээнэ үү.');
+  }
+  let tagged = [];
+  try {
+    const { data, error } = await sb.from('cattle').select('id, tag_code, chip_no, national_id, ble_name, farm_id')
+      .not('ble_name', 'is', null);
+    if (error) throw error;
+    tagged = data || [];
+  } catch (e) { return say(esc(mnError(e.message || e))); }
+  if (!tagged.length) return say('BLE таг холбосон адуу алга. Адууны хуудас → "📡 BLE таг холбох".');
+
+  let dev;
+  try { dev = await navigator.bluetooth.requestDevice({ filters: tagged.map(h => ({ name: h.ble_name })) }); }
+  catch (e) {                                    // NotFoundError: nothing picked
+    return say(e && e.name === 'NotFoundError' ? 'Ойролцоо таг сонгогдсонгүй. Адуунд ойртоод дахин оролдоно уу.'
+                                               : 'Bluetooth: ' + esc(e.message || e));
+  }
+  const h = tagged.find(x => x.ble_name.toLowerCase() === String(dev.name || '').toLowerCase());
+  if (!h) return say('Энэ таг таны адуунд холбогдоогүй байна.');
+  say(`📡 <b>${esc(dev.name)}</b> ойролцоо байна — ${esc(animalCode(h))}.
+       <a href="${esc(cowUrl(h, '../'))}" style="color:var(--green-d);font-weight:700">Нээх ›</a><span id="bleRssi"></span>`);
+
+  // where: an encounter like an NFC read (offline: kept on the phone)
+  const g = await gpsOnce();
+  const r = await ytQueue.add('app_scan', {
+    client_uuid: ytUuid(), farm_id: h.farm_id, cattle_id: h.id, scanned_by: cacheGet('yt-uid') || (me && me.id),
+    method: 'ble', lat: g ? g.latitude : null, lng: g ? g.longitude : null, accuracy_m: g ? g.accuracy : null,
+    scanned_at: new Date().toISOString() });
+  if (r.queued) $('bleRssi').textContent = ' · утсанд хадгалагдлаа, сүлжээ ороход илгээгдэнэ';
+
+  // signal strength while searching, where Chrome allows it (may still be experimental)
+  if (dev.watchAdvertisements) {
+    try {
+      await dev.watchAdvertisements();
+      dev.addEventListener('advertisementreceived', ev => {
+        const near = ev.rssi > -65 ? 'маш ойрхон' : ev.rssi > -80 ? 'ойрхон' : 'хол';
+        const el = $('bleRssi');
+        if (el) el.textContent = ` · дохио ${ev.rssi} dBm (${near})`;
+      });
+      setTimeout(() => { try { dev.unwatchAdvertisements && dev.unwatchAdvertisements(); } catch (e) {} }, 120000);
+    } catch (e) {}
+  }
+});
+$('kindBtn').addEventListener('click', () => { location.hash = section === 'horse' ? '' : 'horse'; });
+window.addEventListener('hashchange', () => {
+  section = wantSection();
+  $('search').value = '';
+  applySection();
+  window.scrollTo({ top: 0 });
+});
+$('horseNewBtn').addEventListener('click', () => openUrl('../cow.html?new=horse'));
+
+// Opening an animal: the animal page then leads back here (its logo and
+// bottom link say "Миний мал" / "Миний адуу"). A new tag opened from
+// one section offers only that section's breeds (kind=…).
+function openUrl(url) {
+  try {
+    sessionStorage.setItem('yt-from-app', section === 'horse' ? 'horse' : '1');
+    if (HORSE_APP) sessionStorage.setItem('yt-horse-app', '1'); else sessionStorage.removeItem('yt-horse-app');
+  } catch (e) {}
+  location.href = url;
+}
+function openAnimal(code) {
+  openUrl('../cow.html?tag=' + encodeURIComponent(code) + '&kind=' + section);
+}
+$('list').addEventListener('click', e => {
+  const a = e.target.closest('a.animal');
+  if (!a) return;
+  e.preventDefault();
+  openUrl(a.getAttribute('href'));
+});
+
+// ---------- open by tag number ----------
+// "8000" or "yt-8000" → YT-008000 (the dashboard's format).
+function normTag(s) {
+  let v = String(s || '').trim().toUpperCase().replace(/\s+/g, '');
+  if (/^\d+$/.test(v)) v = 'YT-' + v;
+  const m = v.match(/^([A-Z]{1,6})-?(\d{1,6})$/);
+  return m ? `${m[1]}-${m[2].padStart(6, '0')}` : null;
+}
+function openTyped() {
+  const code = normTag($('code').value);
+  if (!code) { alert('Тагийн дугаар буруу. Жишээ: YT-008000 эсвэл 8000'); return; }
+  openAnimal(code);
+}
+$('codeBtn').addEventListener('click', openTyped);
+$('code').addEventListener('keydown', e => { if (e.key === 'Enter') openTyped(); });
+
+// ---------- read a tag inside the app (Android Chrome: Web NFC) ----------
+// iPhone has no Web NFC: there the phone's own NFC opens the tag's link.
+function tagFromUrl(u) {
+  try { return normTag(new URL(u).searchParams.get('tag')); } catch (e) { return null; }
+}
+let nfcAbort = null;
+function setupNfc() {
+  if (!('NDEFReader' in window) || setupNfc.done) return;
+  setupNfc.done = true;
+  const btn = $('nfcBtn'), msg = $('nfcMsg');
+  btn.style.display = 'block';
+  const say = t => { msg.textContent = t; msg.hidden = false; };
+  btn.addEventListener('click', async () => {
+    if (nfcAbort) { nfcAbort.abort(); nfcAbort = null; btn.textContent = '📶 Таг уншуулах'; msg.hidden = true; return; }
+    try {
+      const reader = new NDEFReader();
+      nfcAbort = new AbortController();
+      const stop = nfcAbort;
+      await reader.scan({ signal: stop.signal });
+      btn.textContent = '✕ Зогсоох';
+      say('Утсаа тагт ойртуулна уу…');
+      setTimeout(() => { if (nfcAbort === stop) { stop.abort(); nfcAbort = null; btn.textContent = '📶 Таг уншуулах'; say('Хугацаа дууслаа. Дахин дарна уу.'); } }, 60000);
+      reader.onreading = ev => {
+        for (const rec of ev.message.records) {
+          if (rec.recordType !== 'url' && rec.recordType !== 'absolute-url') continue;
+          const code = tagFromUrl(new TextDecoder().decode(rec.data));
+          if (code) { stop.abort(); nfcAbort = null; say(`${code} нээж байна…`); openAnimal(code); return; }
+        }
+        say('Энэ таг YAK-TAG биш байна.');
+      };
+      reader.onreadingerror = () => say('Уншиж чадсангүй. Утсаа дахин ойртуулна уу.');
+    } catch (e) {
+      nfcAbort = null;
+      say(/NotAllowed|denied/i.test(String(e && (e.name || e.message)))
+        ? 'NFC зөвшөөрөл өгөөгүй байна. Утасны тохиргоонд NFC-г асааж, зөвшөөрнө үү.'
+        : 'NFC ажиллахгүй байна. Утасны тохиргоонд NFC асаалттай эсэхийг шалгана уу.');
+    }
+  });
+}
+
+// ---------- entries waiting on this phone ----------
+function watchQueue() {
+  if (watchQueue.on) return; watchQueue.on = true;
+  ytQueue.onChange(n => {
+    const bar = $('queueBar');
+    bar.textContent = n ? `⏳ ${n} бүртгэл утсанд хадгалагдсан, сүлжээ ороход илгээгдэнэ.` : '';
+    bar.style.display = n ? 'block' : 'none';
+  });
+}
+window.addEventListener('online', () => { if (offlineMode) { offlineMode = false; boot(); } });
+
+boot();
+</script>
+</body>
+</html>

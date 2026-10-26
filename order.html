@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="mn" class="no-js">
+<head>
+<meta charset="UTF-8">
+<!-- Never shown inside another site's frame (click-jacking guard;
+     GitHub Pages cannot send an X-Frame-Options header). -->
+<style id="yt-noframe">html{display:none}</style>
+<script>if (window.self === window.top) document.getElementById('yt-noframe').remove(); else window.top.location = window.self.location.href;</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Таг захиалах — YAK-TAG</title>
+<meta name="description" content="NFC таг захиалах — захиалгын хүсэлтээ шууд илгээнэ.">
+<meta property="og:title" content="Таг захиалах — YAK-TAG">
+<meta property="og:description" content="NFC таг захиалах — захиалгын хүсэлтээ шууд илгээнэ.">
+<meta property="og:image" content="https://yaktag.org/assets/share-1200x630.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yaktag.org/order.html">
+<meta property="og:site_name" content="YAK-TAG">
+<meta property="og:locale" content="mn_MN">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://yaktag.org/order.html">
+<link rel="icon" href="assets/favicon.ico">
+<link rel="apple-touch-icon" href="assets/logo-180.png">
+<meta name="theme-color" content="#FFFDF8">
+<script>document.documentElement.classList.remove('no-js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style-a.css?v=2026102301">
+</head>
+<body>
+<nav class="nav" id="nav">
+  <div class="wrap navin">
+    <a href="index.html" class="logo"><img src="assets/logo-256.png" alt="" width="34" height="34">YAK-TAG</a>
+    <a href="how.html" class="navlink">Хэрхэн ажилладаг</a>
+    <a href="faq.html" class="navlink">Асуулт хариулт</a>
+    <a href="admin/" class="navlogin">Нэвтрэх</a>
+    <a href="order.html" class="btn btn-green">Захиалах</a>
+    <button class="navburger" id="burger" aria-label="Цэс" aria-expanded="false" aria-controls="navmenu">☰</button>
+  </div>
+  <div class="navmenu" id="navmenu">
+    <a href="how.html">Хэрхэн ажилладаг</a>
+    <a href="faq.html">Асуулт хариулт</a>
+    <a href="order.html">Таг захиалах</a>
+    <a href="admin/">Нэвтрэх</a>
+  </div>
+</nav>
+
+<header class="pagehead">
+  <div class="wrap">
+    <span class="eyebrow ani">Захиалга</span>
+    <h1 class="ani" style="--d:.06s">Тагаа захиалах.</h1>
+    <p class="lead ani" style="--d:.12s">Таг бүр дээр малын дугаар сийлэгдэж, NFC чип нь тохируулагдсан байдлаар хүрнэ. Та зөвхөн малдаа зүүхэд л болно.</p>
+  </div>
+</header>
+
+<main class="sec" style="padding-top:20px">
+  <div class="wrap">
+    <div class="ordergrid">
+      <div class="product rv l">
+        <div class="tagstage"><div class="rings" aria-hidden="true"><span></span><span></span><span></span></div>
+          <img src="assets/tag-512.webp" alt="YAK-TAG NFC таг"></div>
+        <div class="specs">
+          <div><b>Хэмжээ</b><span>Ø 32 мм</span></div>
+          <div><b>Төрөл</b><span>NFC таг</span></div>
+          <div><b>Батерей</b><span>Шаардлагагүй</span></div>
+          <div><b>Уншилт</b><span>Ямар ч NFC утсаар</span></div>
+        </div>
+      </div>
+
+      <div class="rv r">
+        <form class="ordercard" id="orderForm" novalidate>
+          <h3>Хэдэн таг хэрэгтэй вэ?</h3>
+          <div class="qrow">
+            <button type="button" class="qbtn" data-q="10">10</button>
+            <button type="button" class="qbtn" data-q="50">50</button>
+            <button type="button" class="qbtn" data-q="100">100</button>
+            <button type="button" class="qbtn" data-q="500">500</button>
+          </div>
+          <label for="oQty">Тагийн тоо</label>
+          <input type="number" id="oQty" min="1" max="100000" value="10" inputmode="numeric">
+          <div class="ofields">
+            <div><label for="oName">Нэр *</label>
+              <input type="text" id="oName" maxlength="80" autocomplete="name" required></div>
+            <div><label for="oPhone">Утас *</label>
+              <input type="tel" id="oPhone" maxlength="24" autocomplete="tel" inputmode="tel" placeholder="9911 2233" required></div>
+            <div><label for="oFarm">Ферм / байгууллага</label>
+              <input type="text" id="oFarm" maxlength="120" autocomplete="organization"></div>
+            <div><label for="oPlace">Аймаг, сум</label>
+              <input type="text" id="oPlace" maxlength="120" placeholder="Архангай, Цэнхэр"></div>
+          </div>
+          <label for="oNote">Тэмдэглэл</label>
+          <textarea id="oNote" maxlength="600" rows="2" placeholder="Хэзээ хэрэгтэй, хүргэлт гэх мэт"></textarea>
+          <div class="hp" aria-hidden="true"><label>Website <input type="text" id="oWebsite" tabindex="-1" autocomplete="off"></label></div>
+          <div class="oerr" id="oErr" role="alert"></div>
+          <button type="submit" class="btn btn-green" id="oSubmit">Захиалга илгээх</button>
+          <p class="ohint">Захиалга шууд бидэнд очно. Таны мэдээллийг зөвхөн захиалгын талаар холбогдоход ашиглана.</p>
+          <div class="contacts">
+            <a href="tel:+97699031147" data-c-href="phone"><span>Утсаар захиалах</span><b data-c-text="phone">9903 1147</b></a>
+            <a href="#" id="oSend"><span>И-мэйлээр</span><b data-c-text="email">contact@yaktag.org</b></a>
+            <div class="crow" data-c-show="address" hidden><span>Хаяг</span><b data-c-text="address"></b></div>
+          </div>
+        </form>
+        <div class="ordercard odone" id="orderDone" hidden>
+          <div class="okmark">✓</div>
+          <h3>Захиалга хүлээн авлаа</h3>
+          <p>Баярлалаа, <b id="doneName"></b>. <b id="doneQty"></b> тагийн захиалгыг хүлээн авлаа.
+            Бид тантай <b id="donePhone"></b> дугаараар удахгүй холбогдоно.</p>
+          <p class="ohint">Яаралтай бол: <a href="tel:+97699031147" data-c-href="phone" data-c-text="phone">9903 1147</a></p>
+          <button type="button" class="btn btn-ghost" id="oAgain" style="margin-top:16px">Өөр захиалга илгээх</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sechead rv" style="margin:clamp(64px,8vw,96px) auto 0">
+      <span class="eyebrow">Харьцуулалт</span>
+      <h2>Яагаад GPS хүзүүвч биш вэ?</h2>
+      <p>Хоёр шийдэл тус бүр давуу талтай. Шударгаар харьцуулъя.</p>
+    </div>
+    <div class="cmp">
+      <div class="cmpcol rv">
+        <h4>GPS хүзүүвч / ээмэг</h4>
+        <ul>
+          <li>Батерей цэнэглэх, солих шаардлагатай</li>
+          <li>Нэгж үнэ 120–150 ам.доллар</li>
+          <li>Олон толгойд өндөр өртөгтэй</li>
+          <li>Тогтмол засвар үйлчилгээ шаардана</li>
+        </ul>
+      </div>
+      <div class="cmpcol hi rv" style="--d:.1s">
+        <h4>YAK-TAG · NFC таг</h4>
+        <ul>
+          <li>Батерейгүй, цэнэглэх шаардлагагүй</li>
+          <li>Нэгж өртөг олон дахин бага</li>
+          <li>Уншилт бүр байршлын мөр үүсгэнэ</li>
+          <li>Мал бүрийн бүрэн түүх хадгалагдана</li>
+          <li>Олон толгой малд хямд, бодитоор хэрэгжинэ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <a href="index.html" class="logo"><img src="assets/logo-256.png" alt="" width="34" height="34">YAK-TAG</a>
+        <p>Мал бүрт цахим үнэмлэх. Монголын малчдад зориулав.</p>
+      </div>
+      <div>
+        <h4>Систем</h4>
+        <a href="how.html">Хэрхэн ажилладаг</a>
+        <a href="faq.html">Асуулт хариулт</a>
+        <a href="admin/">Удирдлагын самбар</a>
+      </div>
+      <div>
+        <h4>Захиалга</h4>
+        <a href="order.html">Таг захиалах</a>
+        <a href="tel:+97699031147" data-c-href="phone" data-c-text="phone">9903 1147</a>
+        <a href="mailto:contact@yaktag.org" data-c-href="email" data-c-text="email">contact@yaktag.org</a>
+        <span class="faddr" data-c-show="address" data-c-text="address" hidden></span>
+      </div>
+    </div>
+    <div class="fbot"><span>© 2026 YAK-TAG</span></div>
+  </div>
+</footer>
+<script>
+// ---- shared: nav, phone menu, scroll reveal ----
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('on',scrollY>8),{passive:true});
+const bg=document.getElementById('burger'), nm=document.getElementById('navmenu');
+const setMenu=o=>{nm.classList.toggle('open',o);bg.setAttribute('aria-expanded',o);bg.textContent=o?'✕':'☰';};
+bg.addEventListener('click',()=>setMenu(!nm.classList.contains('open')));
+nm.addEventListener('click',e=>{if(e.target.closest('a'))setMenu(false);});
+addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false);});
+const io=!('IntersectionObserver' in window)?{observe:el=>el.classList.add('in'),unobserve(){}}:new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),
+  {threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+<script>
+(function(){
+  const qty=document.getElementById('oQty'), link=document.getElementById('oSend');
+  if(!qty) return;
+  function refresh(){
+    const n=Math.max(1,parseInt(qty.value)||1);
+    const body=encodeURIComponent(
+      `Сайн байна уу,\n\nYAK-TAG таг захиалах хүсэлтэй байна.\n\n`+
+      `Тагийн тоо: ${n}\nФерм / байгууллага: \nХолбоо барих утас: \nАймаг, сум: \n\nБаярлалаа.`);
+    const mail=(window.ytContacts&&ytContacts.email)||'contact@yaktag.org';
+    link.href=`mailto:${mail}?subject=${encodeURIComponent('YAK-TAG захиалга — '+n+' таг')}&body=${body}`;
+  }
+  qty.addEventListener('input',refresh);
+  addEventListener('yt:contacts',refresh);    // e-mail changed in the dashboard
+  document.querySelectorAll('.qbtn').forEach(b=>b.addEventListener('click',()=>{qty.value=b.dataset.q;refresh();
+    document.querySelectorAll('.qbtn').forEach(x=>x.classList.toggle('on',x===b));}));
+  refresh();
+
+  // Order form → database → the owner's Telegram (schema_v41). No login
+  // and no library: one request to the public API with the public key
+  // (the same one as in config.js).
+  const API='https://mjijgxfmkgtxmpbmshtl.supabase.co/rest/v1/rpc/submit_order';
+  const KEY='sb_publishable_npSJ3ZAWO_ODx_cXbvORoQ__t-_1GiJ';
+  const form=document.getElementById('orderForm'), done=document.getElementById('orderDone');
+  const err=document.getElementById('oErr'), btn=document.getElementById('oSubmit');
+  const val=id=>document.getElementById(id).value.trim();
+  const show=m=>{err.textContent=m;err.style.display='block';};
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    err.style.display='none';
+    const n=parseInt(val('oQty'));
+    if(!n||n<1||n>100000) return show('Тагийн тоогоо оруулна уу.');
+    if(val('oName').length<2) return show('Нэрээ оруулна уу.');
+    if(val('oPhone').replace(/\D/g,'').length<8) return show('Утасны дугаараа зөв оруулна уу (8 оронтой).');
+    btn.disabled=true; btn.textContent='Илгээж байна…';
+    try{
+      const r=await fetch(API,{method:'POST',
+        headers:{'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+KEY},
+        body:JSON.stringify({p_name:val('oName'),p_phone:val('oPhone'),p_qty:n,
+          p_farm:val('oFarm')||null,p_place:val('oPlace')||null,p_note:val('oNote')||null,
+          p_website:document.getElementById('oWebsite').value||null})});
+      if(!r.ok){const j=await r.json().catch(()=>({}));throw new Error(j.message||('HTTP '+r.status));}
+      document.getElementById('doneName').textContent=val('oName');
+      document.getElementById('doneQty').textContent=n;
+      document.getElementById('donePhone').textContent=val('oPhone');
+      form.hidden=true; done.hidden=false;
+      done.scrollIntoView({behavior:'smooth',block:'center'});
+    }catch(ex){
+      // the server's own message is already in Mongolian; anything else is a network problem
+      show(/[А-Яа-яӨөҮү]/.test(ex.message) ? ex.message
+        : 'Илгээж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу, эсвэл '+((window.ytContacts&&ytContacts.phone)||'9903 1147')+' руу залгана уу.');
+    }finally{
+      btn.disabled=false; btn.textContent='Захиалга илгээх';
+    }
+  });
+  document.getElementById('oAgain').addEventListener('click',()=>{
+    ['oName','oPhone','oFarm','oPlace','oNote'].forEach(id=>document.getElementById(id).value='');
+    done.hidden=true; form.hidden=false;
+  });
+})();
+</script>
+<script src="assets/contacts.js?v=3"></script>
+</body>
+</html>
