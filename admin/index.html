@@ -71,6 +71,9 @@ main{padding:22px 22px 60px;max-width:1560px;margin:0 auto}
 .tabs .kindsw{margin:0 0 6px auto;align-self:center;border:1.5px solid var(--line);border-radius:999px;
   padding:5px 12px;font-weight:700;font-size:.84rem;color:var(--ink);background:#fff}
 .tabs .kindsw:hover{border-color:var(--khukh);color:var(--khukh)}
+/* the animals: the tags' own black logos (yak / horse), not emoji */
+.ki{width:18px;height:18px;vertical-align:-4px;margin-right:6px}
+td .ki,.sub .ki{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
 .tabs .kindsw[hidden],.tabs button[hidden],.who [hidden]{display:none !important}
 /* horse herds (schema_v59) */
 #hdTable{min-width:820px}
@@ -352,7 +355,7 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
       <span><b id="userName">—</b></span>
       <span class="role-chip" id="userRole">—</span>
       <!-- the horse app (YAK-TAG Адуу): opened here on the phone, then installed from the browser -->
-      <a class="signout" id="horseAppLink" href="../app/?app=horse#horse" hidden style="text-decoration:none">🐎 Адууны апп</a>
+      <a class="signout" id="horseAppLink" href="../app/?app=horse#horse" hidden style="text-decoration:none"><img class="ki" src="../assets/horse-logo-black.png" alt="">Адууны апп</a>
       <button class="signout super-only" id="contactsBtn">Холбоо барих</button>
       <button class="signout" id="tgBtn" style="display:none">Telegram</button>
       <button class="signout" id="myPwBtn">Нууц үг солих</button>
@@ -371,7 +374,7 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
       <button data-tab="tags" class="admin-only">Тагууд</button>
       <button data-tab="audit" class="super-only">Түүх</button>
       <!-- cows and horses are separate sections (#horse) -->
-      <button class="kindsw" id="kindSw" title="Адууны хэсэг рүү">🐎 Адуу</button>
+      <button class="kindsw" id="kindSw" title="Адууны хэсэг рүү"><img class="ki" src="../assets/horse-logo-black.png" alt="">Адуу</button>
     </div>
 
     <!-- ===== HERD ===== -->
@@ -1090,7 +1093,7 @@ document.querySelectorAll('.tabs button[data-tab]').forEach(b=>{
 function applySection(){
   const horse = section === 'horse';
   document.getElementById('kindSw').hidden = !horsesOn;
-  document.getElementById('kindSw').textContent = horse ? '🐄 Үхэр' : '🐎 Адуу';
+  document.getElementById('kindSw').innerHTML = horse ? '<img class="ki" src="../assets/logo-256.png" alt="">Үхэр' : '<img class="ki" src="../assets/horse-logo-black.png" alt="">Адуу';
   document.getElementById('kindSw').title = horse ? 'Үхрийн хэсэг рүү' : 'Адууны хэсэг рүү';
   document.getElementById('herdTabBtn').textContent = horse ? 'Адуу' : 'Мал сүрэг';
   document.getElementById('search').placeholder = horse ? 'Дугаар, чип, зүс, эзэмшигчээр хайх…' : 'Дугаар, эзэмшигчээр хайх…';
@@ -1148,7 +1151,7 @@ async function loadMareMilkTab(){
   const name = g => {
     if(g.herd_id){ const h = herdRows.find(x=>x.id===g.herd_id); return h ? esc(h.name) : '<span class="muted">хаагдсан сүрэг</span>'; }
     const c = allCattle.find(x=>x.id===g.cattle_id);
-    return c ? `🐴 <a href="${esc(cowUrl(c,'../'))}">${esc(animalCode(c))}</a> <span class="muted">${esc(c.colour||'')}</span>` : '🐴 гүү';
+    return c ? `<img class="ki" src="../assets/horse-logo-black.png" alt=""><a href="${esc(cowUrl(c,'../'))}">${esc(animalCode(c))}</a> <span class="muted">${esc(c.colour||'')}</span>` : '<img class="ki" src="../assets/horse-logo-black.png" alt="">гүү';
   };
   const farmCode = id => (farms.find(f=>f.id===id)||{}).code || '';
   const rows = Object.values(groups).sort((a,b)=>(a.herd_id?0:1)-(b.herd_id?0:1) || b.l-a.l);
@@ -1854,7 +1857,7 @@ function render(){
     const age = c.birth_year ? (yr-c.birth_year)+' нас' : '';
     const sex = c.sex==='female' ? 'Эм' : 'Эр';
     const alert = STATUS_ALERT[c.status];
-    const sub = (c.species==='horse' ? [esc(horseLabel(c)), c.breed && esc(c.breed), c.colour && esc(c.colour), c.herd_name && '🐎 '+esc(c.herd_name)]
+    const sub = (c.species==='horse' ? [esc(horseLabel(c)), c.breed && esc(c.breed), c.colour && esc(c.colour), c.herd_name && '<img class="ki" src="../assets/horse-logo-black.png" alt="">'+esc(c.herd_name)]
                                      : [sex, age, c.breed && esc(c.breed)]).filter(Boolean).join(' · ');
     const month = c.milk_this_month ? Number(c.milk_this_month).toFixed(1) : '';
     return `<tr class="${isUrgent(c)?'urgent':''}">

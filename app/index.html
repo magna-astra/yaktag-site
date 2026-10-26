@@ -112,6 +112,10 @@ input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px var(--gr
 .kindbtn{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;
   font-weight:800;font-size:.88rem;color:var(--ink);cursor:pointer;white-space:nowrap}
 .kindbtn:active{background:var(--green-l)}
+/* the animals: the tags' own black logos (yak / horse), not emoji */
+.ki{width:18px;height:18px;vertical-align:-4px;margin-right:6px}
+.b .ki{width:14px;height:14px;vertical-align:-3px;margin-right:4px}
+h2 .ki{width:26px;height:26px;vertical-align:-5px;margin-right:8px}
 .animal{display:block;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;
   color:inherit;text-decoration:none}
 .animal:active{background:var(--green-l)}
@@ -234,7 +238,7 @@ footer a{color:var(--muted)}
 
   <!-- ===== the horse app before launch: only the super admin and testers ===== -->
   <section class="card" id="soonView" hidden>
-    <h2>🐎 YAK-TAG Адуу тун удахгүй</h2>
+    <h2><img class="ki" src="../assets/horse-logo-black.png" alt="">YAK-TAG Адуу тун удахгүй</h2>
     <p class="sub">Адууны апп одоогоор туршилтад байна. Малынхаа бүртгэлийг YAK-TAG апп-аас хөтөлнө.</p>
     <a class="btn" href="./">YAK-TAG апп нээх</a>
   </section>
@@ -244,7 +248,7 @@ footer a{color:var(--muted)}
     <div class="card">
       <div class="hellorow">
         <h1 id="hello">Сайн байна уу</h1>
-        <button class="kindbtn" id="kindBtn">🐎 Адуу</button>
+        <button class="kindbtn" id="kindBtn"><img class="ki" src="../assets/horse-logo-black.png" alt="">Адуу</button>
       </div>
       <p class="sub" id="whoami"></p>
       <div class="bar off" id="offBar"></div>
@@ -625,7 +629,7 @@ function card(c) {
   if (horse && c.status === 'active' && !c.tag_code && !c.chip_no && !c.national_id) {
     b.push('<span class="b warn">Чип / улсын дугаар алга</span>');
   }
-  if (horse && c.herd_name) b.push(`<span class="b">🐎 ${esc(c.herd_name)}</span>`);
+  if (horse && c.herd_name) b.push(`<span class="b"><img class="ki" src="../assets/horse-logo-black.png" alt="">${esc(c.herd_name)}</span>`);
   if (!horse && c.status === 'active' && c.sex !== 'male') {
     b.push(c.milk_today != null ? `<span class="b ok">🥛 Өнөөдөр ${Number(c.milk_today).toFixed(1)} л</span>`
                                 : '<span class="b">🥛 Өнөөдөр —</span>');
@@ -667,7 +671,7 @@ $('reloadBtn').addEventListener('click', () => { offlineMode = false; boot(); })
 function applySection() {
   const horse = section === 'horse';
   $('kindBtn').hidden = !horsesOn || HORSE_APP;          // the horse app: horses only
-  $('kindBtn').textContent = horse ? '🐄 Үхэр' : '🐎 Адуу';
+  $('kindBtn').innerHTML = horse ? '<img class="ki" src="../assets/logo-256.png" alt="">Үхэр' : '<img class="ki" src="../assets/horse-logo-black.png" alt="">Адуу';
   $('kindBtn').title = horse ? 'Үхрийн хэсэг рүү' : 'Адууны хэсэг рүү';
   $('listTitle').textContent = horse ? 'Миний адуу' : 'Миний мал';
   $('whoami').textContent = !me ? '' : (horse ? 'Адууны хэсэг · ' : '') +

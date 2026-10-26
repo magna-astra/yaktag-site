@@ -34,7 +34,8 @@ const SHELL = [
   'app/', 'app/index.html', 'app/manifest.json',
   'assets/app-icon-192.png', 'assets/app-icon-512.png',
   // the horse app (app/?app=horse — the same page, its own manifest and look)
-  'app/manifest-horse.json', 'assets/horse-logo-128.png', 'assets/horse-icon-192.png'
+  'app/manifest-horse.json', 'assets/horse-logo-128.png', 'assets/horse-icon-192.png',
+  'assets/horse-logo-black.png'
 ];
 const LIB = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js';
 
