@@ -313,6 +313,62 @@ function animalCode(c) {
   return c.tag_code || (c.national_id ? c.national_id : c.chip_no ? 'Чип …' + c.chip_no.slice(-6) : 'Таггүй адуу');
 }
 
+// ---------- an animal's name and birth date (schema_v64) ----------
+// Birth: the full date when known ("2024/03/15"), else the year ("2024 он")
+function birthText(c) {
+  return c.birth_date ? fmtDate(String(c.birth_date).slice(0, 10)) : c.birth_year ? c.birth_year + ' он' : '—';
+}
+// Age: a young animal with a known date in months ("7 сартай"), else years
+function ageText(c) {
+  if (c.birth_date) {
+    const [y, m, d] = String(c.birth_date).slice(0, 10).split('-').map(Number);
+    const [ty, tm, td] = mnDate().split('-').map(Number);
+    const months = (ty - y) * 12 + (tm - m) - (td < d ? 1 : 0);
+    if (months < 0) return '';
+    if (months < 12) return months ? `${months} сартай` : 'сар хүрээгүй';
+    return `${Math.floor(months / 12)} нас`;
+  }
+  return c.birth_year ? `${new Date().getFullYear() - c.birth_year} нас` : '';
+}
+// Year / month / day pickers. Month and day may stay empty when nobody
+// knows them — then only the year is saved. p = id prefix (p+'Y', 'M', 'D').
+function birthPickerHtml(p, c = {}) {
+  const thisYear = Number(mnDate().slice(0, 4));
+  const [y, m, d] = c.birth_date ? String(c.birth_date).slice(0, 10).split('-').map(Number) : [c.birth_year || '', '', ''];
+  const st = 'width:100%;padding:12px 8px;border:1px solid var(--line,#DDE3EA);border-radius:10px;background:#fff;font:inherit;color:inherit';
+  const lb = 'display:block;font-size:.78rem;font-weight:600;color:#5B6779;margin:0 0 4px';
+  const opt = (v, label, cur) => `<option value="${v}"${String(v) === String(cur) ? ' selected' : ''}>${label}</option>`;
+  let years = '', months = '', days = '';
+  for (let i = thisYear; i >= 1990; i--) years += opt(i, i, y);
+  for (let i = 1; i <= 12; i++) months += opt(i, `${i}-р сар`, m);
+  for (let i = 1; i <= 31; i++) days += opt(i, i, d);
+  return `<div style="display:grid;grid-template-columns:1.25fr 1.25fr 1fr;gap:8px">
+      <div><span style="${lb}">Он</span><select id="${p}Y" style="${st}" aria-label="Төрсөн он"><option value="">— он —</option>${years}</select></div>
+      <div><span style="${lb}">Сар</span><select id="${p}M" style="${st}" aria-label="Төрсөн сар"><option value="">— сар —</option>${months}</select></div>
+      <div><span style="${lb}">Өдөр</span><select id="${p}D" style="${st}" aria-label="Төрсөн өдөр"><option value="">— өдөр —</option>${days}</select></div>
+    </div>`;
+}
+// The pickers read back: { year, date: 'YYYY-MM-DD' | null } or { err }
+function readBirth(p, required = true) {
+  const v = k => Number(document.getElementById(p + k).value) || null;
+  const y = v('Y'), m = v('M'), d = v('D');
+  if (!y) return required || m || d ? { err: 'Төрсөн оноо сонгоно уу.' } : { year: null, date: null };
+  if (!m && !d) return { year: y, date: null };
+  if (!m || !d) return { err: 'Төрсөн сар, өдрийг хоёуланг нь сонгоно уу. Мэдэхгүй бол хоёуланг нь хоосон үлдээнэ.' };
+  if (new Date(Date.UTC(y, m - 1, d)).getUTCMonth() !== m - 1) return { err: `${y} оны ${m}-р сард ${d} гэсэн өдөр байхгүй.` };
+  const date = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  if (date > mnDate()) return { err: 'Төрсөн огноо ирээдүй байж болохгүй.' };
+  return { year: y, date };
+}
+// The name field's text: one space between words, at most 40 letters
+function cleanName(s) {
+  return String(s || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+}
+// "YT-007006 · Сарнай": the number, then the name when there is one
+function animalTitle(c) {
+  return c.name ? animalCode(c) + ' · ' + c.name : animalCode(c);
+}
+
 // ---------- horse herds (schema_v59): the app, the horse page, the dashboard ----------
 const HERD_KINDS = { stallion: 'Азарганы сүрэг', geldings: 'Агтны сүрэг', mares: 'Гүүний зэл',
                      young: 'Унага, даага', other: 'Бусад' };

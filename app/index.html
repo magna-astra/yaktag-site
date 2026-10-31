@@ -121,6 +121,7 @@ h2 .ki{width:26px;height:26px;vertical-align:-5px;margin-right:8px}
 .animal:active{background:var(--green-l)}
 .animal .row{display:flex;align-items:center;gap:8px}
 .animal .code{font-family:var(--mono);font-weight:800;font-size:1.05rem}
+.animal .code .nm{font-family:var(--font);font-weight:700}
 .animal .go{margin-left:auto;color:var(--muted);font-size:1.3rem;line-height:1}
 .animal .meta{color:var(--ink2);font-size:.87rem;margin-top:2px}
 .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
@@ -317,7 +318,7 @@ footer a{color:var(--muted)}
   <footer><a href="../">yaktag.org</a></footer>
 </main>
 
-<script src="../config.js?v=2026102601"></script>
+<script src="../config.js?v=2026103101"></script>
 <script src="../offline.js?v=20261026"></script>
 <script>
 // ============================================================
@@ -568,14 +569,15 @@ $('tgBtn').addEventListener('click', async () => {
 const COLS = 'id,tag_code,breed,sex,birth_year,status,reported_lost_at,milk_today,next_vaccination_due,owner_name,owner_id,farm_id,farm_code';
 const HORSE_COLS = ',species,colour,chip_no,national_id,castrated';     // schema_v55
 const HERD_COLS = ',herd_id,herd_name';                                  // schema_v59
+const NAME_COLS = ',name,birth_date';                                    // schema_v64
 async function fetchAnimals() {
   const out = [];
-  const older = [COLS + HORSE_COLS, COLS];
-  let cols = COLS + HORSE_COLS + HERD_COLS;
+  const older = [COLS + HORSE_COLS + HERD_COLS, COLS + HORSE_COLS, COLS];
+  let cols = COLS + HORSE_COLS + HERD_COLS + NAME_COLS;
   for (let from = 0; from < 20000; from += 1000) {
     let { data, error } = await sb.from('cattle_dashboard').select(cols)
       .order('tag_code').range(from, from + 999);
-    // database not yet on v59 / v55: the list without the newer columns
+    // database not yet on v64 / v59 / v55: the list without the newer columns
     while (error && error.code === '42703' && older.length) {
       cols = older.shift();
       ({ data, error } = await sb.from('cattle_dashboard').select(cols).order('tag_code').range(from, from + 999));
@@ -617,7 +619,7 @@ async function loadAnimals() {
 const STATUS_MN = { sold:'Зарагдсан', slaughtered:'Нядалсан', dead:'Үхсэн', lost:'Алга болсон', stolen:'Хулгайлагдсан' };
 function card(c) {
   const horse = c.species === 'horse';
-  const age = c.birth_year ? `${new Date().getFullYear() - c.birth_year} нас` : '';
+  const age = ageText(c);
   const meta = (horse ? [horseLabel(c), c.breed, c.colour]
                       : [c.sex === 'female' ? 'Эм' : c.sex === 'male' ? 'Эр' : '', age, c.breed])
     .concat(me && me.role === 'farm_admin' ? c.owner_name : '',
@@ -640,7 +642,7 @@ function card(c) {
     else if (d <= 7) b.push(`<span class="b warn">💉 Вакцин ${d === 0 ? 'өнөөдөр' : d + ' хоногт'}</span>`);
   }
   return `<a class="animal" href="${esc(cowUrl(c, '../'))}">
-    <div class="row"><span class="code">${esc(animalCode(c))}</span><span class="go">›</span></div>
+    <div class="row"><span class="code">${esc(animalCode(c))}${c.name ? `<span class="nm"> · ${esc(c.name)}</span>` : ''}</span><span class="go">›</span></div>
     ${meta ? `<div class="meta">${esc(meta)}</div>` : ''}
     ${b.length ? `<div class="badges">${b.join('')}</div>` : ''}
   </a>`;
@@ -652,7 +654,7 @@ function render() {
   // active animals first, then the rest (sold, dead…) in tag order
   const rank = c => (c.status === 'active' || c.reported_lost_at) ? 0 : 1;
   const list = mine
-    .filter(c => !q || [c.tag_code, c.breed, c.owner_name, c.colour, c.chip_no, c.national_id]
+    .filter(c => !q || [c.tag_code, c.name, c.breed, c.owner_name, c.colour, c.chip_no, c.national_id]
       .some(v => String(v || '').toLowerCase().includes(q)))
     .sort((a, b) => rank(a) - rank(b) || String(animalCode(a)).localeCompare(String(animalCode(b))));
   const active = mine.filter(c => c.status === 'active').length;
@@ -722,7 +724,7 @@ function editableHorses() {
   return animals.filter(c => c.species === 'horse' && c.status === 'active' && me &&
                              (['farm_admin', 'super_admin'].includes(me.role) || c.owner_id === me.id));
 }
-const horseName = c => [animalCode(c), horseLabel(c), c.colour].filter(Boolean).join(' · ');
+const horseName = c => [animalTitle(c), horseLabel(c), c.colour].filter(Boolean).join(' · ');
 const mapLink = (lat, lng, text) => `<a href="https://www.google.com/maps?q=${Number(lat)},${Number(lng)}" target="_blank" rel="noopener">${text}</a>`;
 
 function renderHerds() {

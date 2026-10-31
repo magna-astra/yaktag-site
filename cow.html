@@ -76,6 +76,7 @@ header.cowhead{background:var(--ink);color:#fff;margin:0 -16px 18px;padding:18px
 .cowhead .out{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.25);
   color:#fff;padding:5px 11px;border-radius:8px;font-size:.78rem}
 .tagbig{font-family:var(--mono);font-size:2rem;font-weight:700;letter-spacing:-.01em}
+.tagbig .nm{font-family:var(--body);font-size:1.45rem;font-weight:700;letter-spacing:0;overflow-wrap:anywhere}
 .cowmeta{color:#9FB0C6;font-size:.88rem;margin-top:4px}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
@@ -291,7 +292,7 @@ html.horse-app header.cowhead{background:linear-gradient(135deg,#3E2412 0%,#5C3A
 <div class="toast" id="toast"></div>
 <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
 
-<script src="config.js?v=2026102601"></script>
+<script src="config.js?v=2026103101"></script>
 <script src="offline.js?v=20261026"></script>
 <script>
 let cow = null;
@@ -763,14 +764,17 @@ function renderRegistration(tag, info) {
       <p class="hint" style="margin-bottom:16px">Ерөнхий админ: адуу сонгосон ферм рүү, таны нэр дээр бүртгэгдэнэ (туршилт).</p>`
       : `<p class="hint" style="margin-bottom:16px">Мал таны ферм рүү бүртгэгдэнэ. Буруу бол админд хандана уу.</p>`}
 
+      <div class="field"><label for="regName">Нэр <span style="font-weight:400;color:#5B6779">(заавал биш)</span></label>
+        <input type="text" id="regName" maxlength="40" autocomplete="off" placeholder="Жишээ: Сарнай">
+        <p class="hint" style="margin:4px 0 0">Бичвэл тагийн дугаарын ард харагдана.</p></div>
       <div class="field"><label>Хүйс *</label>
         <div class="kind-pick" id="regSex">
           <button type="button" data-sex="female">Эм</button>
           <button type="button" data-sex="male">Эр</button>
         </div></div>
-      <div class="field"><label for="regYear">Төрсөн он *</label>
-        <input type="number" id="regYear" inputmode="numeric" min="1990" max="${thisYear}"
-               placeholder="${thisYear - 3}"></div>
+      <div class="field"><label>Төрсөн огноо *</label>
+        ${birthPickerHtml('regB')}
+        <p class="hint" style="margin:4px 0 0">Он заавал. Сар, өдрийг мэдэхгүй бол хоосон үлдээж болно.</p></div>
       <div class="field"><label for="regBreed">Төрөл / үүлдэр *</label>
         <select id="regBreed" style="width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:#fff">
           <option value="">Ачаалж байна…</option></select>
@@ -803,6 +807,11 @@ function renderRegistration(tag, info) {
     document.querySelectorAll('#regSex button').forEach(x => x.classList.remove('on'));
     b.classList.add('on'); sex = b.dataset.sex; showHorse();
   }));
+  // the name right after the tag number, as on the animal's page
+  document.getElementById('regName').addEventListener('input', e => {
+    const n = cleanName(e.target.value);
+    document.getElementById('tagBig').innerHTML = esc(tag || 'Шинэ адуу') + (n ? `<span class="nm"> · ${esc(n)}</span>` : '');
+  });
   updateGpsNote();
   if (superAdmin) {
     sb.from('farms').select('id, code, name').order('code').then(({ data }) => {
@@ -860,10 +869,21 @@ async function saveRegistration(tag, getSex) {
   err.style.display = 'none';
 
   const sex = getSex();
-  const year = parseInt(document.getElementById('regYear').value, 10);
+  const name = cleanName(document.getElementById('regName').value);
+  const birth = readBirth('regB');
+  const year = birth.year;
   if (!sex) return showErr('Хүйсээ сонгоно уу.');
-  if (!year || year < 1990 || year > new Date().getFullYear()) return showErr('Төрсөн оноо зөв оруулна уу.');
+  if (birth.err) return showErr(birth.err);
   if (!navigator.onLine) return showErr('Бүртгэхэд сүлжээ шаардлагатай.');
+  // the name and the full date (schema_v64) right after the animal is saved;
+  // the animal stays registered even if this fails (false = not saved)
+  const saveIdentity = async id => {
+    if (!id || (!name && !birth.date)) return true;
+    const { error } = await sb.rpc('set_cattle_identity',
+      { p_cattle_id: id, p_name: name || null, p_birth_year: year, p_birth_date: birth.date });
+    return !error;
+  };
+  const NO_IDENTITY = 'Бүртгэгдлээ, гэхдээ нэр / төрсөн огноо хадгалагдсангүй — "Мэдээлэл" хэсгээс дахин оруулна уу.';
 
   const breedCode = document.getElementById('regBreed').value;
   const breedOther = document.getElementById('regBreedOther').value.trim();
@@ -882,9 +902,10 @@ async function saveRegistration(tag, getSex) {
       p_lat: gps ? gps.lat : null, p_lng: gps ? gps.lng : null,
       p_mother_tag: document.getElementById('regMother').value.trim() || null,
       p_tag_code: tag || null, ...(farmSel ? { p_farm: farmSel.value } : {}) });
+    const idOk = error ? true : await saveIdentity(newId);
     btn.disabled = false; btn.textContent = 'Бүртгэх';
     if (error) return showErr(mnError(error.message));
-    toast('Адуу бүртгэгдлээ — одоо бүтэн биеийн болон тамгын зургийг аваарай');
+    toast(idOk ? 'Адуу бүртгэгдлээ — одоо бүтэн биеийн болон тамгын зургийг аваарай' : NO_IDENTITY, !idOk);
     if (tag) { await loadCow(tag); if (cow) logScan(); return; }
     history.replaceState(null, '', cowUrl({ id: newId }));    // a reload opens this horse
     await loadCow({ id: newId });
@@ -899,17 +920,18 @@ async function saveRegistration(tag, getSex) {
     p_colour: document.getElementById('regColour').value.trim() || null,
     p_lat: gps ? gps.lat : null, p_lng: gps ? gps.lng : null
   };
-  let { error } = await sb.rpc('register_cattle', { ...base,
+  let { data: newId, error } = await sb.rpc('register_cattle', { ...base,
     p_breed_code: breedCode || null,
     p_mother_tag: document.getElementById('regMother').value.trim() || null });
   // Database not yet on schema_v28: register without breed/mother.
   if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message))) {
-    ({ error } = await sb.rpc('register_cattle', base));
+    ({ data: newId, error } = await sb.rpc('register_cattle', base));
   }
+  const idOk = error ? true : await saveIdentity(newId);
   btn.disabled = false; btn.textContent = 'Бүртгэх';
   if (error) return showErr(mnError(error.message));
 
-  toast('Мал бүртгэгдлээ — одоо бүтэн биеийн зураг аваарай');
+  toast(idOk ? 'Мал бүртгэгдлээ — одоо бүтэн биеийн зураг аваарай' : NO_IDENTITY, !idOk);
   await loadCow(tag);
   if (cow) logScan();            // registering is also an encounter
 }
@@ -1000,6 +1022,41 @@ async function loadOwnership() {
         <span style="text-align:right">${esc(h.from_name || '—')} → <b>${esc(h.to_name || '—')}</b>
         · ${esc(OWN_REASON[h.reason] || h.reason || '')}${h.note ? ` · ${esc(h.note)}` : ''}</span></div>`).join('');
   } catch (e) {}
+}
+
+// The name and the birth date (schema_v64): the owner, the farm admin of
+// the animal's farm, the super admin — as set_cattle_identity checks.
+function renderIdentityEdit() {
+  const box = document.getElementById('identityEdit');
+  if (!box || !canEditCow() || offlineMode) return;
+  box.innerHTML = `<button class="lockbtn" id="ieBtn" style="margin-top:8px">Нэр, төрсөн огноо засах</button>`;
+  document.getElementById('ieBtn').addEventListener('click', () => {
+    box.innerHTML = `
+      <input type="text" id="ieName" maxlength="40" autocomplete="off" placeholder="Нэр (заавал биш)" value="${esc(cow.name || '')}"
+             style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin-top:8px">
+      <div style="margin-top:8px">${birthPickerHtml('ieB', cow)}</div>
+      <div class="err" id="ieErr"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-primary" id="ieSave" style="flex:1">Хадгалах</button>
+        <button class="lockbtn" id="ieCancel" style="flex:0 0 auto">Болих</button></div>`;
+    document.getElementById('ieCancel').addEventListener('click', renderIdentityEdit);
+    document.getElementById('ieSave').addEventListener('click', async () => {
+      const err = document.getElementById('ieErr');
+      const showErr = m => { err.textContent = m; err.style.display = 'block'; };
+      const birth = readBirth('ieB', !!cow.birth_year);      // a year once known stays required
+      if (birth.err) return showErr(birth.err);
+      if (!navigator.onLine) return showErr('Хадгалахад сүлжээ шаардлагатай.');
+      const btn = document.getElementById('ieSave');
+      btn.disabled = true;
+      const { error } = await sb.rpc('set_cattle_identity', { p_cattle_id: cow.id,
+        p_name: cleanName(document.getElementById('ieName').value) || null,
+        p_birth_year: birth.year, p_birth_date: birth.date });
+      btn.disabled = false;
+      if (error) return showErr(mnError(error.message));
+      toast('Хадгалагдлаа');
+      await reloadCow();
+    });
+  });
 }
 
 function renderBreedEdit() {
@@ -1519,16 +1576,18 @@ async function saveMareMilk() {
 }
 
 function renderCow() {
-  const age = cow.birth_year ? (new Date().getFullYear() - cow.birth_year) : null;
+  const age = ageText(cow);
   const horse = isHorse();
   appBackLinks(horse);
   // a horse: "шүдлэн гүү", "их насны азарга" … (config.js)
   const sex = horse ? horseLabel(cow).replace(/^./, s => s.toUpperCase()) : cow.sex === 'female' ? 'Эм' : 'Эр';
 
-  document.getElementById('tagBig').textContent = animalCode(cow);
+  // the number, then the name when there is one (schema_v64)
+  document.getElementById('tagBig').innerHTML = esc(animalCode(cow))
+    + (cow.name ? `<span class="nm"> · ${esc(cow.name)}</span>` : '');
   document.getElementById('cowMeta').textContent = horse
     ? `${sex}${cow.breed ? ' · ' + cow.breed : ''}${cow.colour ? ' · ' + cow.colour : ''} · ${cow.owner_name}`
-    : `${sex}${age ? ' · ' + age + ' нас' : ''}${cow.breed ? ' · ' + cow.breed : ''} · ${cow.owner_name}`;
+    : `${sex}${age ? ' · ' + age : ''}${cow.breed ? ' · ' + cow.breed : ''} · ${cow.owner_name}`;
 
   document.getElementById('cowBody').innerHTML = `
     <div id="lostTop"></div>
@@ -1619,8 +1678,10 @@ function renderCow() {
     <div class="card">
       <h2><span class="dot"></span>Мэдээлэл</h2>
       <div class="kv"><span>Эзэмшигч</span><span>${esc(cow.owner_name)}</span></div>
+      <div class="kv"><span>Нэр</span><span>${esc(cow.name || '—')}</span></div>
       <div class="kv"><span>Хүйс</span><span>${sex}</span></div>
-      <div class="kv"><span>Төрсөн он</span><span class="mono">${cow.birth_year || '—'}</span></div>
+      <div class="kv"><span>Төрсөн огноо</span><span class="mono">${esc(birthText(cow))}</span></div>
+      <div id="identityEdit"></div>
       <div class="kv"><span>Төрөл / үүлдэр</span><span id="breedVal">${esc(cow.breed || '—')}</span></div>
       <div id="breedEdit"></div>
       <div class="kv"><span>Жин</span><span class="mono">${cow.weight_kg ? cow.weight_kg + ' кг' : '—'}</span></div>
@@ -1648,6 +1709,7 @@ function renderCow() {
 
   renderPhone();
   renderLost();
+  renderIdentityEdit();
   if (horse) renderHorse();
   else { renderMilk(); loadMilkRow(); }
   loadCowExtras();

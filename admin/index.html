@@ -119,9 +119,6 @@ td .ki,.sub .ki{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
   box-shadow:0 2px 10px rgba(0,0,0,.08)}
 .maplegend div{display:flex;align-items:center;gap:7px;margin:3px 0}
 .legdot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
-.gtestwarn{background:#B8892C;color:#fff;padding:6px 11px;border-radius:8px;
-  font-size:.75rem;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);max-width:230px;
-  line-height:1.35}
 .cowpin{background:var(--khukh);color:#fff;border-radius:14px;padding:3px 8px;font-family:var(--mono);
   font-size:.7rem;font-weight:700;white-space:nowrap;border:2px solid #fff;
   box-shadow:0 2px 6px rgba(0,0,0,.3);text-align:center}
@@ -201,6 +198,7 @@ tbody tr:hover{background:#FAFBFD}
 .tag-code{font-family:var(--mono);font-weight:700;font-size:.85rem}
 .tag-code a{color:var(--khukh);text-decoration:none}
 .tag-code a:hover{text-decoration:underline}
+.tag-code .nm{font-family:var(--body);font-weight:600}
 .muted{color:var(--ink-soft)}
 .num{font-family:var(--mono);text-align:right}
 .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.74rem;font-weight:700}
@@ -691,6 +689,8 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
     <label>Эзэмшигч</label>
     <select id="eOwner" disabled></select>
     <button class="mcancel" id="editTransfer" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px dashed var(--line);font-weight:700;color:var(--khukh)">⇄ Эзэмшигч солих / зарах</button>
+    <label for="eName">Нэр</label>
+    <input type="text" id="eName" maxlength="40" autocomplete="off" placeholder="Заавал биш">
     <label>Хүйс</label>
     <select id="eSex"><option value="female">Эм</option><option value="male">Эр</option></select>
     <label>Төрөл / үүлдэр</label>
@@ -700,8 +700,8 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
     <input type="text" id="eColour" placeholder="Хар, алаг…">
     <label>Эхийн тагийн дугаар</label>
     <input type="text" id="eMother" placeholder="YT-008000" style="text-transform:uppercase">
-    <label>Төрсөн он</label>
-    <input type="number" id="eYear" min="1990" max="2030">
+    <label>Төрсөн огноо</label>
+    <div id="eBirth"></div>
     <label>Жин (кг)</label>
     <input type="number" id="eWeight" step="0.5">
     <label>Төлөв</label>
@@ -974,7 +974,7 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
 
 <div class="toast" id="toast"></div>
 
-<script src="../config.js?v=2026102601"></script>
+<script src="../config.js?v=2026103101"></script>
 <script>
 let allCattle = [], farms = [], users = [], myRole = null, myId = null;
 // Cows and horses are separate sections: #horse shows only horses in the
@@ -1151,7 +1151,7 @@ async function loadMareMilkTab(){
   const name = g => {
     if(g.herd_id){ const h = herdRows.find(x=>x.id===g.herd_id); return h ? esc(h.name) : '<span class="muted">хаагдсан сүрэг</span>'; }
     const c = allCattle.find(x=>x.id===g.cattle_id);
-    return c ? `<img class="ki" src="../assets/horse-logo-black.png" alt=""><a href="${esc(cowUrl(c,'../'))}">${esc(animalCode(c))}</a> <span class="muted">${esc(c.colour||'')}</span>` : '<img class="ki" src="../assets/horse-logo-black.png" alt="">гүү';
+    return c ? `<img class="ki" src="../assets/horse-logo-black.png" alt=""><a href="${esc(cowUrl(c,'../'))}">${esc(animalTitle(c))}</a> <span class="muted">${esc(c.colour||'')}</span>` : '<img class="ki" src="../assets/horse-logo-black.png" alt="">гүү';
   };
   const farmCode = id => (farms.find(f=>f.id===id)||{}).code || '';
   const rows = Object.values(groups).sort((a,b)=>(a.herd_id?0:1)-(b.herd_id?0:1) || b.l-a.l);
@@ -1617,7 +1617,7 @@ function renderCalving(){
     <div class="stat"><div class="lbl">Хээлтэй / хээлтүүлсэн</div><div class="val">${pregnant}</div></div>
     <div class="stat"><div class="lbl">Хээлтүүлээгүй</div><div class="val">${open.length}</div></div>`;
 
-  const link = c => `<a href="${esc(cowUrl(c,'../'))}">${esc(animalCode(c))}</a>`;
+  const link = c => `<a href="${esc(cowUrl(c,'../'))}">${esc(animalTitle(c))}</a>`;
   const grp = d => d===null ? 'nodate' : d<0 ? 'over' : d<=7 ? 'week' : d<=30 ? 'month' : 'later';
   const GRP = { over:['red','Хугацаа хэтэрсэн'], week:['red','Ойрын 7 хоногт'], month:['amber','8–30 хоногт'],
                 later:['green','30-аас дээш хоногт'], nodate:['grey','Төллөх огноо тодорхойгүй'] };
@@ -1654,7 +1654,7 @@ function visible(){
   const q = document.getElementById('search').value.toLowerCase().trim();
   return allCattle.filter(c=>{
     if(!inSection(c)) return false;
-    if(q && !(`${c.tag_code||''} ${c.owner_name} ${c.chip_no||''} ${c.national_id||''} ${c.colour||''}`.toLowerCase().includes(q))) return false;
+    if(q && !(`${c.tag_code||''} ${c.name||''} ${c.owner_name} ${c.chip_no||''} ${c.national_id||''} ${c.colour||''}`.toLowerCase().includes(q))) return false;
     if(fFarm && c.farm_id !== fFarm) return false;
     const m = milkByDate[c.id];
     if(fReg==='logged' && !m) return false;
@@ -1846,7 +1846,6 @@ function render(){
     return;
   }
 
-  const yr = +mnDate().slice(0,4);
   // Draw 500 rows at a time: 12,000 rows took ~4 s and froze the page.
   // Counts, chips and filters always cover every animal.
   const key = JSON.stringify([document.getElementById('search').value, fReg, fVacc, fFarm, fRepro, fAttn, filterDate]);
@@ -1854,15 +1853,15 @@ function render(){
   const all = rows;
   rows = rows.slice(0, herdLimit);
   document.getElementById('tbody').innerHTML = rows.map((c,i)=>{
-    const age = c.birth_year ? (yr-c.birth_year)+' нас' : '';
+    const age = ageText(c);
     const sex = c.sex==='female' ? 'Эм' : 'Эр';
     const alert = STATUS_ALERT[c.status];
     const sub = (c.species==='horse' ? [esc(horseLabel(c)), c.breed && esc(c.breed), c.colour && esc(c.colour), c.herd_name && '<img class="ki" src="../assets/horse-logo-black.png" alt="">'+esc(c.herd_name)]
                                      : [sex, age, c.breed && esc(c.breed)]).filter(Boolean).join(' · ');
     const month = c.milk_this_month ? Number(c.milk_this_month).toFixed(1) : '';
     return `<tr class="${isUrgent(c)?'urgent':''}">
-      <td class="animal" title="${esc(animalCode(c))} · ${sub}">
-        <span class="tag-code"><a href="${esc(cowUrl(c,'../'))}">${esc(animalCode(c))}</a></span>
+      <td class="animal" title="${esc(animalTitle(c))} · ${sub}">
+        <span class="tag-code"><a href="${esc(cowUrl(c,'../'))}">${esc(animalCode(c))}</a>${c.name ? `<span class="nm"> · ${esc(c.name)}</span>` : ''}</span>
         <button class="editpen super-only" data-act="openEdit" data-id="${esc(c.id)}" title="Мэдээлэл засах" aria-label="Засах">✎</button>
         <div class="sub">${sub}</div>
       </td>
@@ -1970,7 +1969,7 @@ function initMap(){
 
   const startLayer = (typeof USE_GOOGLE_TILES_TESTING !== 'undefined' && USE_GOOGLE_TILES_TESTING)
     ? L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
-        { maxZoom:21, subdomains:['mt0','mt1','mt2','mt3'], attribution:'© Google (тест)' })
+        { maxZoom:21, subdomains:['mt0','mt1','mt2','mt3'], attribution:'© Google' })
     : sentinel;
   map = L.map('map',{ scrollWheelZoom:true, maxZoom:21, layers:[startLayer] }).setView([47.92,103.5],9);
 
@@ -2000,29 +1999,13 @@ function initMap(){
   if(typeof USE_GOOGLE_TILES_TESTING !== 'undefined' && USE_GOOGLE_TILES_TESTING){
     const gsat = L.tileLayer(
       'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-      { maxZoom:21, subdomains:['mt0','mt1','mt2','mt3'], attribution:'© Google (тест)' });
+      { maxZoom:21, subdomains:['mt0','mt1','mt2','mt3'], attribution:'© Google' });
     const ghyb = L.tileLayer(
       'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
-      { maxZoom:21, subdomains:['mt0','mt1','mt2','mt3'], attribution:'© Google (тест)' });
+      { maxZoom:21, subdomains:['mt0','mt1','mt2','mt3'], attribution:'© Google' });
 
-    baseLayers['Google хиймэл дагуул (тест)'] = gsat;
-    baseLayers['Google + нэршил (тест)'] = ghyb;
-
-    // Visible reminder whenever a test layer is on screen, so this
-    // never gets demoed or shipped by accident.
-    const warn = L.control({position:'topleft'});
-    warn.onAdd = function(){
-      const d = L.DomUtil.create('div','gtestwarn');
-      d.innerHTML = '⚠ Google тест давхарга — арилжааны өмнө солино';
-      d.style.display = 'none';
-      return d;
-    };
-    warn.addTo(map);
-
-    map.on('baselayerchange', e=>{
-      const el = document.querySelector('.gtestwarn');
-      if(el) el.style.display = /тест/.test(e.name) ? 'block' : 'none';
-    });
+    baseLayers['Google хиймэл дагуул'] = gsat;
+    baseLayers['Google + нэршил'] = ghyb;
   }
 
   layerControl = L.control.layers(baseLayers,{},{position:'topright'}).addTo(map);
@@ -2042,7 +2025,7 @@ function mapRows(){
 function popupHtml(c){
   const days = daysSince(c.last_seen_at);
   return `<div style="font-family:Inter,sans-serif;font-size:13px;line-height:1.5;min-width:170px">
-    <b style="font-family:monospace;font-size:14px">${esc(animalCode(c))}</b><br>
+    <b style="font-family:monospace;font-size:14px">${esc(animalTitle(c))}</b><br>
     ${esc(c.owner_name)}<br>
     <span style="color:#5A6880">
       ${c.species==='horse' ? esc(horseLabel(c)) : c.sex==='female'?'Эм':'Эр'} · ${esc(c.breed||'—')}<br>
@@ -2233,7 +2216,7 @@ function openEdit(id){
   const c = allCattle.find(x=>x.id===id);
   if(!c) return;
   editTarget = id;
-  document.getElementById('editSub').textContent = c.tag_code;
+  document.getElementById('editSub').textContent = animalTitle(c);
   document.getElementById('eFarm').value = c.farm_id;
   fillOwners(c.farm_id, c);
   document.getElementById('eOwner').value = c.owner_id;
@@ -2244,7 +2227,8 @@ function openEdit(id){
   document.getElementById('eBreedOther').value = (c.breed_code && breedByCode[c.breed_code]?.is_other) ? (c.breed||'') : '';
   document.getElementById('eBreedOther').placeholder = c.breed_code ? 'Үүлдрийн нэр' : (c.breed ? `Одоогийн: ${c.breed}` : 'Үүлдрийн нэр');
   toggleBreedOther();
-  document.getElementById('eYear').value = c.birth_year||'';
+  document.getElementById('eName').value = c.name||'';
+  document.getElementById('eBirth').innerHTML = birthPickerHtml('eB', c);
   document.getElementById('eWeight').value = c.weight_kg||'';
   document.getElementById('eStatus').value = c.status;
   document.getElementById('editModal').classList.add('on');
@@ -2307,18 +2291,28 @@ document.getElementById('editDelete').addEventListener('click', ()=>{
 });
 document.getElementById('editSave').addEventListener('click', async ()=>{
   if(!document.getElementById('eOwner').value){toast('Эзэмшигч сонгоно уу.',true);return;}
+  const birth = readBirth('eB', false);
+  if(birth.err){toast(birth.err,true);return;}
   const {error} = await sb.rpc('admin_update_cattle',{
     p_cattle_id: editTarget,
     p_farm_id:   document.getElementById('eFarm').value,
     p_owner_id:  document.getElementById('eOwner').value,
     p_breed:     null,                       // breed is saved by set_cattle_breed below
-    p_birth_year:parseInt(document.getElementById('eYear').value)||null,
+    p_birth_year:birth.year,
     p_weight:    parseFloat(document.getElementById('eWeight').value)||null,
     p_sex:       document.getElementById('eSex').value,
     p_status:    document.getElementById('eStatus').value
   });
   if(error){toast('Хадгалж чадсангүй: '+error.message,true);return;}
   const cur0 = allCattle.find(x=>x.id===editTarget) || {};
+  // the name and the full date (schema_v64), only when changed
+  const name = cleanName(document.getElementById('eName').value);
+  const oldDate = cur0.birth_date ? String(cur0.birth_date).slice(0,10) : null;
+  if(name !== (cur0.name||'') || (birth.year && birth.date !== oldDate)){
+    const {error:e4} = await sb.rpc('set_cattle_identity',{p_cattle_id:editTarget, p_name:name||null,
+      p_birth_year:birth.year, p_birth_date:birth.date});
+    if(e4){toast('Нэр / төрсөн огноо хадгалагдсангүй: '+e4.message,true);return;}
+  }
   const colour = document.getElementById('eColour').value.trim(), mother = document.getElementById('eMother').value.trim().toUpperCase();
   if(colour !== (cur0.colour||'') || mother !== (cur0.mother_tag||'')){
     const {error:e3} = await sb.rpc('admin_update_cattle_details',{p_cattle_id:editTarget, p_colour:colour||null, p_mother_tag:mother||null});
