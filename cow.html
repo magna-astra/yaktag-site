@@ -107,6 +107,11 @@ header.cowhead{background:var(--ink);color:#fff;margin:0 -16px 18px;padding:18px
 .photo-btn:disabled{opacity:.55}
 .photo-btn.locked{background:#EEF0F4;color:var(--ink-soft)}
 .kind-pick{display:flex;gap:8px;margin-bottom:13px}
+/* an example of the chosen photo, while this animal has none of that kind */
+.sample{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;margin:0 0 13px;
+  padding:10px;border:1.5px dashed var(--line);border-radius:12px;background:#F7F9FB}
+.sample img{width:110px;height:110px;object-fit:cover;border-radius:10px;display:block}
+.sample p{margin:0;font-size:.88rem;color:var(--ink-soft)}
 .kind-pick button{flex:1;padding:11px 6px;border:1.5px solid var(--line);background:#fff;
   border-radius:10px;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
 .kind-pick button.on{border-color:var(--khukh);background:var(--khukh-light);color:var(--khukh)}
@@ -300,6 +305,12 @@ let myProf = null;          // role / farm of the signed-in user
 let isSuper = false;
 let gps = null;
 let photoKind = 'profile';
+const PHOTO_SAMPLE = {                    // renderPhotoSample()
+  profile: ['assets/photos/sample-body.webp', 'Хажуу талаас, толгойноос сүүл, туурай хүртэл бүтэн.'],
+  muzzle:  ['assets/photos/sample-nose.webp', 'Хамраа арчаад 20–30 см-ээс шууд урдаас. Хоёр хамрын нүх, хээ тод.'],
+  marking: ['assets/photos/sample-mark.webp', 'Цагаан толбо, тамга зэрэг онцлогийг ойроос, бүтэн.']
+};
+let photoKindsTaken = null;               // the kinds this animal has photos of (null = not known yet)
 
 // ---------- helpers ----------
 function toast(msg, bad=false) {
@@ -1650,6 +1661,7 @@ function renderCow() {
         ${horse ? '<button data-kind="brand">Тамга</button>' : '<button data-kind="muzzle">Хамар</button>'}
         <button data-kind="marking">Тэмдэг</button>
       </div>
+      <div id="photoSample"></div>
       <button class="photo-btn" id="photoBtn">Камер нээх</button>
       <div class="gps-note" id="gpsNote">Байршил тогтоож байна…</div>
       <img id="preview" alt="">
@@ -1725,14 +1737,30 @@ function renderCow() {
   document.getElementById('photoBtn').addEventListener('click', () => {
     document.getElementById('fileInput').click();
   });
+  photoKind = 'profile';                 // = the button drawn as chosen
+  photoKindsTaken = null;                // this animal's: loadPhotos() fills it
   document.querySelectorAll('#kindPick button').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('#kindPick button').forEach(x => x.classList.remove('on'));
       b.classList.add('on');
       photoKind = b.dataset.kind;
+      renderPhotoSample();
     });
   });
+  renderPhotoSample();
   updateGpsNote();
+}
+
+// An example of each photo (the admin guide's pictures) while this animal
+// has no photo of that kind yet: a new animal shows all three. Yaks / cattle
+// only — a horse's photos look different.
+function renderPhotoSample() {
+  const box = document.getElementById('photoSample');
+  if (!box) return;
+  const s = !isHorse() && PHOTO_SAMPLE[photoKind];
+  if (!s || (photoKindsTaken && photoKindsTaken.has(photoKind))) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="sample"><img src="${s[0]}" alt="Жишээ зураг" loading="lazy">
+    <p><b>Жишээ:</b> ${s[1]}</p></div>`;
 }
 
 
@@ -2348,6 +2376,11 @@ async function loadPhotos() {
     .eq('cattle_id', cow.id)
     .order('taken_at', { ascending: false })
     .limit(6);
+  // which kinds it already has: their examples go away
+  try {
+    const { data: k } = await sb.from('cattle_photos').select('kind').eq('cattle_id', cow.id);
+    if (k) { photoKindsTaken = new Set(k.map(x => x.kind)); renderPhotoSample(); }
+  } catch (e) {}
 
   if (error) {
     grid.innerHTML = `<p class="hint" style="grid-column:1/-1;color:#B3341F">
