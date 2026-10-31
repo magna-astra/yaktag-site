@@ -231,6 +231,7 @@ tbody tr:hover{background:#FAFBFD}
 .modalbox input:focus,.modalbox select:focus{outline:none;border-color:var(--khukh)}
 .mactions{display:flex;gap:9px;margin-top:20px}
 .mactions button{flex:1;padding:12px;border-radius:10px;font-weight:700;border:0}
+.mactions a{flex:1;padding:12px;border-radius:10px;font-weight:700;text-align:center;text-decoration:none}
 .mcancel{background:#F0F2F5;color:var(--ink)}
 .msave{background:var(--khukh);color:#fff}
 /* telegram / transfer / excel */
@@ -360,6 +361,7 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
       <!-- the horse app (YAK-TAG Адуу): opened here on the phone, then installed from the browser -->
       <a class="signout" id="horseAppLink" href="../app/?app=horse#horse" hidden style="text-decoration:none"><img class="ki" src="../assets/horse-logo-black.png" alt="">Адууны апп</a>
       <button class="signout super-only" id="contactsBtn">Холбоо барих</button>
+      <button class="signout" id="guideBtn">Гарын авлага</button>
       <button class="signout" id="tgBtn" style="display:none">Telegram</button>
       <button class="signout" id="myPwBtn">Нууц үг солих</button>
       <button class="signout" id="signoutBtn">Гарах</button>
@@ -778,6 +780,19 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
       <button class="mcancel" onclick="closeModal('exportModal')">Болих</button>
       <button class="msave" id="xSave">Татах</button>
     </div>
+  </div>
+</div>
+
+<!-- the admin guide (admin/guide/, made from the comic guide page) -->
+<div class="modal" id="guideModal">
+  <div class="modalbox">
+    <h3>Гарын авлага</h3>
+    <p class="msub">Ферм үүсгэхээс эхлээд шинэ мал бүртгэх, 3 зураг авах, Telegram холбох хүртэл алхам алхмаар. PDF · 14 хуудас · 4.1 MB.</p>
+    <div class="mactions">
+      <a class="msave" href="guide/YAK-TAG_Admin_Guide_MN.pdf?v=20261101" target="_blank" rel="noopener">Шинэ хуудсанд нээх</a>
+      <a class="mcancel" href="guide/YAK-TAG_Admin_Guide_MN.pdf?v=20261101" download="YAK-TAG_Admin_Guide_MN.pdf">Татаж авах</a>
+    </div>
+    <div class="mactions" style="margin-top:9px"><button class="mcancel" onclick="closeModal('guideModal')">Хаах</button></div>
   </div>
 </div>
 
@@ -2861,6 +2876,7 @@ async function renderTelegram(){
     try { const {data} = await sb.rpc('telegram_status'); if(data && data.linked){ clearInterval(tgPoll); renderTelegram(); } } catch(e){}
   }, 4000);
 }
+document.getElementById('guideBtn').addEventListener('click', ()=>document.getElementById('guideModal').classList.add('on'));
 document.getElementById('tgBtn').addEventListener('click', ()=>{
   document.getElementById('tgBody').innerHTML = '<p class="msub">Ачаалж байна…</p>';
   document.getElementById('tgModal').classList.add('on');
