@@ -108,9 +108,9 @@ header.cowhead{background:var(--ink);color:#fff;margin:0 -16px 18px;padding:18px
 .photo-btn.locked{background:#EEF0F4;color:var(--ink-soft)}
 .kind-pick{display:flex;gap:8px;margin-bottom:13px}
 /* an example of the chosen photo, while this animal has none of that kind */
-.sample{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;margin:0 0 13px;
+.sample{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;margin:0 0 13px;
   padding:10px;border:1.5px dashed var(--line);border-radius:12px;background:#F7F9FB}
-.sample img{width:110px;height:110px;object-fit:cover;border-radius:10px;display:block}
+.sample img{width:140px;height:auto;max-height:130px;object-fit:contain;border-radius:10px;display:block}   /* the whole picture, its own shape */
 .sample p{margin:0;font-size:.88rem;color:var(--ink-soft)}
 .kind-pick button{flex:1;padding:11px 6px;border:1.5px solid var(--line);background:#fff;
   border-radius:10px;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
