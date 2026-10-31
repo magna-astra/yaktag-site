@@ -787,11 +787,12 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
 <div class="modal" id="guideModal">
   <div class="modalbox">
     <h3>Гарын авлага</h3>
-    <p class="msub">Ферм үүсгэхээс эхлээд шинэ мал бүртгэх, 3 зураг авах, Telegram холбох хүртэл алхам алхмаар. PDF · 14 хуудас · 4.1 MB.</p>
+    <p class="msub">Ферм үүсгэхээс эхлээд шинэ мал бүртгэх, 3 зураг авах, Telegram холбох хүртэл алхам алхмаар. «Тусламж» хэсэгт таны нэр, утас гарна.</p>
     <div class="mactions">
-      <a class="msave" href="guide/YAK-TAG_Admin_Guide_MN.pdf?v=20261101" target="_blank" rel="noopener">Шинэ хуудсанд нээх</a>
-      <a class="mcancel" href="guide/YAK-TAG_Admin_Guide_MN.pdf?v=20261101" download="YAK-TAG_Admin_Guide_MN.pdf">Татаж авах</a>
+      <a class="msave" href="guide/" target="_blank" rel="noopener">Шинэ хуудсанд нээх</a>
+      <a class="mcancel" href="guide/#pdf" target="_blank" rel="noopener">PDF татах</a>
     </div>
+    <p class="msub" style="margin:8px 0 0;font-size:.78rem">PDF: нээгдэх цонхонд «PDF болгож хадгалах» (Save as PDF)-ыг сонгоно.</p>
     <div class="mactions" style="margin-top:9px"><button class="mcancel" onclick="closeModal('guideModal')">Хаах</button></div>
   </div>
 </div>
@@ -904,7 +905,7 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
     </select>
     <label>Шалтгаан</label>
     <input type="text" id="rtReason" placeholder="Чихнээс унасан">
-    <div class="mnote">Малын бүх түүх (сүү, вакцин, уншуулалт, хээл, зураг) хэвээр үлдэнэ. Шинэ тагийг nfc_tag.py-аар бичээд UID-г "Тагууд" хэсэгт бүртгэнэ.</div>
+    <div class="mnote">Малын бүх түүх (сүү, вакцин, уншуулалт, хээл, зураг) хэвээр үлдэнэ. Шинэ тагийг таг бичих программаар бичээд UID-г "Тагууд" хэсэгт бүртгэнэ.</div>
     <div class="mactions">
       <button class="mcancel" onclick="closeModal('replaceTagModal')">Болих</button>
       <button class="msave" id="rtSave">Таг солих</button>
@@ -915,7 +916,7 @@ a.signout{text-decoration:none;display:inline-flex;align-items:center}
 <div class="modal" id="newTagsModal">
   <div class="modalbox">
     <h3>Таг үүсгэх</h3>
-    <p class="msub">Дугаарууд системд бүртгэгдэнэ. Дараа нь чип дээр бичнэ (tools/nfc_tag.py).</p>
+    <p class="msub">Дугаарууд системд бүртгэгдэнэ. Дараа нь чип дээр таг бичих программаар бичнэ.</p>
     <label>Угтвар</label><input type="text" id="ntPrefix" value="YT" maxlength="6">
     <label>Эхний дугаар</label><input type="number" id="ntFrom" placeholder="8010">
     <label>Сүүлийн дугаар</label><input type="number" id="ntTo" placeholder="8099">
@@ -3232,7 +3233,7 @@ document.getElementById('tagResumeBtn').addEventListener('click', ()=>tagPause(f
 // Chip UID after writing a tag with tools/nfc_tag.py (it prints the UID).
 async function setTagUid(code){
   const t = allTags.find(x=>x.tag_code===code); if(!t) return;
-  const v = prompt(`${code} — чипийн UID (nfc_tag.py хэвлэсэн, жишээ 04B7A594C82A81).\nХоосон орхивол UID-г арилгана.`, t.nfc_uid||'');
+  const v = prompt(`${code} — чипийн UID (таг бичих программ хэвлэсэн, жишээ 04B7A594C82A81).\nХоосон орхивол UID-г арилгана.`, t.nfc_uid||'');
   if(v===null) return;
   const {error} = await sb.rpc('admin_set_tag_uid',{p_tag_code:code, p_uid:v.trim()||null});
   if(error){toast(error.message,true);return;}

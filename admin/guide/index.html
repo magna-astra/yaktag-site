@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>YAK-TAG — Админы гарын авлага</title>
+<link rel="icon" href="../../assets/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Nunito:wght@400;700;800&display=swap">
+<style>
+/* Layout: a comic book — chapters as bands, each step a panel with an ink
+   border, a yellow caption, the yak speaking in bubbles, the real screen. */
+:root{
+  --ink:#1C1F26; --paper:#FFFFFF; --dot:#DDE6F3; --muted:#4E5A6B;
+  --green:#2C7A45; --green-l:#E3F1E7; --blue:#1B4FA8; --blue-l:#E4ECF8;
+  --yellow:#FFD84A; --red:#E5322D; --red-l:#FDE7E6;
+  --display:'Unbounded','Arial Black',system-ui,sans-serif;
+  --body:'Nunito','Segoe UI',system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 var(--body);
+  background-image:radial-gradient(var(--dot) 1.1px,transparent 1.3px);background-size:14px 14px}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+b,strong{font-weight:800}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--blue)}
+.ui{display:inline-block;font-weight:800;background:var(--ink);color:#fff;border-radius:6px;padding:0 7px;
+  font-size:.92em;white-space:nowrap}
+.ui.g{background:var(--green)}
+.mono{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-weight:700}
+
+/* ---------- cover ---------- */
+.cover{border:4px solid var(--ink);border-radius:18px;background:var(--green);color:#fff;
+  box-shadow:8px 8px 0 var(--ink);overflow:hidden;position:relative}
+.cover-in{padding:28px clamp(18px,4vw,40px) 30px;display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center}
+.eyebrow{font-family:var(--display);font-weight:600;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+  background:var(--yellow);color:var(--ink);display:inline-block;padding:5px 10px;border:3px solid var(--ink);
+  border-radius:8px;transform:rotate(-1.5deg)}
+.cover h1{font-size:clamp(1.7rem,4.6vw,3.1rem);font-weight:800;margin-top:16px;letter-spacing:-.01em}
+.cover p{margin:12px 0 0;font-size:1.05rem;max-width:56ch;color:#EAF5EE}
+.cover .tagpic{width:clamp(110px,16vw,170px);border:4px solid var(--ink);border-radius:50%;
+  box-shadow:5px 5px 0 var(--ink);transform:rotate(8deg);background:#fff}
+@media (max-width:640px){.cover-in{grid-template-columns:1fr}.cover .tagpic{justify-self:start}}
+
+/* ---------- the yak speaks ---------- */
+.say{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:start;margin:22px 0}
+.say img{width:64px;height:64px;border:3px solid var(--ink);border-radius:50%;background:#fff;padding:5px}
+.bubble{position:relative;background:#fff;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;
+  box-shadow:4px 4px 0 var(--ink);min-width:0}
+.bubble::before{content:"";position:absolute;left:-15px;top:20px;border:9px solid transparent;
+  border-right:13px solid var(--ink);border-left:0}
+.bubble::after{content:"";position:absolute;left:-9px;top:23px;border:6px solid transparent;
+  border-right:9px solid #fff;border-left:0}
+.bubble p{margin:0}.bubble p+p{margin-top:8px}
+
+/* ---------- route ---------- */
+.route{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0 6px;padding:0;list-style:none}
+.route a{display:flex;gap:10px;align-items:center;text-decoration:none;color:var(--ink);background:#fff;
+  border:3px solid var(--ink);border-radius:12px;padding:10px 12px;box-shadow:3px 3px 0 var(--ink);font-weight:800;
+  line-height:1.2;height:100%}
+.route a:hover,.route a:focus-visible{background:var(--yellow);outline:none}
+.route .n{font-family:var(--display);font-size:1.25rem;width:34px;height:34px;flex:0 0 auto;display:grid;place-items:center;
+  border-radius:50%;background:var(--ink);color:#fff}
+.route small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+
+/* ---------- roles ---------- */
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+.role{background:#fff;border:3px solid var(--ink);border-radius:12px;padding:12px 14px}
+.role h3{font-size:.95rem}.role p{margin:6px 0 0;font-size:.93rem;color:var(--muted)}
+
+/* ---------- chapters ---------- */
+.chapter{margin-top:56px;scroll-margin-top:16px}
+.chead{display:flex;gap:16px;align-items:center;flex-wrap:wrap;border:4px solid var(--ink);border-radius:16px;
+  padding:14px 18px;background:var(--blue);color:#fff;box-shadow:6px 6px 0 var(--ink);
+  background-image:radial-gradient(rgba(255,255,255,.14) 1.4px,transparent 1.6px);background-size:10px 10px}
+.chead .num{font-family:var(--display);font-weight:800;font-size:2.2rem;line-height:1;background:var(--yellow);color:var(--ink);
+  border:3px solid var(--ink);border-radius:12px;padding:6px 12px;transform:rotate(-3deg)}
+.chead h2{font-size:clamp(1.25rem,3vw,1.75rem);font-weight:800}
+.chead .who{margin-left:auto;font-weight:800;font-size:.85rem;background:#fff;color:var(--ink);border:3px solid var(--ink);
+  border-radius:999px;padding:4px 12px}
+.chapter.green .chead{background-color:var(--green)}
+
+/* ---------- panels ---------- */
+.panels{display:grid;gap:22px;margin-top:22px}
+.panels.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.panels.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:900px){.panels.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.panels.three,.panels.two{grid-template-columns:1fr}}
+.panel{background:#fff;border:3px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 var(--ink);
+  overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.cap{display:flex;gap:10px;align-items:baseline;background:var(--yellow);border-bottom:3px solid var(--ink);padding:9px 14px}
+.cap .step{font-family:var(--display);font-weight:800;font-size:.8rem;letter-spacing:.06em;white-space:nowrap}
+.cap h3{font-family:var(--body);font-weight:800;font-size:1.05rem}
+.panel .txt{padding:12px 16px 14px}
+.panel .txt p{margin:0}.panel .txt p+p,.panel .txt ul{margin-top:8px}
+.panel ul{padding-left:20px;margin:0}.panel li+li{margin-top:4px}
+.shot{background:#EEF2F7;border-top:3px solid var(--ink);padding:14px;margin-top:auto}
+.shot img{margin:0 auto;border-radius:8px;border:2px solid var(--ink);background:#fff}
+.shot.phone img{max-width:250px;border-radius:22px;border:6px solid var(--ink)}
+.panel.wide{grid-column:1/-1}
+.panel.wide .body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
+.panel.wide .shot{border-top:0;border-left:3px solid var(--ink);display:grid;place-items:center}
+@media (max-width:760px){.panel.wide .body{grid-template-columns:1fr}.panel.wide .shot{border-left:0;border-top:3px solid var(--ink)}}
+
+/* the "watch out" burst */
+.boom{position:relative;margin:14px 0 2px;background:var(--red-l);border:3px solid var(--red);border-radius:12px;padding:12px 14px 12px 16px}
+.boom .tag{position:absolute;top:-14px;left:12px;font-family:var(--display);font-weight:800;font-size:.72rem;letter-spacing:.08em;
+  background:var(--red);color:#fff;padding:3px 9px;border-radius:6px;border:2px solid var(--ink)}
+.tip{margin:14px 0 2px;background:var(--green-l);border:3px dashed var(--green);border-radius:12px;padding:11px 14px}
+.tip b{color:var(--green)}
+
+/* ---------- photo school ---------- */
+.photos{display:grid;gap:24px;margin-top:22px}
+.photo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);background:#fff;border:3px solid var(--ink);border-radius:14px;
+  box-shadow:6px 6px 0 var(--ink);overflow:hidden}
+.photo .art{background:#F2F5F9;border-right:3px solid var(--ink);padding:14px;display:grid;place-items:center}
+.photo .art > svg{width:100%;height:auto;max-width:440px}
+.photo .txt{padding:14px 18px 16px;min-width:0}
+.photo h3{font-size:1.2rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge{font-family:var(--body);font-size:.75rem;font-weight:800;border:2px solid var(--ink);border-radius:999px;padding:2px 9px}
+.badge.pub{background:var(--yellow)}.badge.priv{background:var(--blue-l)}
+.photo ol{padding-left:22px;margin:10px 0 0}.photo li+li{margin-top:5px}
+.photo .why{margin-top:12px;font-size:.93rem;color:var(--muted)}
+@media (max-width:760px){.photo{grid-template-columns:1fr}.photo .art{border-right:0;border-bottom:3px solid var(--ink)}}
+.pic{position:relative;margin:0;width:100%;max-width:460px}
+.pic img{width:100%;height:auto;border:3px solid var(--ink);border-radius:10px;background:#fff}
+.pic .mk{position:absolute;top:-12px;right:-12px;width:46px;height:46px}
+.pic .ring{position:absolute;aspect-ratio:1;border:4px dashed var(--green);border-radius:50%;transform:translate(-50%,-50%)}
+.pic .lbl{position:absolute;background:var(--yellow);border:2px solid var(--ink);border-radius:6px;font-weight:800;
+  font-size:.85rem;padding:1px 8px;white-space:nowrap}
+.dd .pic img{aspect-ratio:1;object-fit:cover;border:0;border-radius:0;border-bottom:3px solid var(--ink)}
+.dd .pic .mk{top:6px;right:6px;width:34px;height:34px}
+.dodont{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:16px}
+.dd{background:#fff;border:3px solid var(--ink);border-radius:10px;overflow:hidden;text-align:center;font-weight:800;font-size:.85rem}
+.dd span{display:block;padding:5px 4px}
+.dd.ok span{background:var(--green-l);color:var(--green)}.dd.no span{background:var(--red-l);color:var(--red)}
+@media (max-width:760px){.dodont{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ---------- a Telegram chat, drawn ---------- */
+:root{--tg-bg:#D7E6F2;--tg-head:#2B8FD0;--tg-me:#E2F8CF}
+.tgchat{border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--tg-bg);margin-top:14px}
+.tgchat .head{background:var(--tg-head);color:#fff;font-weight:800;padding:8px 12px;display:flex;gap:9px;align-items:center}
+.tgchat .head img{width:28px;height:28px;border-radius:50%;background:#fff;padding:2px}
+.tgchat .head small{display:block;font-weight:400;font-size:.75rem;opacity:.9}
+.tgchat .msgs{display:flex;flex-direction:column;gap:8px;padding:10px}
+.msg{max-width:88%;padding:8px 11px;border-radius:12px;white-space:pre-line;font-size:.9rem;line-height:1.45;
+  border:2px solid var(--ink);background:#fff;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--tg-me)}
+.msg .t{display:block;text-align:right;font-size:.7rem;color:var(--muted);margin-top:2px}
+.who-gets{width:100%;border-collapse:collapse;margin-top:10px;font-size:.92rem}
+.who-gets th,.who-gets td{border:2px solid var(--ink);padding:6px 8px;text-align:left;vertical-align:top}
+.who-gets th{background:var(--yellow);font-weight:800}
+.tblwrap{overflow-x:auto}
+
+/* ---------- active parts: chapter bar, big pictures, back to top ---------- */
+.chapnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;margin-top:26px;display:flex;gap:6px;overflow-x:auto;
+  background:var(--paper);border:3px solid var(--ink);border-radius:12px;padding:7px;box-shadow:3px 3px 0 var(--ink);scrollbar-width:thin}
+.chapnav a{flex:0 0 auto;font-weight:800;font-size:.85rem;text-decoration:none;color:var(--ink);background:#fff;
+  border:2px solid var(--ink);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.chapnav a b{font-family:var(--display);margin-right:4px}
+.chapnav a.on{background:var(--yellow)}
+.chapnav a:hover,.chapnav a:focus-visible{background:var(--yellow)}
+.chapter{scroll-margin-top:72px}
+.shot img,.pic img{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:100;background:rgba(28,31,38,.9);display:grid;place-items:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb img{max-width:min(1300px,100%);max-height:88vh;border:3px solid #fff;border-radius:10px;background:#fff;cursor:zoom-out}
+.lb button{position:absolute;top:max(14px,env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));
+  font:800 1rem var(--body);background:var(--yellow);color:var(--ink);border:3px solid var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
+.lb p{color:#fff;margin:10px 0 0;text-align:center;font-weight:700}
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:60;
+  font-weight:800;text-decoration:none;color:var(--ink);background:var(--yellow);border:3px solid var(--ink);border-radius:999px;
+  padding:8px 14px;box-shadow:3px 3px 0 var(--ink)}
+.progress{font-weight:800;margin:10px 0 0}
+@media print{.chapnav,.totop,.lb,.topnav{display:none!important}}
+
+/* ---------- the top links (the page inside the dashboard) ---------- */
+.topnav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.topnav a,.topnav button{font:800 1rem var(--body);color:var(--ink);text-decoration:none;background:#fff;border:3px solid var(--ink);
+  border-radius:999px;padding:5px 14px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.topnav a:hover,.topnav a:focus-visible,.topnav button:hover,.topnav button:focus-visible{background:var(--yellow)}
+/* "PDF татах" = the browser's "Save as PDF" of this page */
+@media print{
+  @page{size:A4;margin:10mm}
+  body{zoom:.72;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .panel,.photo,.say,.role,.dd,.done,.cover,.route li,.checks li,.dodont,.tgchat{break-inside:avoid}
+  .chapter{margin-top:30px!important}
+  .chead{break-after:avoid}
+}
+
+/* ---------- end ---------- */
+.done{margin-top:56px;border:4px solid var(--ink);border-radius:16px;background:var(--yellow);box-shadow:8px 8px 0 var(--ink);padding:20px clamp(16px,3vw,28px)}
+.done h2{font-size:1.4rem}
+.checks{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:#fff;border:3px solid var(--ink);border-radius:10px;padding:9px 12px;cursor:pointer}
+.checks input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--green);flex:0 0 auto}
+.help{margin-top:16px;font-weight:700}
+.help .mono{background:#fff;border:2px solid var(--ink);border-radius:6px;padding:1px 6px;user-select:all}
+footer{margin-top:26px;color:var(--muted);font-size:.85rem;text-align:center}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="topnav"><a href="../">← Самбар</a><button type="button" id="pdfBtn">PDF татах</button></nav>
+
+<!-- ================= COVER ================= -->
+<header class="cover" id="top">
+  <div class="cover-in">
+    <div>
+      <span class="eyebrow">YAK-TAG · Админы гарын авлага</span>
+      <h1>Шинэ мал бүртгэх: фермээс эхлээд таг зүүх хүртэл</h1>
+      <p>Ферм нээх, хүмүүс нэмэх, таг бэлдэх, малаа бүртгэж 3 зураг авах. Дэлгэц бүрийг яг байгаагаар нь үзүүлэв.
+        <b>Улаан хүрээтэй</b> товчийг дарна.</p>
+    </div>
+    <img class="tagpic" src="../../assets/tag-256.png" alt="YAK-TAG таг: цэнхэр дугуй, шар сарлагийн толгойтой" width="256" height="256">
+  </div>
+</header>
+
+<div class="say">
+  <img src="../../assets/logo-256.png" alt="" width="256" height="256">
+  <div class="bubble">
+    <p>Сайн байна уу! Би танд <b>9 бүлэг</b>, <b>25 алхмаар</b> бүгдийг дэс дарааллаар нь үзүүлнэ.</p>
+    <p>Эхлээд <b>ферм</b>, дараа нь <b>ферм админ</b>, дараа нь <b>малчин</b>, тэгээд <b>таг</b>, хамгийн сүүлд <b>мал</b>. Энэ дарааллыг алгасаж болохгүй: малчин ферм дээр, мал малчин дээр бүртгэгддэг.</p>
+  </div>
+</div>
+
+<ol class="route" aria-label="Бүлгүүд">
+  <li><a href="#ferm"><span class="n">1</span><span>Ферм үүсгэх<small>1–4-р алхам</small></span></a></li>
+  <li><a href="#fermadmin"><span class="n">2</span><span>Ферм админ<small>5-р алхам</small></span></a></li>
+  <li><a href="#malchin"><span class="n">3</span><span>Малчин<small>6–7-р алхам</small></span></a></li>
+  <li><a href="#tag"><span class="n">4</span><span>Таг хүлээн авах<small>8–9-р алхам</small></span></a></li>
+  <li><a href="#mal"><span class="n">5</span><span>Мал бүртгэх<small>10–15-р алхам</small></span></a></li>
+  <li><a href="#zurag"><span class="n">6</span><span>3 зураг<small>16-р алхам</small></span></a></li>
+  <li><a href="#utas"><span class="n">7</span><span>Утас, мэдээлэл<small>17–19-р алхам</small></span></a></li>
+  <li><a href="#telegram"><span class="n">8</span><span>Telegram мэдэгдэл<small>20–23-р алхам</small></span></a></li>
+  <li><a href="#shalgah"><span class="n">9</span><span>Самбарт шалгах<small>24–25-р алхам</small></span></a></li>
+</ol>
+
+<div class="roles" aria-label="Хэн юу хийдэг">
+  <div class="role"><h3>Админ</h3><p>Өөрийн хариуцсан фермүүд. Ферм, ферм админ, малчин нэмэх, нууц үг өгөх.</p></div>
+  <div class="role"><h3>Ферм админ</h3><p>Нэг фермийн бүх мал. Мал засах, вакцин, малыг ферм дотор шилжүүлэх.</p></div>
+  <div class="role"><h3>Малчин</h3><p>Өөрийн мал. Шинэ таг дээр мал бүртгэх, сүү, тэжээл, зураг, төл.</p></div>
+</div>
+
+<nav class="chapnav" aria-label="Бүлэг рүү үсрэх">
+  <a href="#ferm"><b>1</b>Ферм</a><a href="#fermadmin"><b>2</b>Ферм админ</a><a href="#malchin"><b>3</b>Малчин</a>
+  <a href="#tag"><b>4</b>Таг</a><a href="#mal"><b>5</b>Мал бүртгэх</a><a href="#zurag"><b>6</b>3 зураг</a>
+  <a href="#utas"><b>7</b>Утас</a><a href="#telegram"><b>8</b>Telegram</a><a href="#shalgah"><b>9</b>Самбар</a>
+</nav>
+
+<!-- ================= 1. FARM ================= -->
+<section class="chapter" id="ferm">
+  <div class="chead"><span class="num">1</span><h2>Ферм үүсгэх</h2><span class="who">Хийх хүн: Админ</span></div>
+  <div class="panels two">
+    <article class="panel">
+      <div class="cap"><span class="step">1-Р АЛХАМ</span><h3>Самбарт нэвтрэх</h3></div>
+      <div class="txt"><p>Компьютер эсвэл утсаараа <span class="mono">yaktag.org/admin</span> хаягийг нээнэ. Утасны дугаар, нууц үгээ бичээд <span class="ui g">Нэвтрэх</span> дарна.</p></div>
+      <div class="shot"><img src="img/a01_login.webp" alt="Самбарын нэвтрэх хуудас: утасны дугаар, нууц үг, Нэвтрэх товч" width="680" height="880" loading="lazy" style="max-width:320px"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">2-Р АЛХАМ</span><h3>Фермүүд → + Шинэ ферм</h3></div>
+      <div class="txt"><p>Дээд талын цэснээс <span class="ui">Фермүүд</span>-ийг сонгоод <span class="ui g">+ Шинэ ферм</span> товчийг дарна.</p>
+        <p>Доор одоо байгаа фермүүдийн жагсаалт харагдана.</p></div>
+      <div class="shot"><img src="img/a02_farms_tab.webp" alt="Фермүүд хэсэг, + Шинэ ферм товч" width="1400" height="343" loading="lazy"></div>
+    </article>
+    <article class="panel wide">
+      <div class="cap"><span class="step">3-Р АЛХАМ</span><h3>Фермийн мэдээллийг бөглөх</h3></div>
+      <div class="body">
+        <div class="txt">
+          <ul>
+            <li><b>Код</b>: богино, давтагдахгүй. Жишээ: <span class="mono">FERM-21</span></li>
+            <li><b>Нэр</b>, <b>Аймаг</b>, <b>Сум</b></li>
+            <li><b>Өргөрөг</b>, <b>Уртраг</b>: Google Maps дээр фермийн газрыг баруун товчоор дарахад 2 тоо гарна. Эхнийх нь өргөрөг, дараах нь уртраг.</li>
+          </ul>
+          <p style="margin-top:10px">Тэгээд <span class="ui g">Үүсгэх</span>.</p>
+          <div class="tip"><b>Ферм бүр өөрийн өнгөтэй.</b> Газрын зураг дээр энэ фермийн мал, Хэрэглэгчид хэсэгт энэ фермийн хүмүүс энэ өнгөөр ялгарч харагдана.</div>
+        </div>
+        <div class="shot"><img src="img/a03_farm_form.webp" alt="Шинэ ферм цонх: Код FERM-21, Нэр Өлзий, Архангай, Цэнхэр, Үүсгэх" width="732" height="998" loading="lazy" style="max-width:340px"></div>
+      </div>
+    </article>
+    <article class="panel wide">
+      <div class="cap"><span class="step">4-Р АЛХАМ</span><h3>Ферм жагсаалтад нэмэгдлээ</h3></div>
+      <div class="txt"><p>Шинэ ферм өөрийн өнгөтэй цэгтэйгээ жагсаалтад гарна.</p></div>
+      <div class="shot"><img src="img/a04_farms_list.webp" alt="Фермүүдийн жагсаалт, шинэ FERM-21 Өлзий" width="1400" height="133" loading="lazy"></div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 2. FARM ADMIN ================= -->
+<section class="chapter" id="fermadmin">
+  <div class="chead"><span class="num">2</span><h2>Ферм админ нэмэх</h2><span class="who">Хийх хүн: Админ</span></div>
+  <div class="panels">
+    <article class="panel wide">
+      <div class="cap"><span class="step">5-Р АЛХАМ</span><h3>Хэрэглэгчид → + Шинэ хэрэглэгч</h3></div>
+      <div class="body">
+        <div class="txt">
+          <ul>
+            <li><b>Нэр</b>: хүний нэр</li>
+            <li><b>Утасны дугаар</b>: энэ нь нэвтрэх нэр болно</li>
+            <li><b>Эрх</b>: <span class="ui">Ферм админ</span></li>
+            <li><b>Ферм</b>: 1-р бүлэгт үүсгэсэн ферм</li>
+            <li><b>Анхны нууц үг</b>: 8-аас олон тэмдэгт</li>
+          </ul>
+          <p style="margin-top:10px">Тэгээд <span class="ui g">Үүсгэх</span>.</p>
+          <div class="boom"><span class="tag">АНХААР!</span>Систем SMS илгээхгүй. Утасны дугаар, нууц үгийг тухайн хүнд <b>өөрөө</b> биечлэн эсвэл утсаар хэлж өгнө. Дараа нь тэр нууц үгээ <span class="ui">Нууц үг</span> товчоор сольж болно.</div>
+        </div>
+        <div class="shot"><img src="img/a05_user_farmadmin.webp" alt="Шинэ хэрэглэгч цонх: Сараа Ганбат, 8811 2233, Ферм админ, FERM-21" width="732" height="1031" loading="lazy" style="max-width:340px"></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 3. HERDER ================= -->
+<section class="chapter" id="malchin">
+  <div class="chead"><span class="num">3</span><h2>Малчин нэмэх</h2><span class="who">Хийх хүн: Админ</span></div>
+  <div class="panels two">
+    <article class="panel">
+      <div class="cap"><span class="step">6-Р АЛХАМ</span><h3>Мөн адил, эрх нь «Малчин»</h3></div>
+      <div class="txt"><p>Дахин <span class="ui g">+ Шинэ хэрэглэгч</span>. Энэ удаа <b>Эрх</b>: <span class="ui">Малчин</span>, <b>Ферм</b>: мөн л тэр ферм. <span class="ui g">Үүсгэх</span>.</p>
+        <p>Малчин бүрт өөр утасны дугаар хэрэгтэй.</p></div>
+      <div class="shot"><img src="img/a06_user_herder.webp" alt="Шинэ хэрэглэгч цонх: Дорж Бат, 9911 2233, Малчин, FERM-21" width="732" height="1031" loading="lazy" style="max-width:320px"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">7-Р АЛХАМ</span><h3>Хэрэглэгчид бүлэглэгдэж харагдана</h3></div>
+      <div class="txt"><p>Жагсаалт ингэж эрэмбэлэгдэнэ: <b>та</b> (Админ) → таны <b>ферм</b> (фермийн өнгөөр) → <b>ферм админ</b> → <b>малчид</b>.</p>
+        <p>Хэн аль фермд байгааг өнгөөр нь шууд олно.</p></div>
+      <div class="shot"><img src="img/a07_users.webp" alt="Хэрэглэгчдийн жагсаалт: Батболд (Админ), FERM-21 Өлзий, Сараа Ганбат, Дорж Бат" width="1400" height="605" loading="lazy"></div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 4. TAGS ================= -->
+<section class="chapter" id="tag">
+  <div class="chead"><span class="num">4</span><h2>Таг хүлээн авах</h2><span class="who">Хийх хүн: Админ</span></div>
+  <div class="say">
+    <img src="../../assets/logo-256.png" alt="" width="256" height="256">
+    <div class="bubble"><p>Энэ бол <b>YAK-TAG таг</b>. Дотор нь <b>GeoNFC</b> чип бий: батерейгүй, уншуулах мөчид утасны батарейгаар ажиллана. Утсаа ойртуулахад малын хуудас нээгдэж, утасны байршлаар хаана уншуулсан нь бичигдэнэ. Таг бүр өөрийн дугаартай, жишээ нь <span class="mono">YT-008100</span>.</p></div>
+  </div>
+  <div class="panels two">
+    <article class="panel">
+      <div class="cap"><span class="step">8-Р АЛХАМ</span><h3>Тагаа авах</h3></div>
+      <div class="txt"><p>Тагийн дугаарыг YAK-TAG таны ферм рүү бүртгэж, чипийг нь бичээд өгнө. Танд дугаартай, ашиглахад бэлэн тагууд уутаар ирнэ.</p>
+        <p>Тагуудаа малчдад хуваарилж өгнө.</p></div>
+      <div class="shot"><img src="../../assets/tag-256.png" alt="YAK-TAG таг: цэнхэр дугуй, шар сарлагийн толгойтой" width="256" height="256" loading="lazy" style="max-width:200px;border-radius:50%"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">9-Р АЛХАМ</span><h3>Тагууд хэсгээс шалгах</h3></div>
+      <div class="txt"><p><span class="ui">Тагууд</span> хэсэгт фермийн тагууд «Хоосон» төлөвтэй харагдана. Малчин мал бүртгэмэгц «Бүртгэлтэй» болно.</p>
+        <div class="tip"><b>Агуулах гэж юу вэ?</b> Агуулахад байгаа тагийг аль ч малчин бүртгэж болно. Бүртгэмэгц таг тэр малчны ферм рүү өөрөө шилжинэ.</div></div>
+      <div class="shot"><img src="img/a09_tags_list.webp" alt="Тагууд: YT-008100-аас эхлэн FERM-21 Өлзий, Хоосон төлөвтэй" width="1400" height="715" loading="lazy"></div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 5. REGISTER ================= -->
+<section class="chapter green" id="mal">
+  <div class="chead"><span class="num">5</span><h2>Шинэ мал бүртгэх</h2><span class="who">Хийх хүн: Малчин (анх удаа админтай хамт)</span></div>
+  <div class="say">
+    <img src="../../assets/logo-256.png" alt="" width="256" height="256">
+    <div class="bubble"><p>Одоо малчны <b>утас</b> дээр. Эхний малыг малчинтай хамт бүртгэж үзүүлээрэй: 2 минут зарцуулаад дараа нь олон дуудлагаас зайлсхийнэ.</p></div>
+  </div>
+  <div class="panels three">
+    <article class="panel">
+      <div class="cap"><span class="step">10-Р АЛХАМ</span><h3>Утсаа бэлдэх</h3></div>
+      <div class="txt">
+        <ul>
+          <li><b>Android</b>: Тохиргоо → Холболтууд → <b>контактгүй уншуулах</b> тохиргоог асаана.</li>
+          <li><b>iPhone</b> (XS ба түүнээс шинэ): дэлгэц асаалттай үед шууд уншина.</li>
+          <li>Малчны апп: <span class="mono">yaktag.org/app</span> → <span class="ui g">Суулгах</span>. Заавал биш, гэхдээ ашиглахад амар.</li>
+        </ul>
+      </div>
+      <div class="shot phone"><img src="img/h09_app_list.webp" alt="Малчны апп: Утсандаа суулгах, Сайн байна уу Дорж Бат" width="600" height="1298" loading="lazy" style="object-fit:cover;object-position:top;aspect-ratio:600/780"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">11-Р АЛХАМ</span><h3>Шинэ тагийг уншуулах</h3></div>
+      <div class="txt"><p>Утсаа тагт <b>1–3 см</b> ойртуулна. «<b>Шинэ таг</b>» гэж гарна. <span class="ui g">Мал бүртгэх</span> дарна.</p></div>
+      <div class="shot phone"><img src="img/h01_new_tag.webp" alt="Шинэ таг хуудас: Таг YT-008100 дээр мал бүртгэгдээгүй, Мал бүртгэх товч" width="600" height="1298" loading="lazy"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">12-Р АЛХАМ</span><h3>Малчин нэвтэрнэ</h3></div>
+      <div class="txt"><p>Малчны утасны дугаар, админаас авсан нууц үгийг бичээд <span class="ui g">Нэвтрэх</span>. Дараагийн удаа дахин асуухгүй.</p></div>
+      <div class="shot phone"><img src="img/h02_login.webp" alt="Нэвтрэх: 9911 2233 ба нууц үг" width="600" height="1298" loading="lazy"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">13-Р АЛХАМ</span><h3>Нэр, хүйс, төрсөн огноо</h3></div>
+      <div class="txt">
+        <ul>
+          <li><b>Нэр</b> (заавал биш): бичвэл тагийн дугаарын ард гарна: <span class="mono">YT-008100 · Сарнай</span></li>
+          <li><b>Хүйс</b>: Эм эсвэл Эр</li>
+          <li><b>Төрсөн огноо</b>: <b>Он</b> заавал. <b>Сар</b>, <b>Өдөр</b>-ийг мэдэхгүй бол хоёуланг нь хоосон үлдээнэ.</li>
+        </ul>
+      </div>
+      <div class="shot phone"><img src="img/h03_register_top.webp" alt="Бүртгэлийн дээд хэсэг: Нэр Сарнай, Эм, 2024 он 3-р сар 15" width="600" height="1298" loading="lazy"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">14-Р АЛХАМ</span><h3>Үүлдэр, зүс → Бүртгэх</h3></div>
+      <div class="txt">
+        <ul>
+          <li><b>Төрөл / үүлдэр</b>: жагсаалтаас сонгоно</li>
+          <li><b>Эхийн тагийн дугаар</b>: төл бол</li>
+          <li><b>Зүс</b>: хар, алаг…</li>
+        </ul>
+        <p>Байршил өөрөө тогтоогдоно. <span class="ui g">Бүртгэх</span> дарна.</p>
+      </div>
+      <div class="shot phone"><img src="img/h04_register_bottom.webp" alt="Бүртгэлийн доод хэсэг: Монгол сарлаг, Хар, байршил, Бүртгэх товч" width="600" height="1298" loading="lazy"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">15-Р АЛХАМ</span><h3>Тагийг малд зүүх</h3></div>
+      <div class="txt"><p>Тагийг малд зүүгээд <b>дахин уншуулж</b> шалгана. Малын хуудас нээгдэж, дээр нь «<span class="mono">YT-008100 · Сарнай</span>» гэж гарвал болсон.</p></div>
+      <div class="shot phone"><img src="img/h05_animal_top.webp" alt="Малын хуудас: YT-008100 · Сарнай, Эм, 2 нас, Монгол сарлаг" width="600" height="1298" loading="lazy"></div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 6. PHOTOS ================= -->
+<section class="chapter green" id="zurag">
+  <div class="chead"><span class="num">6</span><h2>3 зураг: яг ингэж авна</h2><span class="who">Хийх хүн: Малчин</span></div>
+  <div class="panels">
+    <article class="panel wide">
+      <div class="cap"><span class="step">16-Р АЛХАМ</span><h3>Зураг авах → төрлөө сонгох → Камер нээх</h3></div>
+      <div class="body">
+        <div class="txt">
+          <p>Малын хуудасны <b>Зураг авах</b> хэсэгт 3 товч бий: <span class="ui">Бүтэн бие</span> <span class="ui">Хамар</span> <span class="ui">Тэмдэг</span>. Нэгийг нь сонгоод <span class="ui g">Камер нээх</span>. Гурвууланг нь ээлжлэн авна.</p>
+          <div class="boom"><span class="tag">АНХААР!</span>Зураг хадгалагдсаны дараа <b>засах боломжгүй</b>. Тиймээс доорх жишээ шиг сайн авна. Байршил, цаг өөрөө бичигдэнэ.</div>
+          <div class="tip"><b>Хэн харах вэ?</b> <b>Бүтэн бие</b> зураг тагийг уншуулсан хүнд харагдана (алга болсон малыг олоход). <b>Хамар</b>, <b>Тэмдэг</b> зөвхөн танд харагдана.</div>
+        </div>
+        <div class="shot phone"><img src="img/h06_photo.webp" alt="Зураг авах хэсэг: Бүтэн бие, Хамар, Тэмдэг, Камер нээх" width="600" height="1298" loading="lazy"></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="photos">
+    <!-- photo 1: full body -->
+    <article class="photo">
+      <div class="art">
+        <figure class="pic"><img src="img/p_body.webp" alt="Зөв: сарлаг хажуу талаасаа, толгойноос сүүл, туурай хүртэл бүтэн харагдана" width="1000" height="667" loading="lazy"><svg class="mk" viewBox="-22 -22 44 44" aria-hidden="true"><circle r="19" fill="#2C7A45" stroke="#1C1F26" stroke-width="3"/><path d="M-8 0 L-2 7 L9 -7" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></figure>
+      </div>
+      <div class="txt">
+        <h3>1. Бүтэн бие <span class="badge pub">Бусдад харагдана</span></h3>
+        <ol>
+          <li><b>Хажуу талаас</b> авна. Толгой нэг талд, сүүл нөгөө талд.</li>
+          <li>Толгойноос сүүл, туурай хүртэл <b>бүтэн</b> хүрээнд багтана.</li>
+          <li>3–5 алхмын зайнаас, утсаа <b>хэвтээ</b> барина.</li>
+          <li>Нар таны ард байна. Мал зогсож байх үед авна.</li>
+        </ol>
+        <p class="why">Мал алга болоход тагийг уншуулсан хүн энэ зургийг харж, «яг энэ мал мөн» гэж таньдаг.</p>
+      </div>
+    </article>
+
+    <!-- photo 2: nose -->
+    <article class="photo">
+      <div class="art">
+        <figure class="pic"><img src="img/p_nose.webp" alt="Зөв: хамар шууд урдаас, хоёр хамрын нүх, хээ тод харагдана" width="900" height="832" loading="lazy"><svg class="mk" viewBox="-22 -22 44 44" aria-hidden="true"><circle r="19" fill="#2C7A45" stroke="#1C1F26" stroke-width="3"/><path d="M-8 0 L-2 7 L9 -7" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></figure>
+      </div>
+      <div class="txt">
+        <h3>2. Хамар <span class="badge priv">Зөвхөн танд</span></h3>
+        <ol>
+          <li>Хамрыг алчуураар арчиж <b>хуурай, цэвэр</b> болгоно.</li>
+          <li>Нэг хүн малын толгойг тогтвортой барина.</li>
+          <li><b>20–30 см</b> зайнаас, <b>шууд урдаас</b> авна.</li>
+          <li><b>Хоёр хамрын нүх</b>, тэдгээрийн хоорондох хээ бүхэлдээ дэлгэцийг дүүргэнэ.</li>
+          <li>Дэлгэц дээр хамар дээр товшиж, хээ <b>тод</b> болсны дараа авна.</li>
+        </ol>
+        <p class="why">Хамрын хээ хүний хурууны хээ шиг мал бүрт өөр байдаг. Таг унах, солигдох үед малыг яг таних баталгаа болно.</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="dodont" aria-label="Хамрын зураг: зөв ба буруу">
+    <div class="dd ok">
+      <figure class="pic"><img src="img/p_nose.webp" alt="Зөв: ойроос, тод" loading="lazy"><svg class="mk" viewBox="-22 -22 44 44" aria-hidden="true"><circle r="19" fill="#2C7A45" stroke="#1C1F26" stroke-width="3"/><path d="M-8 0 L-2 7 L9 -7" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></figure>
+      <span>Зөв: ойроос, тод</span>
+    </div>
+    <div class="dd no">
+      <figure class="pic"><img src="img/p_far.webp" alt="Буруу: хэт хол, хамар жижиг" loading="lazy"><svg class="mk" viewBox="-22 -22 44 44" aria-hidden="true"><circle r="19" fill="#E5322D" stroke="#1C1F26" stroke-width="3"/><path d="M-7 -7 L7 7 M7 -7 L-7 7" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/></svg></figure>
+      <span>Хэт хол</span>
+    </div>
+    <div class="dd no">
+      <figure class="pic"><img src="img/p_blur.webp" alt="Буруу: бүдэг, хээ харагдахгүй" loading="lazy"><svg class="mk" viewBox="-22 -22 44 44" aria-hidden="true"><circle r="19" fill="#E5322D" stroke="#1C1F26" stroke-width="3"/><path d="M-7 -7 L7 7 M7 -7 L-7 7" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/></svg></figure>
+      <span>Бүдэг</span>
+    </div>
+    <div class="dd no">
+      <figure class="pic"><img src="img/p_side.webp" alt="Буруу: хажуугаас, нэг хамрын нүх" loading="lazy"><svg class="mk" viewBox="-22 -22 44 44" aria-hidden="true"><circle r="19" fill="#E5322D" stroke="#1C1F26" stroke-width="3"/><path d="M-7 -7 L7 7 M7 -7 L-7 7" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/></svg></figure>
+      <span>Хажуугаас</span>
+    </div>
+    <div class="dd no">
+      <figure class="pic"><img src="img/p_dirty.webp" alt="Буруу: шавар, өвс, ус наалдсан" loading="lazy"><svg class="mk" viewBox="-22 -22 44 44" aria-hidden="true"><circle r="19" fill="#E5322D" stroke="#1C1F26" stroke-width="3"/><path d="M-7 -7 L7 7 M7 -7 L-7 7" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/></svg></figure>
+      <span>Бохир, нойтон</span>
+    </div>
+  </div>
+
+  <div class="photos" style="margin-top:24px">
+    <!-- photo 3: marking -->
+    <article class="photo">
+      <div class="art">
+        <figure class="pic"><img src="img/p_mark.webp" alt="Духан дээрх цагаан толбо, хацар дээрх тамга" width="900" height="822" loading="lazy">
+          <span class="ring" style="left:49.5%;top:31.5%;width:27%"></span><span class="lbl" style="left:4%;top:13%">цагаан толбо</span>
+          <span class="ring" style="left:70%;top:62%;width:15%"></span><span class="lbl" style="left:74%;top:72%">тамга</span><svg class="mk" viewBox="-22 -22 44 44" aria-hidden="true"><circle r="19" fill="#2C7A45" stroke="#1C1F26" stroke-width="3"/><path d="M-8 0 L-2 7 L9 -7" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></figure>
+      </div>
+      <div class="txt">
+        <h3>3. Тэмдэг <span class="badge priv">Зөвхөн танд</span></h3>
+        <ol>
+          <li>Энэ малыг бусдаас <b>ялгах онцлог</b>-ийг олно: цагаан толбо, тамга, эврийн хэлбэр, зүсний онцлог.</li>
+          <li>Тэмдэг <b>бүтэн</b>, тод харагдахаар ойроос авна.</li>
+          <li>Хэд хэдэн тэмдэгтэй бол хамгийн тодыг нь авна.</li>
+          <li>Тэмдэггүй мал бол толгойг урдаас нь авна.</li>
+        </ol>
+        <p class="why">Хулгай, маргааны үед «энэ миний мал» гэдгийг батлах нэмэлт нотолгоо болно.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 7. PHONE + INFO ================= -->
+<section class="chapter" id="utas">
+  <div class="chead"><span class="num">7</span><h2>Утас, мэдээлэл</h2><span class="who">Хийх хүн: Малчин</span></div>
+  <div class="panels three">
+    <article class="panel">
+      <div class="cap"><span class="step">17-Р АЛХАМ</span><h3>Холбоо барих утас</h3></div>
+      <div class="txt"><p>Утсаа бичээд <span class="ui g">Хадгалах</span>. Дугаар хуудсан дээр харагдахгүй: тагийг уншуулсан хүнд зөвхөн «Залгах» товч гарна.</p>
+        <p><span class="ui">Дугаарыг түгжих</span>: түгжсэний дараа зөвхөн ферм админ өөрчилнө.</p></div>
+      <div class="shot phone"><img src="img/h07_phone.webp" alt="Холбоо барих утас: 9911 2233, Хадгалах, Дугаарыг түгжих" width="600" height="1298" loading="lazy"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">18-Р АЛХАМ</span><h3>Мэдээллээ шалгах</h3></div>
+      <div class="txt"><p><b>Мэдээлэл</b> хэсэгт нэр, төрсөн огноо харагдана. Буруу бол <span class="ui">Нэр, төрсөн огноо засах</span>.</p></div>
+      <div class="shot phone"><img src="img/h08_info.webp" alt="Мэдээлэл: Нэр Сарнай, Эм, 2024/03/15, Нэр төрсөн огноо засах товч" width="600" height="1298" loading="lazy"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">19-Р АЛХАМ</span><h3>Миний мал</h3></div>
+      <div class="txt"><p>Малчны аппын <b>Миний мал</b> жагсаалтад «<span class="mono">YT-008100 · Сарнай</span>» нэмэгдэнэ. Дараа нь сүү, тэжээл, төлийг эндээс бүртгэнэ.</p></div>
+      <div class="shot phone"><img src="img/h09_app_list.webp" alt="Миний мал жагсаалт: YT-008100 · Сарнай" width="600" height="1298" loading="lazy" style="object-fit:cover;object-position:bottom;aspect-ratio:600/700"></div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 8. TELEGRAM ================= -->
+<section class="chapter" id="telegram">
+  <div class="chead"><span class="num">8</span><h2>Telegram мэдэгдэл</h2><span class="who">Хийх хүн: Ферм админ, Малчин (хүн бүр өөрөө)</span></div>
+  <div class="say">
+    <img src="../../assets/logo-256.png" alt="" width="256" height="256">
+    <div class="bubble"><p>Telegram холбосон хүнд мал алга болоод хэн нэгэн тагийг нь уншуулмагц <b>хаана, хэзээ</b> гэдэг нь шууд ирнэ. Үнэгүй. Хүн бүр <b>өөрийн утаснаас</b> нэг удаа холбоно: ферм админ самбараас, малчин аппаас.</p>
+      <p>Утсанд <b>Telegram</b> апп суусан байх ёстой.</p></div>
+  </div>
+  <div class="panels two">
+    <article class="panel wide">
+      <div class="cap"><span class="step">20-Р АЛХАМ</span><h3>Ферм админ: самбарын «Telegram» товч</h3></div>
+      <div class="txt"><p>Ферм админ <span class="mono">yaktag.org/admin</span>-д өөрийн утас, нууц үгээр нэвтэрнэ. Дээд талд <span class="ui">Telegram</span> товчийг дарна.</p></div>
+      <div class="shot"><img src="img/t1_dash_button.webp" alt="Самбарын дээд мөр: Сараа Ганбат, Ферм админ, Telegram товч" width="1020" height="87" loading="lazy"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">21-Р АЛХАМ</span><h3>Telegram холбох → Start</h3></div>
+      <div class="txt"><p><span class="ui g">Telegram холбох</span> дарахад Telegram нээгдэнэ. YAK-TAG ботын доод талын <b>Start</b> (Эхлэх) товчийг дарна. Бот ингэж хариулна:</p>
+        <div class="tgchat" aria-label="Telegram дээрх харилцаа: Start, дараа нь холбогдлоо гэсэн хариу">
+          <div class="head"><img src="../../assets/logo-256.png" alt=""><span>YAK-TAG<small>бот</small></span></div>
+          <div class="msgs">
+            <div class="msg me">/start<span class="t">10:02</span></div>
+            <div class="msg">✅ Сараа, таны Telegram YAK-TAG-тэй холбогдлоо.
+Алга болсон гэж мэдэгдсэн мал тань уншуулагдвал энд байршилтай нь мэдэгдэл ирнэ.
+Зогсоох: /stop<span class="t">10:02</span></div>
+          </div>
+        </div>
+        <p style="margin-top:10px;font-size:.92rem;color:var(--muted)">Холбоос 30 минут хүчинтэй. Хугацаа нь дуусвал товчийг дахин дарна.</p></div>
+      <div class="shot"><img src="img/t2_dash_link.webp" alt="Telegram мэдэгдэл цонх: 3 алхам, Telegram холбох товч" width="732" height="611" loading="lazy" style="max-width:360px"></div>
+    </article>
+    <article class="panel">
+      <div class="cap"><span class="step">22-Р АЛХАМ</span><h3>Холбогдсон эсэхийг шалгах</h3></div>
+      <div class="txt"><p>Самбарын цонх өөрөө «<b>✓ Холбогдсон</b>» болно. <span class="ui g">Туршилт илгээх</span> дарахад Telegram-д туршилтын мессеж ирнэ:</p>
+        <div class="tgchat">
+          <div class="head"><img src="../../assets/logo-256.png" alt=""><span>YAK-TAG<small>бот</small></span></div>
+          <div class="msgs"><div class="msg">✅ YAK-TAG: туршилтын мэдэгдэл.
+Алга болсон гэж мэдэгдсэн мал тань уншуулагдвал энд ингэж мэдэгдэл ирнэ.<span class="t">10:03</span></div></div>
+        </div>
+        <p style="margin-top:10px;font-size:.92rem;color:var(--muted)">Зогсоох бол <span class="ui">Салгах</span> товч эсвэл Telegram дээр <span class="mono">/stop</span>.</p></div>
+      <div class="shot"><img src="img/t3_dash_linked.webp" alt="Холбогдсон: Сараа, Салгах ба Туршилт илгээх товч" width="732" height="534" loading="lazy" style="max-width:360px"></div>
+    </article>
+    <article class="panel wide">
+      <div class="cap"><span class="step">23-Р АЛХАМ</span><h3>Малчин: аппын «Telegram холбох» карт</h3></div>
+      <div class="body">
+        <div class="txt">
+          <p>Малчин өөрийн утсанд малчны аппыг (<span class="mono">yaktag.org/app</span>) нээнэ. <b>Telegram холбох</b> картын <span class="ui g">Telegram холбох</span> → <span class="ui g">Telegram нээх</span> → Telegram дээр <b>Start</b>.</p>
+          <p>Холбогдмогц карт алга болж «✓ Telegram холбогдсон» гэж гарна. Малын хуудасны дээд талын <span class="ui">Telegram</span> товчоор ч холбож болно.</p>
+          <div class="tip"><b>Юу ирэх вэ?</b></div>
+          <div class="tblwrap"><table class="who-gets">
+            <tr><th>Мэдэгдэл</th><th>Хэнд ирэх</th></tr>
+            <tr><td>Алга болсон гэж мэдэгдсэн мал уншуулагдвал: хаана, хэзээ, хэн</td><td>Эзэмшигч малчин, ферм админ, Админ. Уншуулсан хүнд ирэхгүй. Нэг малд 10 минутад нэг удаа.</td></tr>
+            <tr><td>Нууц үгээ мартвал сэргээх код</td><td>Нууц үгээ мартсан хүн өөрөө</td></tr>
+          </table></div>
+        </div>
+        <div class="shot" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <img src="img/t4_app_card.webp" alt="Малчны апп: Telegram холбох карт, Telegram холбох товч" width="600" height="662" loading="lazy" style="max-width:220px;border-radius:14px;border:4px solid var(--ink);margin:0">
+          <img src="img/t5_app_open.webp" alt="Дарсны дараа: Telegram нээх товч, Start дарна гэсэн зөвлөгөө" width="600" height="662" loading="lazy" style="max-width:220px;border-radius:14px;border:4px solid var(--ink);margin:0">
+        </div>
+      </div>
+    </article>
+  </div>
+  <div class="tgchat" style="max-width:560px;margin:22px auto 0" aria-label="Жишээ мэдэгдэл: алга болсон мал уншуулагдлаа">
+    <div class="head"><img src="../../assets/logo-256.png" alt=""><span>YAK-TAG<small>бот · жишээ мэдэгдэл</small></span></div>
+    <div class="msgs"><div class="msg">⚠ АЛГА БОЛСОН МАЛ УНШУУЛАГДЛАА
+
+YT-008100 · Монгол сарлаг
+Эзэмшигч: Дорж Бат
+Хэзээ: 2026/11/02 21:40
+Хэн: танихгүй хүн (нийтийн хуудаснаас)
+Хаана: https://maps.google.com/?q=47.451210,101.623105 (±12 м)
+
+Дэлгэрэнгүй: https://yaktag.org/cow.html?tag=YT-008100<span class="t">21:40</span></div></div>
+  </div>
+</section>
+
+<!-- ================= 9. CHECK ================= -->
+<section class="chapter" id="shalgah">
+  <div class="chead"><span class="num">9</span><h2>Самбар дээр шалгах</h2><span class="who">Хийх хүн: Админ, Ферм админ</span></div>
+  <div class="panels">
+    <article class="panel wide">
+      <div class="cap"><span class="step">24-Р АЛХАМ</span><h3>Мал сүрэг</h3></div>
+      <div class="body">
+        <div class="txt"><p>Самбарын <span class="ui">Мал сүрэг</span> хэсэгт шинэ мал гарна. Дугаар, нэр, эзэмшигчээр нь хайж болно.</p></div>
+        <div class="shot"><img src="img/a10_herd.webp" alt="Мал сүрэг: Сарнай гэж хайхад YT-008100 · Сарнай, Дорж Бат, FERM-21" width="1400" height="868" loading="lazy"></div>
+      </div>
+    </article>
+    <article class="panel wide">
+      <div class="cap"><span class="step">25-Р АЛХАМ</span><h3>Газрын зураг</h3></div>
+      <div class="body">
+        <div class="txt"><p><span class="ui">Газрын зураг</span> дээр мал бүртгэсэн газартаа <b>фермийн өнгөөр</b> харагдана.</p>
+          <ul><li>Бүдэг цэг: 7-оос олон хоног харагдаагүй</li><li>Улаан цэг: алга болсон</li></ul></div>
+        <div class="shot"><img src="img/a11_map.webp" alt="Газрын зураг: YT-008100 улбар шар цэг, тайлбарт FERM-21 Өлзий" width="1400" height="984" loading="lazy"></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= DONE ================= -->
+<section class="done" aria-labelledby="doneH">
+  <h2 id="doneH">Шалгах хуудас: бүгд бэлэн үү?</h2>
+  <ul class="checks">
+    <li><label for="c1"><input type="checkbox" id="c1"> Ферм үүсгэж, өнгө, байршлыг нь оруулсан</label></li>
+    <li><label for="c2"><input type="checkbox" id="c2"> Ферм админ, малчдыг нэмж, утас, нууц үгийг нь биечлэн хэлсэн</label></li>
+    <li><label for="c3"><input type="checkbox" id="c3"> Бэлэн тагуудыг хүлээн авч, малчдад өгсөн</label></li>
+    <li><label for="c4"><input type="checkbox" id="c4"> Малчны утсанд контактгүй уншуулах тохиргоо асаалттай, апп суусан</label></li>
+    <li><label for="c5"><input type="checkbox" id="c5"> Эхний малыг малчинтай хамт бүртгэж, тагийг малд зүүсэн</label></li>
+    <li><label for="c6"><input type="checkbox" id="c6"> 3 зураг авсан: бүтэн бие, хамар, тэмдэг</label></li>
+    <li><label for="c7"><input type="checkbox" id="c7"> Холбоо барих утас хадгалсан</label></li>
+    <li><label for="c9"><input type="checkbox" id="c9"> Ферм админ, малчин Telegram холбож, туршилтын мессеж ирсэн</label></li>
+    <li><label for="c8"><input type="checkbox" id="c8"> Самбарын Мал сүрэг, Газрын зураг дээр шинэ мал харагдсан</label></li>
+  </ul>
+  <p class="progress" id="progress" aria-live="polite"></p>
+  <p class="help">Тусламж: <span id="helpWho"></span><span class="mono" id="helpPhone">9903 1147</span> · <span class="mono">yaktag.org</span></p>
+</section>
+
+<footer>Дэлгэцийн зургууд нь туршилтын өгөгдөлтэй (Батболд, FERM-21 · Өлзий, Сараа Ганбат, Дорж Бат, YT-008100 · Сарнай). Жишээ зургууд нь хүүхэлдэйн зураг.</footer>
+</div>
+
+<a class="totop" href="#top" id="totop" hidden>↑ Дээш</a>
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Томруулсан зураг">
+  <button type="button" id="lbClose">Хаах ✕</button>
+  <div><img id="lbImg" alt=""><p id="lbCap"></p></div>
+</div>
+
+<script>
+(function () {
+  // which chapter is on screen: its button in the bar turns yellow
+  const links = [...document.querySelectorAll('.chapnav a')];
+  const byId = Object.fromEntries(links.map(a => [a.getAttribute('href').slice(1), a]));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(a => a.classList.remove('on'));
+      const a = byId[e.target.id];
+      if (a) { a.classList.add('on'); a.scrollIntoView({ block: 'nearest', inline: 'center' }); }
+    }), { rootMargin: '-30% 0px -60% 0px' });
+    document.querySelectorAll('.chapter').forEach(c => io.observe(c));
+  }
+
+  // tap a picture: see it big; tap again, Esc or "Хаах" closes
+  const lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
+  const open = img => { lbImg.src = img.currentSrc || img.src; lbImg.alt = img.alt; lbCap.textContent = img.alt; lb.hidden = false; document.getElementById('lbClose').focus(); };
+  const close = () => { lb.hidden = true; lbImg.removeAttribute('src'); };
+  document.querySelectorAll('.shot img, .pic img').forEach(img => {
+    img.tabIndex = 0; img.setAttribute('role', 'button'); img.title = 'Томруулж харах';
+    img.addEventListener('click', () => open(img));
+    img.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(img); } });
+  });
+  lb.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lb.hidden) close(); });
+
+  // back to the top, once you have scrolled down
+  const top = document.getElementById('totop');
+  const onScroll = () => { top.hidden = scrollY < 900; };
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // the checklist remembers your ticks on this phone / computer
+  const KEY = 'yt-guide-checks';
+  const boxes = [...document.querySelectorAll('.checks input')];
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+  const count = () => { document.getElementById('progress').textContent =
+    `${boxes.filter(b => b.checked).length} / ${boxes.length} бэлэн`; };
+  boxes.forEach(b => {
+    b.checked = !!saved[b.id];
+    b.addEventListener('change', () => {
+      saved[b.id] = b.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      count();
+    });
+  });
+  count();
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="../../config.js?v=2026103101"></script>
+<script>
+// "Тусламж": the signed-in admin's own name and phone, so the guide he
+// shares (or saves as a PDF) sends herders to him. Not signed in: YAK-TAG's number.
+const helpReady = (async () => {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const { data } = await sb.from('profiles').select('full_name, phone').eq('id', session.user.id).maybeSingle();
+    if (!data || !data.phone) return;
+    document.getElementById('helpWho').textContent = data.full_name ? data.full_name + ' · ' : '';
+    document.getElementById('helpPhone').textContent = String(data.phone).replace(/^\+976\s*/, '');
+  } catch (e) {}
+})();
+// "PDF татах": every picture loaded, then the browser's print window ("Save as PDF")
+function savePdf() {
+  document.querySelectorAll('img').forEach(i => { i.loading = 'eager'; });
+  Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })))
+    .then(() => helpReady).then(() => window.print());
+}
+document.getElementById('pdfBtn').addEventListener('click', savePdf);
+if (location.hash === '#pdf') savePdf();                // the dashboard's "PDF татах"
+</script>
+</body>
+</html>
