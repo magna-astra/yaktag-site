@@ -246,6 +246,11 @@ tbody tr:hover{background:#FAFBFD}
 
 /* ---------- USERS TAB ---------- */
 .userrow td{padding:12px 14px}
+/* users grouped: Админ → farm (its colour) → farm admins → herders */
+.ugroup td{background:#F4F6F9;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--ink-soft);padding:9px 14px}
+.uadmin td{border-top:2px solid var(--line);background:#FAFBFD}
+.ufarm td{padding:9px 14px;font-size:.86rem}
 .pwbtn{padding:5px 11px;border:1px solid var(--line);background:#fff;border-radius:8px;
   font-size:.78rem;font-weight:600;color:var(--khukh)}
 
@@ -1225,6 +1230,7 @@ async function loadFarms(){
     farms.map(f=>`<option value="${f.id}">${esc(f.code)} · ${esc(f.name)}</option>`).join('');
   document.getElementById('uFarm').innerHTML = '<option value="">— Ферм байхгүй —</option>' +
     farms.map(f=>`<option value="${f.id}">${esc(f.code)} · ${esc(f.name)}</option>`).join('');
+  if(users.length) renderUsers();                   // the farms' colours there too
 }
 
 // Supabase returns at most 1,000 rows per request (the project's API
@@ -1322,8 +1328,9 @@ document.getElementById('orphanAll').addEventListener('click', ()=>{
   deleteOrphans(list.map(l=>l.id));
 });
 async function loadUsers(){
-  const [{data,error}, logins] = await Promise.all([
-    sb.from('admin_users').select('*').order('full_name'), loadLogins()]);
+  const [{data,error}, logins, af] = await Promise.all([
+    sb.from('admin_users').select('*').order('full_name'), loadLogins(),
+    sb.from('admin_farms').select('*')]);           // which Админ looks after which farm
   if(error){
     document.getElementById('usersBody').innerHTML =
       `<tr><td colspan="7" class="empty">Алдаа: ${esc(error.message)}</td></tr>`;
@@ -1331,10 +1338,50 @@ async function loadUsers(){
   }
   users = data||[];
   userLogins = logins;
+  if(!af.error) adminFarms = af.data||[];
   renderOrphans();
-  document.getElementById('usersBody').innerHTML = users.map(u=>`
-    <tr class="userrow">
-      <td><b>${esc(u.full_name)}</b>${userLogins[u.id] && !userLogins[u.id].phone_login
+  renderUsers();
+}
+
+// Users grouped (owner, 2026-10-31): the super admins; each Админ with
+// the farms he looks after; in each farm (its map colour) its farm admins,
+// then its herders. Farms with no Админ, then users with no farm, last.
+function renderUsers(){
+  const farmList = (adminFarms.length ? adminFarms : farms).slice()
+    .sort((a,b)=>String(a.code).localeCompare(String(b.code)));
+  const admins = users.filter(u=>u.role==='admin');
+  const adminIds = new Set(admins.map(a=>a.id));
+  const ownerOf = f => adminIds.has(f.created_by) ? f.created_by : null;
+  const farmIds = new Set(farmList.map(f=>f.id));
+  const head = t => `<tr class="ugroup"><td colspan="7">${t}</td></tr>`;
+  const farmBlock = f => {
+    const c = farmColor(f.id);
+    const people = users.filter(u=>u.farm_id===f.id && (u.role==='farm_admin' || u.role==='herder'))
+      .sort((a,b)=>(a.role==='herder')-(b.role==='herder') || String(a.full_name).localeCompare(String(b.full_name)));
+    return `<tr class="ufarm"><td colspan="7" style="background:${c}2E;border-left:5px solid ${c}">
+        <b>${esc(f.code)} · ${esc(f.name)}</b>${f.status && f.status!=='active' ? ' <span class="badge warn">Түр хаагдсан</span>' : ''}
+        <span class="muted">· ${people.length} хэрэглэгч</span></td></tr>`
+      + people.map(u=>userRow(u, u.role==='herder' ? 2 : 1, c)).join('');
+  };
+  let html = '';
+  const supers = users.filter(u=>u.role==='super_admin');
+  if(supers.length) html += head('Ерөнхий админ') + supers.map(u=>userRow(u)).join('');
+  if(admins.length) html += head('Админ ба түүний фермүүд');
+  admins.forEach(a=>{
+    html += userRow(a, 0, null, true);
+    farmList.filter(f=>ownerOf(f)===a.id).forEach(f=>{ html += farmBlock(f); });
+  });
+  const own = farmList.filter(f=>!ownerOf(f));
+  if(own.length) html += head('Ерөнхий админы фермүүд') + own.map(farmBlock).join('');
+  const rest = users.filter(u=>!['super_admin','admin'].includes(u.role) && !(u.farm_id && farmIds.has(u.farm_id)));
+  if(rest.length) html += head('Ферм байхгүй') + rest.map(u=>userRow(u)).join('');
+  document.getElementById('usersBody').innerHTML = html || '<tr><td colspan="7" class="empty">Хэрэглэгч алга.</td></tr>';
+}
+// one user's row; depth indents (farm admin 1, herder 2), color = the farm's
+function userRow(u, depth = 0, color = null, adminHead = false){
+  return `
+    <tr class="userrow${adminHead ? ' uadmin' : ''}"${color ? ` style="background:${color}0F"` : ''}>
+      <td style="padding-left:${14 + depth*22}px${color ? `;border-left:5px solid ${color}` : ''}"><b>${esc(u.full_name)}</b>${userLogins[u.id] && !userLogins[u.id].phone_login
         ? `<div style="font-size:.76rem;color:#B3341F;margin-top:2px" title="${esc(userLogins[u.id].login)}">✉ И-мэйлээр нэвтэрдэг — утас болгоно уу</div>` : ''}</td>
       <td class="muted">${esc(u.phone||'—')}</td>
       <td><span class="badge ${u.role==='super_admin'||u.role==='admin'?'warn':u.role==='farm_admin'?'ok':'none'}">${roleLabel(u.role)}</span></td>
@@ -1346,7 +1393,7 @@ async function loadUsers(){
         <button class="pwbtn" data-act="resetPw" data-id="${esc(u.id)}">Нууц үг</button>` : ''}
         <button class="pwbtn super-only" style="color:#B3341F" data-act="delUser" data-id="${esc(u.id)}">Устгах</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
 }
 
 // ---------- farms (super admin) ----------
@@ -1359,6 +1406,7 @@ async function loadAdminFarms(){
     return;
   }
   adminFarms = data||[];
+  if(users.length) renderUsers();                   // a farm's Админ may have changed
   document.getElementById('farmCount').textContent = `${adminFarms.length} ферм`;
   document.getElementById('farmsBody').innerHTML = adminFarms.map(f=>`
     <tr class="farmrow">
