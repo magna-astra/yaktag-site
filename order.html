@@ -97,7 +97,7 @@
           <button type="submit" class="btn btn-green" id="oSubmit">Захиалга илгээх</button>
           <p class="ohint">Захиалга шууд бидэнд очно. Таны мэдээллийг зөвхөн захиалгын талаар холбогдоход ашиглана.</p>
           <div class="contacts">
-            <a href="tel:+97699031147" data-c-href="phone"><span>Утсаар захиалах</span><b data-c-text="phone">9903 1147</b></a>
+            <a href="tel:+97688632033" data-c-href="phone"><span>Утсаар захиалах</span><b data-c-text="phone">8863 2033</b></a>
             <a href="#" id="oSend"><span>И-мэйлээр</span><b data-c-text="email">contact@yaktag.org</b></a>
             <div class="crow" data-c-show="address" hidden><span>Хаяг</span><b data-c-text="address"></b></div>
           </div>
@@ -107,7 +107,7 @@
           <h3>Захиалга хүлээн авлаа</h3>
           <p>Баярлалаа, <b id="doneName"></b>. <b id="doneQty"></b> тагийн захиалгыг хүлээн авлаа.
             Бид тантай <b id="donePhone"></b> дугаараар удахгүй холбогдоно.</p>
-          <p class="ohint">Яаралтай бол: <a href="tel:+97699031147" data-c-href="phone" data-c-text="phone">9903 1147</a></p>
+          <p class="ohint">Яаралтай бол: <a href="tel:+97688632033" data-c-href="phone" data-c-text="phone">8863 2033</a></p>
           <button type="button" class="btn btn-ghost" id="oAgain" style="margin-top:16px">Өөр захиалга илгээх</button>
         </div>
       </div>
@@ -158,7 +158,7 @@
       <div>
         <h4>Захиалга</h4>
         <a href="order.html">Таг захиалах</a>
-        <a href="tel:+97699031147" data-c-href="phone" data-c-text="phone">9903 1147</a>
+        <a href="tel:+97688632033" data-c-href="phone" data-c-text="phone">8863 2033</a>
         <a href="mailto:contact@yaktag.org" data-c-href="email" data-c-text="email">contact@yaktag.org</a>
         <span class="faddr" data-c-show="address" data-c-text="address" hidden></span>
       </div>
@@ -229,7 +229,7 @@ document.querySelectorAll('.rv').forEach(el=>io.observe(el));
     }catch(ex){
       // the server's own message is already in Mongolian; anything else is a network problem
       show(/[А-Яа-яӨөҮү]/.test(ex.message) ? ex.message
-        : 'Илгээж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу, эсвэл '+((window.ytContacts&&ytContacts.phone)||'9903 1147')+' руу залгана уу.');
+        : 'Илгээж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу, эсвэл '+((window.ytContacts&&ytContacts.phone)||'8863 2033')+' руу залгана уу.');
     }finally{
       btn.disabled=false; btn.textContent='Захиалга илгээх';
     }

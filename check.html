@@ -115,14 +115,14 @@ h2{font-size:1.1rem;margin:30px 0 4px}
   <p class="hint">Эзэд нь энд харуулахыг зөвшөөрсөн адуу. Танд таарсан адуу байвал "Харсан" дарж мэдэгдээрэй.</p>
   <div class="filters">
     <select id="fCoat"><option value="">Бүх зүс</option></select>
-    <select id="fSex"><option value="">Гүү, эр адуу</option><option value="female">Гүү</option><option value="male">Эр адуу</option></select>
+    <select id="fSex"><option value="">Бүх хүйс</option><option value="female">Гүү</option><option value="male">Эр адуу</option></select>
   </div>
   <div id="lostList"><div class="empty">Ачаалж байна…</div></div>
   <button class="btn ghost wide" id="moreBtn" hidden>Цааш үзэх</button>
 </main>
 <div class="foot">YAK-TAG · Мал бүрт цахим үнэмлэх · <a href="index.html">yaktag.org</a></div>
 
-<script src="config.js?v=2026103101"></script>
+<script src="config.js?v=2026110101"></script>
 <script>
 const $ = id => document.getElementById(id);
 function esc(s) {
@@ -156,7 +156,7 @@ function horseHtml(h) {
     row('Нас, хүйс', cap(horseLabel(h))) + row('Үүлдэр', h.breed) + row('Зүс', h.colour) +
     row('Тэмдэг', (h.markings || []).join(', ')) +
     (lost ? row('Мэдэгдсэн', h.reported_lost_at ? fmtDateTime(h.reported_lost_at) : '') + row('Тэмдэглэл', h.lost_note) : '') +
-    (h.has_phone && h.phone ? `<a class="btn wide${lost ? ' red' : ''}" href="tel:${esc(String(h.phone).replace(/[^0-9+]/g, ''))}">📞 Эзэнтэй холбогдох</a>` : '') +
+    (h.has_phone && h.phone ? `<a class="btn wide${lost ? ' red' : ''}" href="tel:${esc(String(h.phone).replace(/[^0-9+]/g, ''))}">📞 Эзэмшигч рүү залгах</a>` : '') +
     (lost ? `<button class="btn red wide" data-seen="${esc(h.ref)}">👁 Би энэ адууг харсан</button><div></div>` : '');
 }
 

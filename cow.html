@@ -297,7 +297,7 @@ html.horse-app header.cowhead{background:linear-gradient(135deg,#3E2412 0%,#5C3A
 <div class="toast" id="toast"></div>
 <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
 
-<script src="config.js?v=2026103101"></script>
+<script src="config.js?v=2026110101"></script>
 <script src="offline.js?v=20261026"></script>
 <script>
 let cow = null;
@@ -608,7 +608,7 @@ async function boot() {
   if (!tag && !id) {
     document.getElementById('cowBody').innerHTML =
       `<div class="notfound"><h2>Таг заагаагүй байна</h2>
-       <p>GeoNFC таг уншуулах эсвэл хаяганд ?tag=YT-008000 нэмнэ үү.</p></div>`;
+       <p>GeoNFC таг руу утсаа ойртуулна уу, эсвэл аппаас дугаараар нь нээнэ үү.</p></div>`;
     return;
   }
   const gpsReady = requestGps();
@@ -721,7 +721,7 @@ async function renderPaused(tag) {
      <p>Энэ таг түр зогсоогдсон. Админд хандана уу.</p>
      <p class="hint">Малын түүх хадгалагдаж байгаа. Админ идэвхжүүлсний дараа дахин бүртгэл хийнэ.</p>
      ${phone ? `<a class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:14px"
-        href="tel:${esc(phone.replace(/[^0-9+]/g, ''))}">📞 Админ: ${esc(phone)}</a>` : ''}</div>`;
+        href="tel:${esc(phone.replace(/[^0-9+]/g, ''))}">📞 YAK-TAG тусламж: ${esc(phone)}</a>` : ''}</div>`;
 }
 
 // ---------- registration of a new tag ----------
@@ -1613,7 +1613,7 @@ function renderCow() {
     ${horse && cow.sex === 'female' ? `
     <!-- MARE'S MILK, this mare alone (schema_v62; the groups' milk is in the app) -->
     <div class="card">
-      <h2><span class="dot"></span>Гүүний сүү (айраг)</h2>
+      <h2><span class="dot"></span>Гүүний сүү</h2>
       <div id="mareMilkZone"><p class="hint" style="margin-top:0">Ачаалж байна…</p></div>
     </div>` : ''}
 
@@ -2033,7 +2033,7 @@ function renderHorse(editing) {
     '<div id="heFamily"></div>' +
     (ble && (cowExtra.ble_heard_at || cowExtra.ble_battery != null)
       ? row('BLE сүүлд сонсогдсон', esc([cowExtra.ble_heard_at ? fmtDateTime(cowExtra.ble_heard_at) : '',
-                                         cowExtra.ble_battery != null ? 'батарей ' + cowExtra.ble_battery + '%' : '']
+                                         cowExtra.ble_battery != null ? 'батерей ' + cowExtra.ble_battery + '%' : '']
                                         .filter(Boolean).join(' · '))) : '') +
     (missing ? `<p class="hint">Чип эсвэл улсын бүртгэлийн дугаараа оруулбал алга болох, хулгайд алдахад
        адуугаа олоход тусална. Тамгын зургийг "Зураг авах" → "Тамга" товчоор авна.</p>` : '') +
@@ -2329,7 +2329,7 @@ document.getElementById('fileInput').addEventListener('change', async e => {
     if (dbErr) throw dbErr;
 
     const kb = Math.round(blob.size/1024);
-    toast(gps ? `Зураг хадгалагдлаа · ${kb}KB · GPS` : `Зураг хадгалагдлаа · ${kb}KB`);
+    toast(gps ? 'Зураг хадгалагдлаа · байршилтай' : 'Зураг хадгалагдлаа');
     preview.style.display = 'none';
     loadPhotos();
   } catch (err) {
@@ -2414,7 +2414,7 @@ async function loadPhotos() {
       : `<img src="assets/logo-256.png" alt="" style="object-fit:contain;padding:18%;opacity:.2"
            title="Файл олдсонгүй">`;
     const lock = p.locked_at ? '<span class="lockicon">Түгжээтэй</span>' : '';
-    const geo = p.taken_lat ? ' · GPS' : '';
+    const geo = p.taken_lat ? ' · байршилтай' : '';
     const kb = p.bytes ? Math.round(p.bytes / 1024) : null;
     const pub = p.kind === 'profile'
       ? '<span class="pubtag">Нийтийн</span>'
@@ -2424,7 +2424,7 @@ async function loadPhotos() {
       : '';
     return `<figure>${img}${lock}
       <figcaption>${label[p.kind] || p.kind}<br>${fmtDate(p.taken_at)}${geo}
-        ${kb ? `<br><span class="kbtag">${kb} KB</span>` : ''}</figcaption>
+        </figcaption>
       ${pub}${del}
     </figure>`;
   }).join('');
@@ -2514,7 +2514,7 @@ async function loadMilkHistory(range) {
     // month cut off at today's day number.
     since = new Date(today.getFullYear(), today.getMonth() - 11, 1);
     buckets = 12;
-    labelFor = d => (d.getMonth() + 1) + 'сар';
+    labelFor = d => (d.getMonth() + 1) + '-р сар';
   }
 
   const { data, error } = await sb
@@ -2572,7 +2572,8 @@ async function loadMilkHistory(range) {
 // ---------- offline queue notice ----------
 // Shows how many entries wait on this phone, and any the server
 // refused (so nothing is lost without the herder knowing).
-const QK = { milk: 'сүү', repro: 'хээл/төл', app_scan: 'уншуулалт', public_scan: 'уншуулалт' };
+const QK = { milk: 'сүү', repro: 'хээл/төл', app_scan: 'уншуулалт', public_scan: 'уншуулалт',
+              mare_milk: 'гүүний сүү', covering: 'хээлтүүлэг', herd_seen: 'сүрэг харсан' };
 function watchQueue() {
   if (watchQueue.on) return; watchQueue.on = true;
   ytQueue.onChange(n => {
